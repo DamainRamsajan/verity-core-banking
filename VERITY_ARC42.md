@@ -2855,3 +2855,441 @@ Humanitarian access	1 (portable identity ATM)
 Total v19.0	8
 Cumulative (v1–v19)	170	170/170 closed
 All 170 gaps identified across nineteen architecture versions are now resolved. The ATM is no longer a legacy endpoint. It is a strategic, AI‑governed, viral customer acquisition channel—unlocked not by new hardware, but by Verity’s unique architectural primitives.
+
+
+
+
+
+# ARCHITECTURE ADDENDUM – Verity Core Banking Platform v20.0
+Theorem Validation Pipeline & Integrated Theorem-Driven Improvements
+Document Type: ARC42 Addendum
+Version: 20.0
+Date: 2026-05-23
+Focus: Automated Runtime Theorem Validation, Integrated Theorem Improvements
+Status: Final
+
+1. Introduction — The Live Theorem Validation Imperative
+Verity v20.0 addresses a structural gap identified across all previous versions: the absence of an automated, continuous validation pipeline that proves, while the system runs, that every architectural theorem holds. Prior versions integrated formal verification at design time (TLA+ for the ledger, Lean 4 for compliance) and at compile time (ASL P1–P8). But no mechanism existed to continuously validate that these theorems remain true in production — under live transaction loads, with real adversarial inputs, across distributed deployments.
+
+This addendum defines Verity Theorem Validation Pipeline (VTVP) — a fully automated infrastructure that:
+
+Taps directly into the running system via OpenTelemetry traces, Merkle ledger event streams, and agent provenance logs.
+
+Passes live data through theorem-specific validators for each of the twelve theorems identified in the v20 theorem inventory.
+
+Produces publication-ready experimental proof output — charts, LaTeX tables, statistical summaries, and Lean 4 proof certificates — suitable for direct inclusion in academic papers and regulatory submissions.
+
+Operates continuously — every theorem is re-validated on every relevant system event, not in periodic batches.
+
+This transforms Verity from a platform that claims theorems to a platform that continuously proves them.
+
+2. The Verity Theorem Validation Pipeline (VTVP)
+2.1 Architecture Overview
+The VTVP is a six-stage pipeline, each stage corresponding to a verification domain:
+
+text
+[Running Verity System]
+        │
+        ▼
+[Stage 1: Data Extraction Layer]  ← OpenTelemetry, Merkle event bus, agent logs
+        │
+        ▼
+[Stage 2: Theorem Dispatch Router]  ← Classifies events by theorem domain
+        │
+        ├──► [Stage 3a: Formal Verification Validators] (TLA+, Lean 4, Dafny)
+        ├──► [Stage 3b: Cryptographic Validators] (PQC, ZK, FHE, DP)
+        ├──► [Stage 3c: ML/Agent Validators] (GNN, FL, Compositional Safety)
+        ├──► [Stage 3d: Quantum Validators] (QAOA, Portfolio Optimization)
+        └──► [Stage 3e: Infrastructure Validators] (TEE, ATM, Edge)
+        │
+        ▼
+[Stage 4: Evidence Synthesis Engine]  ← Aggregates validation results
+        │
+        ▼
+[Stage 5: Visualization & Export Layer]  ← Charts, LaTeX, Lean certificates
+        │
+        ▼
+[Stage 6: Academic Paper Export]
+2.2 Stage 1 — Data Extraction Layer
+Responsibility: Tap into the running Verity system without introducing latency or requiring system modification.
+
+Data Sources:
+
+OpenTelemetry Collector: All spans, traces, and metrics emitted by VAOS and VCBP components.
+
+Merkle Ledger Event Bus: Every transaction append, balance update, and compliance check.
+
+Agent Provenance Log: Every TraceCaps capsule with Ed25519 signatures and Merkle proofs.
+
+TEE Attestation Stream: Continuous remote attestation reports from Intel TDX and AMD SEV-SNP.
+
+ATM Agent Telemetry: All ATM transactions, biometric auth events, and cash dispense logs.
+
+Contract (semi-formal):
+
+Pre-conditions: OpenTelemetry collector is running. Ledger event bus is active. All components emit structured telemetry per GenAI Semantic Conventions.
+
+Post-conditions: All relevant system events are streamed to the Theorem Dispatch Router with <10ms latency.
+
+Invariants: Data extraction introduces zero modification to the system's execution path. Data is cryptographically signed at source.
+
+Error modes: Collector failure → data queued in persistent buffer; event bus partition → events replayed on reconnection.
+
+2.3 Stage 2 — Theorem Dispatch Router
+Responsibility: Classify each incoming event by theorem domain and route to the appropriate validator(s).
+
+Routing Logic:
+
+Ledger transaction events → TLA+ Capital Safety Validator, FIM Validator, Fraudster Trilemma Validator.
+
+Agent capability token events → Spera Compositional Safety Validator, Büchi Liveness Validator.
+
+Inter-agent message events → Session Type Deadlock Freedom Validator, CascadeGuard Validator.
+
+Cryptographic operation events → PQC Migration Validator, Aquaman Key Exchange Validator, ZK Proof Validator.
+
+DP/FL operation events → VERIDP Validator, PUT-Optimal DP Validator.
+
+FHE operation events → Space-Switching FHE Validator, cFHE Precision Validator.
+
+Quantum optimization events → Max-k-Cut QAOA Validator.
+
+Contract (semi-formal): Pre-conditions: Event is tagged with source component and operation type. Post-conditions: Event is dispatched to all applicable validators. Invariants: No event is silently dropped.
+
+2.4 Stage 3 — Theorem-Specific Validators
+Each validator implements the verification logic for a specific theorem, operating in real time on live data.
+
+3a. Formal Verification Validators
+TLA+ Capital Safety Runtime Validator
+
+Theorem Validated: Conservation of Value (Σ entries = 0)
+
+Method: Continuously samples live transactions against the TLA+ specification using TLC model checker with trace validation. Extends the existing Runtime TLA+ Model Checker (v15.0) with automated evidence generation.
+
+Output: For each sampled transaction, a TLA+ trace validation report confirming conformance or flagging deviation. Coverage metrics track percentage of state space validated in production.
+
+Lean 4 Compliance Proof Validator
+
+Theorem Validated: verifierBool_sound (ADIC, May 15, 2026)
+
+Method: Integrates the ADIC replay-verification core with the Lean-Agent Compliance Verifier (v15.0). For every agent action that triggers a regulatory axiom check, the validator replays the decision pathway and generates a machine-checkable Lean 4 proof that the replayed outcome matches the original. Uses LeanDojo-v2 for automated theorem proving pipeline management.
+
+Output: A .lean proof file that passes lake build with exit code 0, suitable for direct inclusion in regulatory submissions.
+
+Büchi Liveness Validator
+
+Theorem Validated: Büchi Objective Universal Composition (Avni et al., May 13, 2026)
+
+Method: Monitors agent pool interactions against pre-compiled zero-communication plans. For every agent sub-graph qualifying for the Büchi property, validates that all ω-regular objectives are satisfied without runtime communication.
+
+Output: A liveness certificate for each monitored agent pool, updated on every task completion.
+
+3b. Cryptographic Validators
+PQC Migration Liveness Validator
+
+Theorem Validated: Δeff ≥ ⌈4(1-ϵ)f⌉ (Fukuda & Matsuo, May 13, 2026)
+
+Method: Continuously monitors the ML-DSA-44 Migration Pathway Manager (v15.0). Computes the effective migration window Δeff from live VeriChain consensus data, verifies the inequality holds, and alerts if migration liveness condition is violated.
+
+Output: Real-time migration safety dashboard.
+
+Aquaman Key Exchange Validator
+
+Theorem Validated: (B/d)^n recovery probability (Mallick et al., May 7, 2026)
+
+Method: For every multi-path key exchange event in the Hardware Trust Interface, validates that the session key was split over the declared number of physical diversity dimensions and that the recovery probability remains below the configured threshold.
+
+Output: Key exchange security certificate per session.
+
+VERIDP Zero-Knowledge DP Validator
+
+Theorem Validated: ZK-DPSGD (Abdolmaleki et al., March 17, 2026)
+
+Method: Extends the Differential Privacy Analytics Engine (v11.0) with VERIDP's per-iteration verifiability. For every DP model update in the Federated Learning Mesh, generates a compact ZK proof (3-4 KB) that gradient clipping, averaging, and Gaussian noise were correctly applied. Verifier time: 2-5 ms.
+
+Output: ZK proof file per FL round, verifiable by any auditor.
+
+Space-Switching FHE Validator
+
+Theorem Validated: 15-17× FHE performance improvement via space switching (Wahyudi et al., April 21, 2026)
+
+Method: Integrates CryptOracle (March 27, 2026) — a modular FHE evaluation framework with benchmark suite, hardware profiler, and predictive performance model — into the FHE Hardware Acceleration Abstraction Layer (v15.0). Continuously benchmarks FHE operations against the space-switching method, comparing runtime against scheme-switching and direct comparison baselines.
+
+Output: Performance comparison tables and charts suitable for publication.
+
+cFHE Precision Validator
+
+Theorem Validated: CKKS maximum attainable depth as closed-form function (Schoinianakis & Sabzevari, April 30, 2026)
+
+Method: For each ASL-compiled banking product that uses FHE, computes the theoretical maximum computation depth from the cFHE precision-balancing model and validates that the actual FHE parameters selected by the auto-parameterization engine satisfy the prescribed accuracy.
+
+Output: Precision guarantee certificate per product.
+
+PUT-Optimal DP Validator
+
+Theorem Validated: Optimal Privacy-Utility Trade-off via geometric method (Nam et al., May 4, 2026)
+
+Method: For every DP analytics query, computes the optimal PUT using the Nam et al. linear programming method and validates that the selected DP mechanism achieves the optimal trade-off. Uses Zero-Run privacy auditing for post-hoc validation of deployed models.
+
+Output: PUT Certificate proving optimality.
+
+3c. ML/Agent Validators
+Spera Compositional Safety Validator
+
+Theorem Validated: Non-Compositionality of Safety, Theorem 9.2 (Spera, March 2026)
+
+Method: For every multi-agent team formation, validates that the Safety Datalog Engine performed a complete conjunctive capability hypergraph closure (O(n+m·k)) and found no intersection with the forbidden capability set. Generates a Spera Certificate.
+
+Output: Spera Certificate per agent composition event.
+
+Fraudster Trilemma Validator
+
+Theorem Validated: Fraudster's Trilemma (He & Zhang, May 8, 2026)
+
+Method: Continuously monitors the transaction graph for emergence of centralized cash-out patterns using the O(|E|) detection method. Validates that 93.7% precision and 99% recall targets are maintained on live data.
+
+Output: Structural fraud detection report with precision/recall metrics.
+
+Interaction Topology Validator
+
+Theorem Validated: Safety as function of interaction topology (Bajaj et al., May 1, 2026)
+
+Method: Continuously monitors the Agent Council's interaction topology, validating that non-sequential deliberation patterns and parallel-voting structures are maintained and that no ordering instability, information cascade, or functional collapse pathology is detected.
+
+Output: Topology safety report per agent pool.
+
+Federated Ensemble Learning Validator
+
+Theorem Validated: Hybrid FL + Ensemble framework performance (May 3, 2026)
+
+Method: For every federated training round, validates that ensemble diversity metrics are maintained across heterogeneous data distributions and that the combined model outperforms single-model baselines. Uses FederNet for realistic network and device emulation in validation.
+
+Output: Ensemble diversity and performance report per FL round.
+
+LLMOps Throughput Validator
+
+Theorem Validated: 3,600 req/hr, P99 6.4-8.7s throughput target (May 11, 2026)
+
+Method: Continuously benchmarks the Compliance-Grade LLMOps Stack against the published throughput and latency targets, logging any SLO violations.
+
+Output: SLO compliance dashboard.
+
+3d. Quantum Validators
+Max-k-Cut QAOA Validator
+
+Theorem Validated: QAOA surpassing SDP for Max-k-Cut at shallow depths (Apte et al., JPMorganChase, May 21, 2026)
+
+Method: For every portfolio optimization run, compares the QAOA solution against the classical SDP bound. Validates that the quantum solution equals or exceeds the classical guarantee for the problem class. Benchmarks against IonQ 64-qubit S&P 500 data.
+
+Output: Quantum advantage certificate per optimization run.
+
+Two-Step QAOA Validator
+
+Theorem Validated: Two-step QAOA for integrated portfolio + risk assessment (May 7, 2026)
+
+Method: For every combined portfolio selection and risk assessment, validates that the two-step QAOA procedure is correctly sequenced and that risk constraints are satisfied in the final portfolio.
+
+Output: Integrated optimization validation report.
+
+3e. Infrastructure Validators
+Oraclizer Cross-Domain State Validator
+
+Theorem Validated: combined_safety_liveness (Isabelle/HOL, April 2026)
+
+Method: For every cross-domain state transition (e.g., Canton/Pontes settlement), validates that the liveness proof discharges the honest-node assumption of the safety proof, promoting conditional safety to unconditional. Uses the seven generic Isabelle/HOL locales as the formal specification.
+
+Output: Cross-domain safety+liveness certificate per settlement event.
+
+IEC 61508 SIL3 Runtime Validator
+
+Theorem Validated: Deterministic scheduling with bounded WCET
+
+Method: Continuously monitors the Safety Kernel for deadline compliance. Any missed deadline triggers an immediate safety-critical failure alert.
+
+Output: SIL3 compliance dashboard with deadline miss count (target: zero).
+
+ATM Biometric Auth Validator
+
+Theorem Validated: Cardless biometric authentication with KYA identity binding
+
+Method: For every ATM biometric authentication event, validates that the biometric template matches the KYA-registered identity and that the session capability token is properly scoped and time-bound.
+
+Output: Authentication integrity report per ATM.
+
+2.5 Stage 4 — Evidence Synthesis Engine
+Responsibility: Aggregate validation results from all theorem validators, cross-reference related theorems, and produce unified evidence packages.
+
+Key Functions:
+
+Cross-Theorem Consistency Check: For example, if the Spera Validator detects a compositional safety violation, the Interaction Topology Validator is queried for concurrent topology anomalies.
+
+Regulatory Evidence Packaging: Groups theorem validations by regulatory requirement (DORA, EU AI Act, SOX, ECOA) for direct submission.
+
+Academic Paper Section Assembly: Organizes validation results by research domain for paper drafting.
+
+Contract (semi-formal): Pre-conditions: At least one validator has produced output for the reporting period. Post-conditions: Unified evidence package is generated, signed, and stored in the Merkle-DAG provenance log.
+
+2.6 Stage 5 — Visualization & Export Layer
+Responsibility: Transform raw validation data into publication-ready visualizations and structured exports.
+
+Output Formats:
+
+Mermaid sequence diagrams for runtime scenario validation.
+
+Vega-Lite interactive charts for performance benchmarking and theorem compliance metrics.
+
+LaTeX tables with \booktabs formatting for academic paper inclusion.
+
+Lean 4 .lean proof files for formal verification evidence.
+
+PDF regulatory evidence packages for auditor submission.
+
+Integration: Uses existing Cortex ObservabilityStack (OpenTelemetry-native) as the visualization backend, extended with theorem-specific dashboard panels.
+
+2.7 Stage 6 — Academic Paper Export
+Responsibility: Auto-generate complete academic paper sections from validated theorem data, suitable for submission to peer-reviewed venues.
+
+Output Sections:
+
+Abstract with key theorem validation results.
+
+Methodology describing the VTVP architecture.
+
+Results with LaTeX tables and Vega-Lite charts.
+
+Discussion of theorem violations (if any) and remediation.
+
+Appendix with Lean 4 proof certificates and TLA+ trace validation reports.
+
+Target Venues: POPL, PLDI, CAV, IEEE S&P, USENIX Security, Nature Scientific Reports.
+
+3. Integrated Theorem-Driven Architectural Improvements
+This section describes how each theorem from the v20 inventory directly improves Verity's architecture, beyond mere validation.
+
+3.1 ADIC Replay-Verification Integration (Theorem 1.1)
+Architectural Upgrade: The R3 Regulatory Reporter now generates a complete Lean 4 proof (verifierBool_sound) that any auditor can independently replay to verify that the bank's attested state matches the replayed execution.
+
+ADR-017: Embed ADIC replay-verification core into R3.
+
+3.2 Oraclizer Cross-Domain State Contract (Theorem 1.2)
+Architectural Upgrade: The Canton/Pontes Settlement Adapter (v16.0) now adopts the seven Isabelle/HOL locales from the combined_safety_liveness proof as its formal specification. Cross-domain state transitions carry unconditional safety and liveness guarantees.
+
+ADR-018: Adopt Oraclizer theorem as cross-domain specification.
+
+3.3 Spera-Compliant Composition Guarantee (Theorem 2.1)
+Architectural Upgrade: The Safety Datalog Engine (v8.0) now generates a cryptographically signed Spera Certificate for every multi-agent team formation, proving that full hypergraph closure was computed and no forbidden states were reachable.
+
+ADR-019: Generate Spera Certificate before any agent composition.
+
+3.4 Topology-Aware Agent Orchestration (Theorem 2.2)
+Architectural Upgrade: The Agent Council orchestration logic is upgraded to formally proven non-sequential deliberation topologies that are robust against information cascades.
+
+ADR-020: Implement topology-aware orchestration patterns.
+
+3.5 Trilemma-Based Structural Fraud Detector (Theorem 2.3)
+Architectural Upgrade: A new pre-filter in the GNN Fraud Detection pipeline monitors for centralized cash-out patterns using the Fraudster's Trilemma invariant. Because the method is based on a structural invariant rather than ML patterns, it is impossible for attackers to evade.
+
+ADR-021: Add Trilemma-based structural fraud detector.
+
+3.6 Aquaman Quantum-Resilient Key Exchange (Theorem 3.1)
+Architectural Upgrade: The Hardware Trust Interface now supports Aquaman's multi-path key fragmentation for air-gapped and high-security deployments, with the recovery probability mathematically guaranteed by the (B/d)^n bound.
+
+ADR-022: Integrate Aquaman key exchange into HTI.
+
+3.7 Dynamic PQC Migration Window (Theorem 3.2)
+Architectural Upgrade: The ML-DSA-44 Migration Pathway Manager now dynamically computes and enforces the Δeff ≥ ⌈4(1-ϵ)f⌉ bound during VeriChain's signature transition, automatically pausing migration if liveness conditions are not met.
+
+ADR-023: Implement dynamic PQC migration liveness enforcement.
+
+3.8 Space-Switching FHE Engine (Theorem 4.1)
+Architectural Upgrade: The FHE Privacy-Preserving Ledger Layer adopts space-switching for arithmetic-and-comparison workloads, targeting 15-17× performance improvement over the current scheme-switching method. This is the first architectural change driven by a performance theorem rather than a safety theorem.
+
+ADR-024: Replace scheme-switching with space-switching in FHE layer.
+
+3.9 cFHE Auto-Parameterization (Theorem 4.2)
+Architectural Upgrade: The FHE Hardware Acceleration Abstraction Layer now automatically selects optimal CKKS parameters for each ASL-compiled banking product using the cFHE precision-balancing model, guaranteeing prescribed accuracy across the product's entire encrypted lifecycle.
+
+ADR-025: Integrate cFHE auto-parameterization.
+
+3.10 PUT-Optimal DP Engine (Theorem 4.3)
+Architectural Upgrade: The Differential Privacy Analytics Engine now computes the optimal Privacy-Utility Trade-off using the Nam et al. geometric method and issues a PUT Certificate proving optimality, enabling contractual guarantees for federated analytics.
+
+ADR-026: Upgrade DP engine to PUT-optimal computation.
+
+3.11 JPMorgan Max-k-Cut Quantum Portfolio Engine (Theorem 5.1)
+Architectural Upgrade: The Quantum Optimization Accelerator now uses the specialized Max-k-Cut formulation for multi-asset portfolio optimization, with a theoretical guarantee of surpassing classical SDP bounds at shallow QAOA depths.
+
+ADR-027: Deploy Max-k-Cut QAOA engine for portfolio optimization.
+
+3.12 Zero-Comms Liveness Guarantee for Agent Pools (Theorem 6.1)
+Architectural Upgrade: The Session Type Checker now identifies agent interaction sub-graphs that qualify for the Büchi universal composition property and replaces runtime-scheduled communication with statically compiled, formally verified zero-communication plans that provably satisfy all liveness objectives.
+
+ADR-028: Implement zero-communication liveness guarantees.
+
+4. Updated Cross-Cutting Concepts
+Observability (Extended)
+The OpenTelemetry pipeline is now augmented with Theorem Validation Spans — automatically generated spans for every theorem validation event, including:
+
+theorem.validate span with attributes: theorem ID, validation result (pass/fail/inconclusive), validation latency, evidence hash.
+
+theorem.certificate span for Lean 4 proof generation events.
+
+theorem.export span for academic paper section generation.
+
+All spans follow the OpenTelemetry GenAI Semantic Conventions and are queryable via the Mission Control dashboard.
+
+Security (Extended)
+The Theorem Validation Pipeline itself is a security-critical component. All validation results are:
+
+Cryptographically signed with Ed25519.
+
+Stored in the Merkle-DAG provenance log.
+
+SCITT-anchored for regulatory auditability.
+
+Tamper-evident — any modification to a validation result invalidates the Merkle proof.
+
+5. Updated Deployment View
+The VTVP is deployed as a separate container (verity-theorem-validator) alongside the main VCBP binary. It communicates with the running system exclusively through OpenTelemetry collectors and the Merkle ledger event bus — no direct system modification required.
+
+For air-gapped deployments, the VTVP runs on the same air-gapped network, with evidence packages exported via USB or mesh channel for external publication.
+
+6. Updated Conformance Checklist (VTVP Items)
+Every ledger transaction is sampled by the TLA+ Capital Safety Runtime Validator. — Source: v20.0 §2.4
+
+Every regulatory compliance action generates a machine-checkable Lean 4 proof via ADIC replay. — Source: v20.0 §2.4
+
+Every multi-agent team formation produces a Spera Certificate. — Source: v20.0 §3.3
+
+Every DP model update in FL generates a VERIDP ZK proof (3-4 KB, 2-5 ms verification). — Source: v20.0 §2.4
+
+FHE operations are continuously benchmarked against space-switching performance targets. — Source: v20.0 §2.4
+
+Every portfolio optimization run compares QAOA against classical SDP bounds. — Source: v20.0 §2.4
+
+The PQC migration window dynamically enforces the liveness inequality. — Source: v20.0 §3.7
+
+Agent pools qualifying for Büchi property operate with zero-communication liveness guarantees. — Source: v20.0 §3.12
+
+All theorem validation results are Merkle-proofed and SCITT-anchored. — Source: v20.0 §4
+
+The academic paper export pipeline generates complete LaTeX sections from live validation data. — Source: v20.0 §2.7
+
+7. Gap Closure Summary
+Category	Gaps Resolved in v20.0
+Theorem Validation Pipeline (VTVP)	6 stages, 20+ validators
+ADIC replay-verification integration	1 (ADR-017)
+Oraclizer cross-domain state contract	1 (ADR-018)
+Spera compositional safety certificate	1 (ADR-019)
+Topology-aware orchestration	1 (ADR-020)
+Trilemma structural fraud detection	1 (ADR-021)
+Aquaman quantum-resilient key exchange	1 (ADR-022)
+Dynamic PQC migration window	1 (ADR-023)
+Space-switching FHE engine	1 (ADR-024)
+cFHE auto-parameterization	1 (ADR-025)
+PUT-optimal DP engine	1 (ADR-026)
+JPMorgan Max-k-Cut quantum portfolio engine	1 (ADR-027)
+Zero-communication liveness guarantee	1 (ADR-028)
+Total v20.0	28 new components/ADRs
+Cumulative (v1–v20)	198 gaps resolved
+End of Addendum.

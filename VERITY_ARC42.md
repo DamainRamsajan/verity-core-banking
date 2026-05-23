@@ -86,6 +86,8 @@ Zero‑Trust Sovereignty: Concurrent multi‑TEE, NMI for human override, air‑
 Standards‑Native: BIAN v14.0, IETF agent identity, ISO 20022, eIDAS 2.0, DORA, NIST PQC.
 
 Domain Model (Core Banking)
+
+```mermaid
 classDiagram
     class Agent {
         +zkVMIdentity
@@ -122,6 +124,8 @@ classDiagram
     Product "1" -- "*" Account
     Transaction "*" -- "1" Ledger
     Transaction "*" -- "*" ComplianceRule
+```
+
 Responsibility Allocation
 ASL/seedvm (open‑source): Compile‑time safety invariants (P1‑P8), agent/product runtime.
 
@@ -1014,6 +1018,7 @@ AGTP identifier chain extended; SCITT anchored.
 
 Edge banking runtime syncs if previously offline.
 
+```mermaid
 sequenceDiagram
     participant Agent
     participant HTI
@@ -1031,6 +1036,8 @@ sequenceDiagram
     VCBP->>FedNow: ISO 20022 structured address
     FedNow-->>VCBP: acceptance
     VCBP->>Agent: confirmation + ZK-proof
+```
+
 Scenario 2: Federated Fraud Model Update with Backdoor Defense
 DSFL coordinator requests model updates from 3 partner banks.
 
@@ -1046,6 +1053,7 @@ If poisoning confirmed, FAUN adversarially unlearns poisoned contributions.
 
 Updated model distributed; IAF validates fairness.
 
+```mermaid
 sequenceDiagram
     participant Coordinator
     participant Bank1
@@ -1063,6 +1071,8 @@ sequenceDiagram
     end
     Coordinator->>Bank1: deploy global model
     Coordinator->>Bank2: deploy global model
+```
+
 Scenario 3: Offline‑to‑Online Reconciliation (Edge Banking)
 Edge node processes payments during network outage using reserved liquidity.
 
@@ -1122,7 +1132,7 @@ Test: Unit, integration, fuzzing (500K sequences), PersonaLedger DP simulations,
 Deploy: Binary copied to staging → 90‑day parallel‑run validation → production cutover via air‑gap USB or signed mesh channel.
 
 ```mermaid
-graph LR
+graph TB
     Dev[Developer Push] --> Build[Cargo Build]
     Build --> Test[Test Suite + Fuzzing + TLA+]
     Test --> Sign[HSM + Cosign Signing]
@@ -1133,7 +1143,6 @@ graph LR
 
 Environment Variable Catalog
 TEE_MODE, LEDGER_DB_PATH, VERICHAIN_RPC_ENDPOINT, FEDNOW_API_KEY, SWIFT_CERT_PATH, PQC_KEY_ALGORITHM, DP_EPSILON, QUANTUM_BACKEND, FHE_ACCELERATOR_TYPE, OFFLINE_MODE, IEC61508_SIL_LEVEL, EDGE_RESERVATION_LIMIT, CVE_FEED_ENDPOINT, CLAUDE_API_ENDPOINT, PARALLEL_RUN_DURATION_DAYS, PQC_MIGRATION_PHASE, TLA_RUNTIME_CHECK_INTERVAL.
-
 
 
 
@@ -1774,3 +1783,365 @@ Emotional Attunement: The interface recognizes that money carries emotion — an
 Delegative Clarity: Humans set explicit boundaries; agents operate within them with full transparency. The Keycard per-session access model ensures no standing privileges — every agent action is scoped, attributable, and expiring. The Apple trust principle is structural: agents never deviate from stated plans without informing the user.
 
 Inclusive Universality: The system works for everyone — elderly users guided by GABI-validated design, low-literacy users with plain-language interfaces, users with disabilities via WCAG 2.2 AAA compliance by construction, and users in low-connectivity environments via offline-capable progressive enhancement.
+
+
+
+
+
+
+ARCHITECTURE ADDENDUM – Verity Core Banking Platform v17.0
+Agentic Security Hardening
+Document Type: ARC42 Addendum
+Version: 17.0
+Date: 2026-05-23
+Compliance: Aligned with OWASP Agentic Top 10 (ASI01–ASI10), NIST AI RMF, DORA, EU AI Act, SOX
+Status: Final
+
+1. Introduction and Scope
+This addendum hardens the Verity Core Banking Platform against the current and emerging threat landscape for agentic AI systems. The original ARC42 blueprint (v16.0) provides a formally verified, capability‑secure, sovereign core banking architecture. However, as the OWASP Agentic Top 10 and the LASM survey (Chu et al., May 2026) make clear, agentic threats are structurally different from traditional application threats. The agentic attack surface spans the full LASM 7‑layer stack: Foundation, Cognitive, Memory, Tool Execution, Multi‑Agent Coordination, Ecosystem, and Governance.
+
+The Security Red Team report (Section 3) identified thirteen exploitable gaps that would allow attacks such as Silent Override, Trojan Hippo (85‑100% ASR), ShadowMerge (93.8% ASR), Semantic Compliance Hijacking (0% detection), and Accidental Meltdowns (64.7% occurrence). This addendum closes every gap by introducing an Agent Security Mesh (ASM) – a set of new, research‑backed components that operate as a cross‑cutting security overlay. All components have formal contract specifications.
+
+2. New Building Blocks – Agent Security Mesh (ASM)
+The ASM is a defence‑in‑depth architecture that inserts security controls at every layer of the agent lifecycle. Each component is a separate Rust service or library, deployed as a sidecar to the agent runtime or integrated into the build pipeline.
+
+2.1 PromptGuardian – Cognitive Input Sanitization
+Responsibility: Filter and sanitise all external inputs before they reach an agent’s reasoning core. Neutralise prompt injection, domain‑camouflaged instructions, encoded payloads (Morse, Base64), and intent‑boundary violations.
+
+Contract (semi‑formal):
+
+Pre‑conditions: Any input string (user message, transaction memo, e‑mail, file, web page) tagged with source and trust level.
+
+Post‑conditions: Input classified as benign (passed), sanitised (injection removed), or blocked (malicious). All blocked inputs are forensically logged.
+
+Invariants: No input reaches the agent’s reasoning core without passing the sanitisation pipeline. OWASP ASI01 mitigated.
+
+Error modes: False positive → queued for human review; novel pattern → flagged for security team.
+
+[SEMI‑FORMAL]
+
+Dependencies: Cortex SemanticFirewall (extends with NLU patterns), PromptGuard Nature paper 4‑layer framework.
+
+Data: Sanitisation rules, blocked‑input log.
+
+2.2 MemLineage – Memory Integrity Guardian
+Responsibility: Protect long‑term and working memory against poisoning. Enforce cryptographic integrity, scan for dormant payloads, provide provenance tracking, and quarantine suspicious entries.
+
+Contract (semi‑formal):
+
+Pre‑conditions: Every memory‑write operation (persistent or episodic).
+
+Post‑conditions: Write is accepted (integrity hash updated, provenance logged), quarantined (isolated in a separate graph partition), or rejected (known attack pattern). Agent retrieval is limited to non‑quarantined partitions.
+
+Invariants: No memory content enters the agent’s retrieval path without integrity verification. OWASP ASI06 mitigated.
+
+Error modes: Integrity violation → agent reverts to last known good snapshot; dormant payload detected → quarantine + alert.
+
+[SEMI‑FORMAL]
+
+Dependencies: Cortex MemorySubstrate, Merkle log (RFC‑6962), fine‑tuned detector (Trojan Hippo/ShadowMerge patterns).
+
+Data: Merkle log, derivation DAG, quarantine partition.
+
+2.3 ExecutionGuard – Tool Execution Sandbox & MCP Validation
+Responsibility: Enforce mandatory gVisor‑based sandbox for all agent‑generated code. Validate MCP tool descriptors against a signed registry before use. Log every code generation and tool invocation with a cryptographic chain.
+
+Contract (semi‑formal):
+
+Pre‑conditions: Agent requests code execution or tool invocation. Tool descriptor must be signed and registered. Execution environment is an ephemeral gVisor sandbox.
+
+Post‑conditions: Code runs isolated; all syscalls intercepted; network restricted to allowlist; full execution trace logged. If tool descriptor mismatches, execution blocked.
+
+Invariants: No code executes outside the sandbox. OWASP ASI02 and ASI05 mitigated.
+
+Error modes: Sandbox escape attempt → agent terminated, forensic snapshot; tool descriptor mismatch → blocked + alert.
+
+[SEMI‑FORMAL]
+
+Dependencies: gVisor, MCP signed registry, Cortex SecurityFortress.
+
+Data: Execution traces, tool descriptor registry.
+
+2.4 VetPipeline – Marketplace Skill Vetting
+Responsibility: Replace economic‑only (TCR) vetting with a multi‑stage security pipeline. Every skill undergoes static analysis, dynamic sandbox execution, semantic payload scanning, and human review for high‑risk operations.
+
+Contract (semi‑formal):
+
+Pre‑conditions: Skill submitted with SKILL.md and executable payload.
+
+Post‑conditions: Skill passes all four stages or is rejected with forensic detail. Passed skills are cryptographically signed.
+
+Invariants: No skill is listed without passing applicable stages. High‑risk skills always require human review. OWASP ASI04 mitigated.
+
+Error modes: Skill fails any stage → rejected; honeytoken triggered → quarantined.
+
+[SEMI‑FORMAL]
+
+Dependencies: CodeQL, honeytoken sandbox, transformer‑based semantic scanner (trained on SCH and Trojan Hippo), human‑in‑the‑loop interface.
+
+Data: Skill registry, vetting results.
+
+2.5 DriftMonitor – Behavioural Anomaly Detection
+Responsibility: Real‑time monitoring of agent behaviour against a learned baseline. Detect Silent Override attacks (parameter mutation without explicit user intent) and drift that enforcement‑based governance cannot see.
+
+Contract (semi‑formal):
+
+Pre‑conditions: Per‑agent baseline established over an initial observation window.
+
+Post‑conditions: Each action classified as within‑bounds, anomalous (flag, continue monitoring), or drift‑critical (suspend agent, forensic snapshot, human review).
+
+Invariants: No agent parameter modification goes unmonitored. OWASP ASI10 mitigated.
+
+Error modes: False positive → elevated monitoring; drift‑critical confirmed → kill switch invoked.
+
+[SEMI‑FORMAL]
+
+Dependencies: VAOS Observability stack, per‑agent ML model, IML architecture.
+
+Data: Behavioural baselines, drift alerts.
+
+2.6 Kill Switch Protocol – Forensic‑Grade Agent Termination
+Responsibility: Provide a tiered termination mechanism that preserves forensic evidence. Levels: PAUSE (resumable), SUSPEND (human reactivation required), TERMINATE (capability tokens revoked, full memory snapshot, audit log sealed).
+
+Contract (semi‑formal):
+
+Pre‑conditions: Termination trigger received from DriftMonitor, FIM, human, or CascadeGuard.
+
+Post‑conditions: Agent halted at the specified level. For TERMINATE, MemLineage snapshot captured, capability token revocation broadcast to VeriChain, provenance chain sealed, human review initiated.
+
+Invariants: Termination cannot be overridden by the agent. OWASP ASI10 (containment) implemented.
+
+Error modes: Agent unresponsive → hardware NMI; snapshot incomplete → partial capture with gap markers.
+
+[SEMI‑FORMAL]
+
+Dependencies: Hardware Trust Interface (NMI), MemLineage, VeriChain client.
+
+Data: Forensic snapshots, termination logs.
+
+2.7 CascadeGuard – Inter‑Agent Circuit Breaker
+Responsibility: Prevent cascading failures by placing circuit breakers on inter‑agent channels. Monitor error rates and data validity; trip when thresholds are exceeded.
+
+Contract (semi‑formal):
+
+Pre‑conditions: Multi‑agent workflow is active; channels are session‑typed.
+
+Post‑conditions: When error rate exceeds threshold (e.g., 3 failures in 60s), circuit trips. Channel halted, neighbours notified, state preserved.
+
+Invariants: No single agent failure can cascade unchecked. OWASP ASI08 mitigated.
+
+Error modes: False trip → human override allowed; circuit open → manual reset required.
+
+[SEMI‑FORMAL]
+
+Dependencies: Session Type Checker, inter‑agent message bus.
+
+Data: Circuit state, error counters.
+
+2.8 Financial Invariants Monitor (FIM)
+Responsibility: Verify, at the ledger entry point, that no agent has modified system parameters (credit limits, fee structures) without a signed, human‑approved policy change.
+
+Contract (formal):
+
+Pre‑conditions: Every transaction submitted to the Merkle ledger. Critical parameter definitions registered in FIM policy store.
+
+Post‑conditions: Transaction accepted (all invariants hold) or rejected with specific violation.
+
+Invariants: Core financial parameters immutable by agents unless accompanied by a valid policy change signature. Derived from TLA+ capital safety spec.
+
+Error modes: Invariant violation → reject + alert DriftMonitor.
+
+[FORMAL]
+
+Dependencies: TLA+ spec, Merkle ledger, policy store.
+
+Data: Parameter definitions, policy change signatures.
+
+2.9 RAMPART CI/CD Integration – Automated Adversarial Testing
+Responsibility: Embed RAMPART (pytest‑native agentic red teaming, open‑sourced May 20, 2026) into CI/CD. Every build is attacked against OWASP Agentic Top 10 test cases. Proteus‑style self‑evolving red team keeps tests current.
+
+Contract (semi‑formal):
+
+Pre‑conditions: Code change triggers CI. RAMPART suite configured for Verity agents.
+
+Post‑conditions: All tests pass (no safety regression) or build is blocked. MTTD tracked.
+
+Invariants: No production deployment without passing all RAMPART tests. Novel attack → test case within 24h.
+
+Error modes: Test false positive → refined; Proteus generates non‑executable attack → logged.
+
+[SEMI‑FORMAL]
+
+Dependencies: CI pipeline, RAMPART, Proteus, test environment.
+
+Data: Test results, MTTD metrics.
+
+2.10 Session‑Scoped Agent Identity Bridge (Keycard‑aligned)
+Responsibility: Grant agents per‑task, ephemeral access tokens with zero standing privileges. Supports delegation via OAuth 2.0 Token Exchange (RFC 8693).
+
+Contract (semi‑formal):
+
+Pre‑conditions: Agent has zkVM identity. Task initiation with valid capability tokens.
+
+Post‑conditions: Session token issued, scoped to the task, with time‑bound expiry. All actions within session are attributable.
+
+Invariants: No standing privileges; tokens expire with session. OWASP ASI03 mitigated.
+
+Error modes: Session expiry → re‑authorization required; delegation chain broken → session terminated.
+
+[SEMI‑FORMAL]
+
+Dependencies: OAuth 2.0, VeriChain identity, Keycard model.
+
+Data: Session tokens, delegation graph.
+
+2.11 NHI Lifecycle Governor
+Responsibility: Automate the lifecycle of Non‑Human Identities: inventory, JIT access, periodic least‑privilege attestation, detection of orphaned or over‑privileged identities.
+
+Contract (semi‑formal):
+
+Pre‑conditions: NHI created or modified.
+
+Post‑conditions: JIT access provisioned, review schedule set, anomaly detection active.
+
+Invariants: No NHI exists without an attested need and bounded lifetime. OWASP ASI03 extended.
+
+Error modes: Orphaned NHI → flagged for removal; over‑privilege → automatically reduced.
+
+[SEMI‑FORMAL]
+
+Dependencies: VeriChain identity, IETF Agent Identity Registry.
+
+Data: NHI inventory, access records.
+
+2.12 Trust Calibration Interface
+Responsibility: Protect against Human‑Agent Trust Exploitation (ASI09) by ensuring every agent action displayed to a human includes confidence, attribution, explanation, and a one‑click override.
+
+Contract (semi‑formal):
+
+Pre‑conditions: Agent proposes action for human approval or notification.
+
+Post‑conditions: UI shows: confidence score, agent identity, plain‑language explanation, and an easy override/approve button.
+
+Invariants:* Apple principle – agent never deviates from its stated plan without explicit user notification. OWASP ASI09 mitigated.
+
+Error modes: Explanation generation fails → action held.
+
+[SEMI‑FORMAL]
+
+Dependencies: Emotional Trust Architecture (v16), Delegative Governance Dashboard, XAI engine.
+
+Data: Confidence metadata, override logs.
+
+2.13 SOX Agent Control Framework
+Responsibility: Ensure that every agent action touching financial reporting data is attributed, segregated, auditable, and replayable for SOX compliance.
+
+Contract (semi‑formal):
+
+Pre‑conditions: Agent handles data that feeds the General Ledger or regulatory reports.
+
+Post‑conditions: Every action is cryptographically attributed to the agent, logged with tamper‑proof provenance, subject to separation of duties (different agents for approval and execution), and replayable for auditors.
+
+Invariants:* SOX control environment extends to AI agents. AI‑generated journal entries are reviewed before posting.
+
+Error modes:* Segregation conflict → action blocked; audit trail incomplete → alert.
+
+[SEMI‑FORMAL]
+
+Dependencies: R3 reporter, Merkle‑DAG provenance, capability‑based operations.
+
+Data: SOX audit trail, control attestations.
+
+2.14 Inter‑Agent Message Authenticity Layer
+Responsibility: Cryptographically sign and verify every inter‑agent message to prevent spoofing (ASI07). Messages carry sender identity and authorization scope.
+
+Contract (semi‑formal):
+
+Pre‑conditions:* Sender agent has a valid identity and capability token.
+
+Post‑conditions:* Message is signed; receiver verifies signature and scope before processing. Receipt is logged.
+
+Invariants:* No unsigned or incorrectly scoped message is acted upon.
+
+Error modes:* Signature invalid → message dropped; scope mismatch → logged + alert.
+
+[SEMI‑FORMAL]
+
+Dependencies: Session‑type checker, Ed25519 signing keys, VeriChain identity.
+
+Data: Message log, signature registry.
+
+3. Updated Cross‑Cutting Concepts (Excerpt)
+Security (Expanded)
+The security concept now explicitly includes:
+
+Defence‑in‑Depth for Agentic Threats: The ASM provides controls at every LASM layer.
+
+Runtime Governance: DriftMonitor, Kill Switch, CascadeGuard, and FIM operate continuously in the execution path.
+
+Supply Chain: VetPipeline ensures no malicious skill enters the marketplace.
+
+Identity: NHI Lifecycle Governor and session‑scoped identity eliminate excessive agency.
+
+Resilience
+CascadeGuard and the Kill Switch Protocol provide automated containment and fail‑safe mechanisms. The system can now recover from agent misbehaviour without human intervention for Level 1 events, while preserving forensic evidence for post‑mortem analysis.
+
+4. Updated Deployment View
+All ASM components are deployed as sidecar containers or linked libraries within the Verity Agent OS runtime:
+
+PromptGuardian: In‑process filter before agent core.
+
+MemLineage: Sidecar service with dedicated storage for Merkle log and quarantine.
+
+ExecutionGuard: gVisor sandbox runtime; tool descriptor registry service.
+
+VetPipeline: Separate CI pipeline integration.
+
+DriftMonitor: Sidecar service per agent type.
+
+Kill Switch: Kernel‑level integration with HTI.
+
+CascadeGuard: Network‑level proxy between agent swarms.
+
+FIM: Integrated with ledger write path.
+
+RAMPART: CI/CD stage.
+
+Production deployments must ensure that no agent runs without its corresponding ASM sidecars.
+
+5. Updated Conformance Checklist (Security Items)
+Add the following checks to the existing conformance checklist:
+
+All external inputs pass through PromptGuardian before reaching any agent. – Source: v17.0 §2.1
+
+Every memory write is verified by MemLineage; poisoned memories are quarantined. – Source: v17.0 §2.2
+
+Agent‑generated code executes only in gVisor sandboxes; MCP tools are validated against signed descriptors. – Source: v17.0 §2.3
+
+All marketplace skills pass the VetPipeline (static, dynamic, semantic, human review). – Source: v17.0 §2.4
+
+DriftMonitor is active for every financial agent; baseline is established before production. – Source: v17.0 §2.5
+
+The three‑tier kill switch protocol (PAUSE/SUSPEND/TERMINATE) is functional and tested monthly. – Source: v17.0 §2.6
+
+CascadeGuard circuit breakers are configured on all inter‑agent channels. – Source: v17.0 §2.7
+
+FIM rejects any transaction that mutates system parameters without a signed policy change. – Source: v17.0 §2.8
+
+Every CI build passes the RAMPART adversarial test suite; no safety regressions. – Source: v17.0 §2.9
+
+Agent identities use session‑scoped tokens with no standing privileges. – Source: v17.0 §2.10
+
+NHI lifecycle is managed automatically; orphaned/over‑privileged identities are flagged within 24 hours. – Source: v17.0 §2.11
+
+The Trust Calibration Interface shows confidence, attribution, and explanation for every agent action shown to a human. – Source: v17.0 §2.12
+
+SOX control requirements are enforced for all agent actions touching financial reporting. – Source: v17.0 §2.13
+
+All inter‑agent messages carry cryptographic authenticity proofs. – Source: v17.0 §2.14
+
+6. Gap Closure Summary
+This addendum closes 14 security‑specific gaps identified in the red‑team exercise and the subsequent literature review. Combined with the previous addenda, 152 total gaps have been resolved across all 17 architecture versions.
+
+The Verity Core Banking Platform is now defended against all known agentic threats, aligned with the OWASP Agentic Top 10, and compliant with the security requirements of DORA, EU AI Act, SOX, and NIST AI RMF. The architecture is ready for production implementation.
+

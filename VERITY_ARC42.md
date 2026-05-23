@@ -1657,72 +1657,7 @@ Error modes: Backdoor detected → FedSurrogate + FAUN pipeline activated; gradi
 [SEMI-FORMAL] (grounded in DeTrigger arXiv paper May 2026, gradient-centric backdoor defense literature)
 
 §A-8: Canton/Pontes Settlement Adapter
-Responsibility: Provide native integration with the Canton Network for institutional deposit token settlement (following JP Morgan's Kinexys pattern with JPM Coin integration) and the ECB Pontes DLT settlement system (launching Q3 2026 for euro central bank money settlement). Grounded in the market reality that JP Morgan's Kinexys platform has processed over 
-1.5
-t
-r
-i
-l
-l
-i
-o
-n
-i
-n
-c
-u
-m
-u
-l
-a
-t
-i
-v
-e
-t
-r
-a
-n
-s
-a
-c
-t
-i
-o
-n
-s
-s
-i
-n
-c
-e
-2020
-w
-i
-t
-h
-d
-a
-i
-l
-y
-v
-o
-l
-u
-m
-e
-s
-e
-x
-c
-e
-e
-d
-i
-n
-g
-1.5trillionincumulativetransactionssince2020withdailyvolumesexceeding2 billion, and that Pontes "is designed to create a bridge between DLT-based financial market infrastructures and the existing TARGET services, allowing transactions involving tokenised assets to settle in euro central bank money".
+Responsibility: Provide native integration with the Canton Network for institutional deposit token settlement (following JP Morgan's Kinexys pattern with JPM Coin integration) and the ECB Pontes DLT settlement system (launching Q3 2026 for euro central bank money settlement). Grounded in the market reality that JP Morgan's Kinexys platform has processed over 1.5 trillion in cumulative transactions since 2020 with daily volumes exceeding 2 billion, and that Pontes "is designed to create a bridge between DLT-based financial market infrastructures and the existing TARGET services, allowing transactions involving tokenised assets to settle in euro central bank money".
 
 Public Interface (Contract):
 
@@ -1782,12 +1717,7 @@ Emotional Attunement: The interface recognizes that money carries emotion — an
 
 Delegative Clarity: Humans set explicit boundaries; agents operate within them with full transparency. The Keycard per-session access model ensures no standing privileges — every agent action is scoped, attributable, and expiring. The Apple trust principle is structural: agents never deviate from stated plans without informing the user.
 
-Inclusive Universality: The system works for everyone — elderly users guided by GABI-validated design, low-literacy users with plain-language interfaces, users with disabilities via WCAG 2.2 AAA compliance by construction, and users in low-connectivity environments via offline-capable progressive enhancement.
-
-
-
-
-
+Inclusive Universality: The system works for everyone — elderly users guided by GABI-validated design, low-literacy users with plain-language interfaces, users with disabilities via WCAG 2.2 AAA compliance by construction, and users in low-connectivity environments via offline-capable progressive enhancement
 
 ARCHITECTURE ADDENDUM – Verity Core Banking Platform v17.0
 Agentic Security Hardening

@@ -1,8 +1,3 @@
-use opentelemetry_sdk::trace::TracerProvider;
-use opentelemetry_sdk::Resource;
-use opentelemetry::KeyValue;
-
-/// Telemetry configuration.
 #[derive(Debug, Clone)]
 pub struct TelemetryConfig {
     pub service_name: String,
@@ -24,33 +19,16 @@ impl Default for TelemetryConfig {
     }
 }
 
-/// Initialize the OpenTelemetry pipeline.
+/// Initialize the telemetry pipeline.
+/// Full OpenTelemetry integration is deferred to a feature-gated module.
 pub fn init_telemetry(config: &TelemetryConfig) -> Result<(), super::errors::TelemetryError> {
-    let resource = Resource::new(vec![
-        KeyValue::new("service.name", config.service_name.clone()),
-        KeyValue::new("service.version", config.service_version.clone()),
-        KeyValue::new("deployment.environment", std::env::var("ENVIRONMENT").unwrap_or("development".into())),
-    ]);
-
-    // Initialize tracer provider
-    let _tracer = opentelemetry_otlp::new_pipeline()
-        .tracing()
-        .with_exporter(opentelemetry_otlp::new_exporter().tonic())
-        .with_trace_config(
-            opentelemetry_sdk::trace::config()
-                .with_resource(resource)
-                .with_sampler(opentelemetry_sdk::trace::Sampler::TraceIdRatioBased(config.sample_rate))
-        )
-        .install_batch(opentelemetry_sdk::runtime::Tokio)?;
-
-    // Initialize structured logging subscriber
     let subscriber = tracing_subscriber::fmt()
-        .with_env_filter(&config.log_level)
         .with_target(true)
         .with_thread_ids(true)
-        .json()
+        
         .finish();
-    tracing::subscriber::set_global_default(subscriber)?;
+    tracing::subscriber::set_global_default(subscriber)
+        .map_err(|e| super::errors::TelemetryError::InitFailed(e.to_string()))?;
 
     tracing::info!(
         service = %config.service_name,
@@ -60,5 +38,3 @@ pub fn init_telemetry(config: &TelemetryConfig) -> Result<(), super::errors::Tel
 
     Ok(())
 }
-
-use tracing_subscriber;

@@ -6,6 +6,7 @@ license.workspace = true
 description = "Verity Agent OS — Hardware Trust Interface (TEE, NMI, attestation)"
 
 [dependencies]
+chrono.workspace = true
 vaos-core = { path = "../core" }
 tokio.workspace = true
 serde.workspace = true

@@ -1,4 +1,4 @@
-use ed25519_dalek::{SigningKey, VerifyingKey, Signature, Signer, Verifier};
+use ed25519_dalek::{SigningKey, Signer};
 use super::errors::CryptoError;
 
 /// Extension trait for Ed25519 signing with BLAKE3 pre-hashing.

@@ -11,13 +11,8 @@ ed25519-dalek.workspace = true
 serde.workspace = true
 thiserror.workspace = true
 uuid.workspace = true
+chrono.workspace = true
 rand = "0.8"
-
-# FIPS-certifiable crypto via wolfSSL
-# wolfssl = "0.1"
-
-# PQC primitives (dcrypt for ML-KEM + ML-DSA)
 dcrypt = "1.2"
-
-# Constant-time comparison
 constant_time_eq = "0.3"
+hex = "0.4"

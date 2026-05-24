@@ -1,10 +1,10 @@
-use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use super::types::{SkillSubmission, VettingResult, VettingStage, StageStatus, StageResult};
+use super::types::{SkillSubmission, VettingResult, StageStatus, StageResult};
 use super::stages::{StaticAnalyzer, DynamicSandbox, SemanticScanner, HumanReview};
 use super::errors::VetError;
 
+#[allow(dead_code)]
 pub struct VetPipeline {
     static_analyzer: StaticAnalyzer,
     dynamic_sandbox: DynamicSandbox,

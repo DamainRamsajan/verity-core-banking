@@ -24,7 +24,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TeeAttestationReport {
     pub platform: TeePlatform,
-    pub measurement: [u8; 64],
+    pub measurement: Vec<u8>,
     pub signature: Vec<u8>,
     pub timestamp: chrono::DateTime<chrono::Utc>,
     pub is_healthy: bool,
@@ -106,7 +106,7 @@ impl HtiTrait for SimulatedHti {
     async fn attest(&self) -> Result<TeeAttestationReport, HtiError> {
         Ok(TeeAttestationReport {
             platform: TeePlatform::IntelTdx,
-            measurement: [0u8; 64],
+            measurement: vec![0u8; 64],
             signature: vec![],
             timestamp: chrono::Utc::now(),
             is_healthy: true,

@@ -6,6 +6,7 @@ license.workspace = true
 description = "Verity Common — Shared Observability (OpenTelemetry, tracing, metrics)"
 
 [dependencies]
+thiserror.workspace = true
 tokio.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true

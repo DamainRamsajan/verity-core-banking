@@ -1,4 +1,5 @@
 /// Extension trait for BLAKE3 hashing.
+use hex;
 pub trait HashExt {
     fn blake3_hex(&self) -> String;
     fn blake3_bytes(&self) -> [u8; 32];
@@ -19,4 +20,3 @@ impl HashExt for str {
     fn blake3_bytes(&self) -> [u8; 32] { self.as_bytes().blake3_bytes() }
 }
 
-use hex;

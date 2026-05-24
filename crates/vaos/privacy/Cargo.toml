@@ -29,7 +29,6 @@ shamir-secret = "0.1"
 voprf = "0.5"
 
 # fheanor — toolkit for building HE schemes (BGV, BFV)
-fheanor = "0.10"
 
 # Intel Heracles FHE ASIC accelerator abstraction
 # 5,000x speedup over Xeon (ISSCC 2026 demonstration)

@@ -3,7 +3,7 @@ name = "vcbp-quantum"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Verity Core Banking — Quantum Optimisation Accelerator (QAOA, Max-k-Cut)"
+description = "Verity Core Banking — Quantum Optimisation Accelerator"
 
 [dependencies]
 vaos-core = { path = "../../vaos/core" }
@@ -16,19 +16,3 @@ uuid.workspace = true
 chrono.workspace = true
 rust_decimal.workspace = true
 async-trait.workspace = true
-
-# Production-ready quantum algorithms in Rust — QAOA, VQE, Grover, Surface Code
-ruqu-algorithms = "2.0.5"
-
-# Matrix operations for portfolio optimisation
-ndarray = "0.16"
-ndarray-linalg = "0.16"
-
-# Graph structures for MaxCut formulation
-petgraph = "0.6"
-
-# Linear programming for classical fallback
-minilp = "0.2"
-
-[dev-dependencies]
-tokio-test.workspace = true

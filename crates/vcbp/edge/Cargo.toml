@@ -3,7 +3,7 @@ name = "vcbp-edge"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Verity Core Banking — Edge Banking Runtime (Offline-First, Mesh Sync)"
+description = "Verity Core Banking — Edge Banking Runtime"
 
 [dependencies]
 vaos-core = { path = "../../vaos/core" }
@@ -19,10 +19,3 @@ rust_decimal.workspace = true
 async-trait.workspace = true
 blake3.workspace = true
 ed25519-dalek.workspace = true
-
-# Mesh synchronisation for offline nodes
-
-# DAG-based parallel task execution (no_std, zero-dependency)
-
-[dev-dependencies]
-tokio-test.workspace = true

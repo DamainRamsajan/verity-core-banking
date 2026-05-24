@@ -3,7 +3,7 @@ name = "vcbp-migration"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Verity Core Banking — Legacy Core Migration Toolkit (COBOL, Parallel-Run)"
+description = "Verity Core Banking — Legacy Core Migration Toolkit"
 
 [dependencies]
 vaos-core = { path = "../../vaos/core" }
@@ -17,11 +17,3 @@ uuid.workspace = true
 chrono.workspace = true
 rust_decimal.workspace = true
 async-trait.workspace = true
-
-# tree-sitter COBOL grammar for parsing legacy code
-
-# Data parallelism for parallel‑run comparison
-rayon = "1.10"
-
-[dev-dependencies]
-tokio-test.workspace = true

@@ -17,15 +17,3 @@ uuid.workspace = true
 chrono.workspace = true
 rust_decimal.workspace = true
 async-trait.workspace = true
-
-# ONNX inference runtime (pure Rust)
-tract-onnx = "0.21"
-
-# Graph data structures
-petgraph = "0.6"
-
-# Lightweight ML for structural invariants
-ndarray = "0.16"
-
-[dev-dependencies]
-tokio-test.workspace = true

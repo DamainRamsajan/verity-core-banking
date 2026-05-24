@@ -16,13 +16,7 @@ pub struct GraphNode {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum NodeType {
-    Account,
-    Merchant,
-    ATM,
-    Branch,
-    ExternalBank,
-}
+pub enum NodeType { Account, Merchant, ATM, Branch, ExternalBank }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GraphEdge {
@@ -37,7 +31,6 @@ pub struct GraphEdge {
 pub struct FraudScore {
     pub transaction_id: Uuid,
     pub score: f64,
-    pub model_scores: std::collections::HashMap<String, f64>,
     pub flags: Vec<String>,
 }
 
@@ -50,9 +43,4 @@ pub struct FraudAlert {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum AlertSeverity {
-    Low,
-    Medium,
-    High,
-    Critical,
-}
+pub enum AlertSeverity { Low, Medium, High, Critical }

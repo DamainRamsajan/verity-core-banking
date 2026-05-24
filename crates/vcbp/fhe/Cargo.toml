@@ -9,23 +9,11 @@ description = "Verity Core Banking — FHE Hardware Acceleration Abstraction Lay
 vaos-core = { path = "../../vaos/core" }
 tokio.workspace = true
 serde.workspace = true
-serde_json.workspace = true
 tracing.workspace = true
 thiserror.workspace = true
 uuid.workspace = true
 chrono.workspace = true
 rust_decimal.workspace = true
 async-trait.workspace = true
-
-# Zama TFHE-rs — pure Rust FHE (v1.6.1, 588 stars)
 tfhe = "1.6"
-
-# FHE circuit introspection and type analysis
-
-# Intel HEXL library bindings for AVX-512 NTT acceleration
-
-# rand for cryptographic seeding
 rand = "0.8"
-
-[dev-dependencies]
-tokio-test.workspace = true

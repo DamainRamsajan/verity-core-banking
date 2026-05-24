@@ -1,30 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-/// Available FHE acceleration backends.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FheBackend {
-    /// Zama TFHE-rs pure Rust (10-50× faster than C++ reference)
     Software,
-    /// CUDA GPU-accelerated CKKS/BFV
     Gpu,
-    /// Intel Heracles ASIC (5,000× speedup, ISSCC 2026)
     IntelHeracles,
-    /// Auto-detect best available at runtime
     Auto,
 }
 
-/// Supported FHE schemes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum FheScheme {
-    /// TFHE — boolean/integer gates, programmable bootstrapping
-    Tfhe,
-    /// CKKS — approximate arithmetic (suitable for ML, risk scoring)
-    Ckks,
-    /// BGV/BFV — exact integer arithmetic (suitable for ledger balances)
-    Bgv,
-}
+pub enum FheScheme { Tfhe, Ckks, Bgv }
 
-/// An encrypted value (ciphertext) produced by any FHE backend.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FheCiphertext {
     pub scheme: FheScheme,
@@ -34,7 +20,6 @@ pub struct FheCiphertext {
     pub created_at: chrono::DateTime<chrono::Utc>,
 }
 
-/// A plaintext value before encryption.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FhePlaintext {
     pub value_type: FheValueType,
@@ -49,7 +34,6 @@ pub enum FheValueType {
     Decimal { precision: u8, scale: u8 },
 }
 
-/// Result of an FHE benchmark run for performance validation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FheBenchmark {
     pub backend: FheBackend,

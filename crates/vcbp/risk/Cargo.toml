@@ -3,7 +3,7 @@ name = "vcbp-risk"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Verity Core Banking — Systemic Risk Engine (IMF/ECB Multilayer Contagion)"
+description = "Verity Core Banking — Systemic Risk Engine"
 
 [dependencies]
 vaos-core = { path = "../../vaos/core" }
@@ -17,11 +17,3 @@ uuid.workspace = true
 chrono.workspace = true
 rust_decimal.workspace = true
 async-trait.workspace = true
-
-# Graph structures for financial networks
-petgraph = "0.6"
-ndarray = "0.16"
-rayon = "1.10"
-
-[dev-dependencies]
-tokio-test.workspace = true

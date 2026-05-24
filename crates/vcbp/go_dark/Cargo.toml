@@ -17,12 +17,3 @@ chrono.workspace = true
 rust_decimal.workspace = true
 async-trait.workspace = true
 blake3.workspace = true
-ed25519-dalek.workspace = true
-
-# ZK-SNARK proof generation (arkworks groth16)
-ark-groth16 = "0.5"
-ark-bls12-381 = "0.5"
-ark-serialize = "0.5"
-
-[dev-dependencies]
-tokio-test.workspace = true

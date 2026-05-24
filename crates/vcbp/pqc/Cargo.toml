@@ -6,6 +6,7 @@ license.workspace = true
 description = "Verity Core Banking — PQC Migration & Cryptographic Dependency Scanner"
 
 [dependencies]
+rand = "0.8"
 vaos-core = { path = "../../vaos/core" }
 tokio.workspace = true
 serde.workspace = true
@@ -17,16 +18,4 @@ chrono.workspace = true
 async-trait.workspace = true
 blake3.workspace = true
 ed25519-dalek.workspace = true
-
-# RustCrypto ML-DSA — pure Rust FIPS 204
-ml-dsa = "0.1"
-
-# dcrypt — pure-Rust ML-KEM + ML-DSA, hybrid KEM/signatures
 dcrypt = "1.2"
-
-# Crypto agility framework
-
-# Dependency graph scanning
-
-[dev-dependencies]
-tokio-test.workspace = true

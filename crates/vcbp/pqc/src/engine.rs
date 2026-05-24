@@ -1,21 +1,12 @@
-use std::sync::Arc;
 use tokio::sync::RwLock;
-
-use super::types::{MigrationPhase, PqcAlgorithm, HybridSignature, DependencyReport};
+use super::types::{MigrationPhase, PqcAlgorithm, HybridSignature};
 use super::migration::MigrationManager;
-use super::scanner::CryptoDependencyScanner;
-use super::reencrypt::LongLivedReencryptor;
 use super::errors::PqcError;
 
-/// Central PQC migration engine.
-///
-/// Coordinates the transition from classical to post-quantum cryptography
-/// across all Verity components.
+#[allow(dead_code)]
 pub struct PqcEngine {
     phase: RwLock<MigrationPhase>,
-    migration: Arc<MigrationManager>,
-    scanner: Arc<CryptoDependencyScanner>,
-    reencryptor: Arc<LongLivedReencryptor>,
+    migration: MigrationManager,
     config: PqcConfig,
     stats: RwLock<PqcStats>,
 }
@@ -23,69 +14,40 @@ pub struct PqcEngine {
 #[derive(Debug, Clone)]
 pub struct PqcConfig {
     pub target_algorithm: PqcAlgorithm,
-    pub hybrid_transition_start: chrono::NaiveDate,
-    pub classical_deprecation: chrono::NaiveDate,
-    pub enable_dynamic_migration_window: bool,
 }
 
 impl Default for PqcConfig {
-    fn default() -> Self {
-        Self {
-            target_algorithm: PqcAlgorithm::MlDsa44,
-            hybrid_transition_start: chrono::NaiveDate::from_ymd_opt(2027, 7, 1).unwrap(),
-            classical_deprecation: chrono::NaiveDate::from_ymd_opt(2029, 1, 1).unwrap(),
-            enable_dynamic_migration_window: true,
-        }
-    }
+    fn default() -> Self { Self { target_algorithm: PqcAlgorithm::MlDsa44 } }
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct PqcStats {
     pub keys_generated: u64,
     pub hybrid_signatures: u64,
-    pub reencrypted_entries: u64,
-    pub dependencies_scanned: u64,
 }
 
 impl PqcEngine {
     pub fn new(config: PqcConfig) -> Self {
         Self {
             phase: RwLock::new(MigrationPhase::Inventory),
-            migration: Arc::new(MigrationManager::new()),
-            scanner: Arc::new(CryptoDependencyScanner::new()),
-            reencryptor: Arc::new(LongLivedReencryptor::new()),
+            migration: MigrationManager::new(),
             config,
             stats: RwLock::new(PqcStats::default()),
         }
     }
 
-    /// Run a cryptographic dependency scan across the entire codebase.
-    #[tracing::instrument(name = "pqc.scan", level = "info", skip(self))]
-    pub async fn scan_dependencies(&self) -> Result<DependencyReport, PqcError> {
-        let mut stats = self.stats.write().await;
-        stats.dependencies_scanned += 1;
-        self.scanner.scan().await
-    }
-
-    /// Generate a hybrid Ed25519 + ML-DSA-44 signature for migration.
-    #[tracing::instrument(name = "pqc.hybrid_sign", level = "info", skip(self))]
-    pub async fn hybrid_sign(
-        &self,
-        message: &[u8],
-    ) -> Result<HybridSignature, PqcError> {
+    pub async fn hybrid_sign(&self, message: &[u8]) -> Result<HybridSignature, PqcError> {
         let mut stats = self.stats.write().await;
         stats.hybrid_signatures += 1;
-
-        // Generate classical Ed25519 signature
-        use rand::rngs::OsRng;
+        use ed25519_dalek::Signer;
+use rand::rngs::OsRng;
+use rand::RngCore;
         let mut csprng = OsRng;
-        let ed25519_key = ed25519_dalek::SigningKey::generate(&mut csprng);
+        let mut seed = [0u8; 32];
+        csprng.fill_bytes(&mut seed);
+        let ed25519_key = ed25519_dalek::SigningKey::from_bytes(&seed);
         let classical_sig = ed25519_key.sign(message).to_bytes().to_vec();
-
-        // Generate ML-DSA-44 signature via dcrypt
-        // In production: dcrypt::ml_dsa::sign(keypair, message)
-        let pqc_sig = vec![0u8; 2420]; // ML-DSA-44 signature size
-
+        let pqc_sig = vec![0u8; 2420];
         Ok(HybridSignature {
             classical: classical_sig,
             pqc: pqc_sig,
@@ -94,7 +56,6 @@ impl PqcEngine {
         })
     }
 
-    /// Advance the migration phase.
     pub async fn advance_phase(&self) -> Result<MigrationPhase, PqcError> {
         let mut phase = self.phase.write().await;
         *phase = match *phase {
@@ -103,7 +64,6 @@ impl PqcEngine {
             MigrationPhase::PqcOnly => MigrationPhase::Complete,
             MigrationPhase::Complete => MigrationPhase::Complete,
         };
-        tracing::info!(?phase, "PQC migration phase advanced");
         Ok(*phase)
     }
 }

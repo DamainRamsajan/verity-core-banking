@@ -11,4 +11,4 @@ tokio.workspace = true
 serde.workspace = true
 tracing.workspace = true
 thiserror.workspace = true
-tla-checker = "0.1.0"
+tla-checker = "0.3.11"

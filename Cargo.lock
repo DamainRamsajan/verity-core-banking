@@ -4723,9 +4723,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tla-checker"
-version = "0.1.1"
+version = "0.3.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1bd7db98d6062f98238f9c0a7076aa46f0a8e43d9beaba522416fa0cd868365"
+checksum = "edf9a741a1617bdeda68be2b234a8afdef96935f83ec9e251dcef861bc4b520a"
 dependencies = [
  "crossterm",
  "fastrand",

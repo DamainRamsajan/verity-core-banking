@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-/// Currency Transaction Report (FinCEN CTR) — cash transactions >$10,000.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CtrReport {
     pub id: uuid::Uuid,

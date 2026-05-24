@@ -3,11 +3,10 @@ name = "vcbp-reporting"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Verity Core Banking — Real‑Time Regulatory Reporter (R3) with ZK‑Proof Auditing"
+description = "Verity Core Banking — Real‑Time Regulatory Reporter (R3)"
 
 [dependencies]
 vaos-core = { path = "../../vaos/core" }
-vaos-compliance = { path = "../../vaos/compliance" }
 vcbp-ledger = { path = "../ledger" }
 tokio.workspace = true
 serde.workspace = true
@@ -17,13 +16,6 @@ thiserror.workspace = true
 uuid.workspace = true
 chrono.workspace = true
 rust_decimal.workspace = true
+blake3.workspace = true
+ed25519-dalek.workspace = true
 async-trait.workspace = true
-
-# ZK‑proof audit packages (groth16)
-
-# Regulatory report templates
-
-# ModelCard for governance transparency (JSON Schema‑based)
-
-[dev-dependencies]
-tokio-test.workspace = true

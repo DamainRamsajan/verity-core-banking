@@ -2,14 +2,14 @@ use async_trait::async_trait;
 use crate::domain::{ServiceDomain, DomainOperation, DomainResult, DomainStatus, BianDomainId, DomainEvent};
 use crate::errors::DomainError;
 
-pub struct LendingDomain;
+pub struct PartyDomain;
 
-impl LendingDomain {
-    pub fn domain_id_str() -> BianDomainId { "Lending".to_string() }
+impl PartyDomain {
+    pub fn domain_id_str() -> BianDomainId { "Party".to_string() }
 }
 
 #[async_trait]
-impl ServiceDomain for LendingDomain {
+impl ServiceDomain for PartyDomain {
     fn domain_id(&self) -> BianDomainId { Self::domain_id_str() }
     async fn execute(&self, op: &DomainOperation) -> Result<DomainResult, DomainError> {
         Ok(DomainResult {

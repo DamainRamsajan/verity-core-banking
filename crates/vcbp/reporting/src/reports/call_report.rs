@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-/// FFIEC 041 Call Report — consolidated report of condition and income.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CallReport {
     pub institution_name: String,

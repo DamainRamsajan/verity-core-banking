@@ -1,36 +1,27 @@
 use async_trait::async_trait;
-use std::sync::Arc;
-use crate::domain::{ServiceDomain, DomainOperation, DomainResult, DomainStatus, BianDomainId};
+use crate::domain::{ServiceDomain, DomainOperation, DomainResult, DomainStatus, BianDomainId, DomainEvent};
 use crate::errors::DomainError;
 
-/// BIAN Current Account Service Domain (SD‑CA)
 pub struct CurrentAccountDomain;
 
 impl CurrentAccountDomain {
-    pub fn new() -> Arc<Self> { Arc::new(Self) }
+    pub fn domain_id_str() -> BianDomainId { "CurrentAccount".to_string() }
 }
 
 #[async_trait]
 impl ServiceDomain for CurrentAccountDomain {
-    fn domain_id(&self) -> BianDomainId { "CurrentAccount".into() }
-
+    fn domain_id(&self) -> BianDomainId { Self::domain_id_str() }
     async fn execute(&self, op: &DomainOperation) -> Result<DomainResult, DomainError> {
-        match op.operation_type.as_str() {
-            "credit" | "debit" | "balance_inquiry" => {
-                Ok(DomainResult {
-                    status: DomainStatus::Success,
-                    data: serde_json::json!({"message": format!("{} processed", op.operation_type)}),
-                    events: vec![],
-                })
-            }
-            _ => Err(DomainError::UnsupportedOperation {
-                domain: self.domain_id(),
-                operation: op.operation_type.clone(),
-            }),
-        }
+        Ok(DomainResult {
+            status: DomainStatus::Success,
+            data: serde_json::json!({"domain": self.domain_id(), "op": op.operation_type}),
+            events: vec![DomainEvent {
+                event_type: op.operation_type.clone(),
+                aggregate_id: op.domain_id.clone(),
+                payload: op.payload.clone(),
+                timestamp: chrono::Utc::now(),
+            }],
+        })
     }
-
-    fn supports_operation(&self, op: &str) -> bool {
-        matches!(op, "credit" | "debit" | "balance_inquiry")
-    }
+    fn supports_operation(&self, _op: &str) -> bool { true }
 }

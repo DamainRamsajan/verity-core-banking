@@ -1,36 +1,27 @@
 use async_trait::async_trait;
-use std::sync::Arc;
-use crate::domain::{ServiceDomain, DomainOperation, DomainResult, DomainStatus, BianDomainId};
+use crate::domain::{ServiceDomain, DomainOperation, DomainResult, DomainStatus, BianDomainId, DomainEvent};
 use crate::errors::DomainError;
 
-/// BIAN Payments Service Domain (SD‑PAY)
 pub struct PaymentsDomain;
 
 impl PaymentsDomain {
-    pub fn new() -> Arc<Self> { Arc::new(Self) }
+    pub fn domain_id_str() -> BianDomainId { "Payments".to_string() }
 }
 
 #[async_trait]
 impl ServiceDomain for PaymentsDomain {
-    fn domain_id(&self) -> BianDomainId { "Payments".into() }
-
+    fn domain_id(&self) -> BianDomainId { Self::domain_id_str() }
     async fn execute(&self, op: &DomainOperation) -> Result<DomainResult, DomainError> {
-        match op.operation_type.as_str() {
-            "wire_transfer" | "ach" | "rtp" => {
-                Ok(DomainResult {
-                    status: DomainStatus::Success,
-                    data: serde_json::json!({"payment_id": uuid::Uuid::new_v4().to_string()}),
-                    events: vec![],
-                })
-            }
-            _ => Err(DomainError::UnsupportedOperation {
-                domain: self.domain_id(),
-                operation: op.operation_type.clone(),
-            }),
-        }
+        Ok(DomainResult {
+            status: DomainStatus::Success,
+            data: serde_json::json!({"domain": self.domain_id(), "op": op.operation_type}),
+            events: vec![DomainEvent {
+                event_type: op.operation_type.clone(),
+                aggregate_id: op.domain_id.clone(),
+                payload: op.payload.clone(),
+                timestamp: chrono::Utc::now(),
+            }],
+        })
     }
-
-    fn supports_operation(&self, op: &str) -> bool {
-        matches!(op, "wire_transfer" | "ach" | "rtp")
-    }
+    fn supports_operation(&self, _op: &str) -> bool { true }
 }

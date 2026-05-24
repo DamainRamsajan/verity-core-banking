@@ -7,8 +7,6 @@ description = "Verity Core Banking — ASL Product Definition Engine"
 
 [dependencies]
 vaos-core = { path = "../../vaos/core" }
-vaos-compliance = { path = "../../vaos/compliance" }
-vcbp-ledger = { path = "../ledger" }
 tokio.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -18,13 +16,3 @@ uuid.workspace = true
 chrono.workspace = true
 rust_decimal.workspace = true
 async-trait.workspace = true
-
-# ASL compiler — pulls from open‑source agentseed repo
-# In production: asl-compiler = { git = "https://github.com/agentseedlanguage-cpu/agentseed" }
-# Placeholder: asl-sdk = { path = "../../vendor/asl" }
-
-# KindHML temporal property verification for smart contract products
-# kindhml = "0.1.0"
-
-[dev-dependencies]
-tokio-test.workspace = true

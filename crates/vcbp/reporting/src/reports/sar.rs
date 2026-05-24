@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-/// Suspicious Activity Report (FinCEN SAR).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SarReport {
     pub id: uuid::Uuid,

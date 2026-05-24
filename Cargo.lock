@@ -493,12 +493,12 @@ dependencies = [
  "chrono",
  "rust_decimal",
  "serde",
- "serde_json",
  "thiserror 2.0.18",
  "tokio",
  "tracing",
  "uuid",
  "vaos-core",
+ "vcbp-ledger",
 ]
 
 [[package]]
@@ -8281,7 +8281,6 @@ dependencies = [
  "tracing",
  "uuid",
  "vaos-core",
- "vcbp-ledger",
 ]
 
 [[package]]
@@ -8416,7 +8415,6 @@ dependencies = [
 name = "vcbp-ledger"
 version = "0.1.0"
 dependencies = [
- "asm-fim",
  "async-trait",
  "blake3",
  "chrono",
@@ -8428,11 +8426,9 @@ dependencies = [
  "sqlx",
  "thiserror 2.0.18",
  "tokio",
- "tokio-test",
  "tracing",
  "uuid",
  "vaos-core",
- "vaos-runtime-tla",
 ]
 
 [[package]]

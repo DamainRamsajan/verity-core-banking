@@ -1,4 +1,3 @@
-/// A Merkle inclusion proof for a transaction.
 #[derive(Debug, Clone)]
 pub struct MerkleProof {
     pub transaction_hash: [u8; 32],

@@ -1,15 +1,12 @@
 use std::collections::HashMap;
 use super::types::{AccountId, Balance, Entry, EntryType};
 
-/// Real‑time account position keeper.
 pub struct PositionKeeper {
     balances: HashMap<AccountId, Balance>,
 }
 
 impl PositionKeeper {
-    pub fn new() -> Self {
-        Self { balances: HashMap::new() }
-    }
+    pub fn new() -> Self { Self { balances: HashMap::new() } }
 
     pub fn apply_entry(&mut self, entry: &Entry) -> Result<(), super::LedgerError> {
         let balance = self.balances.entry(entry.account_id).or_insert_with(|| Balance {

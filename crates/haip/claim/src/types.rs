@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// The cognitive cost of an agent interruption.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CognitiveCost {
     Passive = 1,
@@ -21,18 +20,16 @@ impl CognitiveCost {
     }
 }
 
-/// An action proposed by an agent that requires human attention.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CognitiveAction {
     pub id: Uuid,
     pub agent_id: vaos_core::types::AgentId,
     pub description: String,
     pub cognitive_cost: CognitiveCost,
-    pub risk_severity: u8, // 1‑100
+    pub risk_severity: u8,
     pub defaults: Vec<DefaultOption>,
 }
 
-/// A pre‑computed reasonable default for the human to edit.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DefaultOption {
     pub label: String,
@@ -40,19 +37,15 @@ pub struct DefaultOption {
     pub is_default: bool,
 }
 
-/// The presentation form of an action (edit‑confirm, choice, or escalation).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Presentation {
-    /// 80% of actions: agent shows what it will do, human confirms/edits
     EditConfirm {
         action: CognitiveAction,
         default_choice: DefaultOption,
     },
-    /// 20% of actions: high‑stakes, requires full human engagement
     FullEngagement {
         action: CognitiveAction,
         options: Vec<DefaultOption>,
     },
-    /// Agent handled autonomously (below cognitive budget)
     Autonomous,
 }

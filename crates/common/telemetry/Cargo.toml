@@ -19,7 +19,7 @@ chrono.workspace = true
 # OpenTelemetry SDK
 opentelemetry_sdk = "0.25"
 opentelemetry-otlp = "0.25"
-opentelemetry-semantic-conventions = "0.25"
+opentelemetry-semantic-conventions = "0.32"
 
 # axum integration for HTTP span propagation
 tower-http = "0.6"

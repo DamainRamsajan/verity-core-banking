@@ -23,10 +23,9 @@ sqlx.workspace = true
 async-trait.workspace = true
 
 # Merkle tree with BLAKE3
-rs-merkle = "2.2"
+rs_merkle = "1.5.0"
 
 # TLA+ runtime checking
-modelator = "0.2.1"
 
 [dev-dependencies]
 tokio-test.workspace = true

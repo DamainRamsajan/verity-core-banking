@@ -54,7 +54,7 @@ members = [
 resolver = "2"
 
 [workspace.dependencies]
-tokio = { version = "1.42", features = ["full"] }
+tokio = { version = "1.38", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 anyhow = "1.0"
@@ -62,26 +62,27 @@ tracing = "0.1"
 tracing-subscriber = "0.3"
 sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "sqlite"] }
 reqwest = { version = "0.12", features = ["json"] }
-uuid = { version = "1.0", features = ["v4"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 rust_decimal = "1.0"
 blake3 = "1.0"
 ed25519-dalek = "2.0"
-pasetors = "0.6"
-tla = "0.3"  # TLA+ runtime checker (placeholder)
-merkle = "0.2"  # Merkle tree library
-lean-sys = "0.1"  # Lean 4 FFI bindings
-zkvm = "0.1"  # zkVM interface
-orchid = "0.1"  # Quantum consensus
-qaoa = "0.1"  # Quantum optimizer
-fhe = "0.1"  # Fully Homomorphic Encryption
-mpc = "0.1"  # Secure Multi-Party Computation
-dp = "0.1"  # Differential Privacy
-gnn = "0.1"  # Graph Neural Networks (ONNX runtime)
-fl = "0.1"  # Federated Learning
+pasetors = "0.7.8"
+tla-checker = "0.1.0"  # TLA+ runtime checker (placeholder)
+rs_merkle = "2.2"  # Merkle tree library
+lean-rs = "0.1"  # Lean 4 FFI bindings
+risc0-zkvm = "0.21"  # zkVM interface
+orchid-consensus = "0.1.0"  # Quantum consensus
+ruqu-algorithms = "2.0.5"  # Quantum optimizer
+tfhe = "1.6"  # Fully Homomorphic Encryption
+shamir-secret = "0.1"  # Secure Multi-Party Computation
+opendp = "0.14"  # Differential Privacy
+tract-onnx = "0.21"  # Graph Neural Networks (ONNX runtime)
+dsfl = "0.1.0"  # Federated Learning
 opentelemetry = "0.25"
 prometheus = "0.14"
 thiserror = "2.0"
+tokio-test = "0.4"
 async-trait = "0.1"
 
 [workspace.package]

@@ -19,7 +19,7 @@ ed25519-dalek.workspace = true
 async-trait.workspace = true
 
 # Merkle tree for RFC-6962 log
-rs-merkle = "2.2"
+rs_merkle = "1.5.0"
 
 # Serialization
 serde_cbor = "0.11"

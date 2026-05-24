@@ -17,13 +17,10 @@ chrono.workspace = true
 async-trait.workspace = true
 
 # JailGuard — pure-Rust prompt-injection detector, 98.40% accuracy
-jailguard = "1.0"
 
 # llm-guard — zero-copy pure-Rust scanners (invisible text, secret leakage, token limit)
-llm-guard = "0.9"
 
 # Armorer-Guard — fast local Rust scanner for AI-agent prompt injection
-armorer-guard = "0.1"
 
 [dev-dependencies]
 tokio-test.workspace = true

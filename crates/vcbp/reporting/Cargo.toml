@@ -20,13 +20,10 @@ rust_decimal.workspace = true
 async-trait.workspace = true
 
 # ZK‑proof audit packages (groth16)
-zkp-audit = "0.1.0"
 
 # Regulatory report templates
-report-gen = "0.1.0"
 
 # ModelCard for governance transparency (JSON Schema‑based)
-modelcard = "0.1.0"
 
 [dev-dependencies]
 tokio-test.workspace = true

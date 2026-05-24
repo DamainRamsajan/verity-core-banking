@@ -20,16 +20,12 @@ async-trait.workspace = true
 
 # DIAP — Decentralized Agent Identity Protocol with ZKP-on-CID
 # Noir ZKP circuits: 4 constraints, ~192-byte proofs, 3-5ms verification
-diap-rs-sdk = "0.2.17"
 
 # SSI — W3C Verifiable Credentials & Decentralized Identifiers
-ssi = "0.15.0"
 
 # AgentPin — verifiable agent identity documents, JWT credentials
-agentpin = "0.1.0"
 
 # Auths-ID — DID-based multi-device identity with attestation chains
-auths-id = "0.1.0"
 
 [dev-dependencies]
 tokio-test.workspace = true

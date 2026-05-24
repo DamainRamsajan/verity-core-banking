@@ -15,4 +15,3 @@ thiserror.workspace = true
 # Pure Rust TLA+ model checker
 tla-checker = "0.1.0"
 # Model-based testing with TLA+ traces
-modelator = "0.2.1"

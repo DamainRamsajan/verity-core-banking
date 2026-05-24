@@ -22,7 +22,6 @@ async-trait.workspace = true
 # ASL compiler — pulls from open‑source agentseed repo
 # In production: asl-compiler = { git = "https://github.com/agentseedlanguage-cpu/agentseed" }
 # Placeholder: asl-sdk = { path = "../../vendor/asl" }
-asl-sdk = "0.1.0"
 
 # KindHML temporal property verification for smart contract products
 # kindhml = "0.1.0"

@@ -20,16 +20,13 @@ async-trait.workspace = true
 reqwest.workspace = true
 
 # ISO 20022 message parsing and generation
-iso20022-rs = "0.1.0"
 
 # FedNow API client
-fednow-client = "0.1.0"
 
 # Circuit breaker for payment rail resilience
-circuit-breaker = "1.0"
+circuit_breaker = "0.1"
 
 # SWIFT Blockchain Bridge (Hyperledger Besu EVM)
-swift-bridge = "0.1.0"
 
 [dev-dependencies]
 tokio-test.workspace = true

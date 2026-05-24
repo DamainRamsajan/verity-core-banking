@@ -16,17 +16,13 @@ uuid.workspace = true
 ed25519-dalek.workspace = true
 
 # Pure Rust ML-DSA (FIPS 204) — dilithium2/3/5 + ml_dsa_44/65/87
-crystals-dilithium = { version = "0.1", package = "crystals-dilithium" }
 
 # Threshold ML-DSA-44 via Mithril scheme (ePrint 2026/013)
 # no_std compatible, bit-for-bit compatible with FIPS 204 verifiers
-threshold-ml-dsa = "0.3.5"
 
 # Kylix PQC — pure Rust FIPS 203/204/205 implementation
-kylix-pqc = "0.1"
 
 # Hybrid PQC migration — dual-signature mode
-qurox-pq = "0.1"
 
 [dev-dependencies]
 tokio-test.workspace = true

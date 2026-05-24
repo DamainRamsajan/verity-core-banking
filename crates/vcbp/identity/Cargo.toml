@@ -1,16 +1,17 @@
 [package]
-name = "vaos-hti"
+name = "vcbp-identity"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Verity Agent OS — Hardware Trust Interface (TEE, NMI, attestation)"
+description = "Verity Core Banking – Non-Human Identity & Smart Accounts"
 
 [dependencies]
-vaos-core = { path = "../core" }
+vaos-core = { path = "../../vaos/core" }
 tokio.workspace = true
 serde.workspace = true
 tracing.workspace = true
 thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
 async-trait.workspace = true
-
-# TEE attestation

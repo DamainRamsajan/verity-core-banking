@@ -19,7 +19,6 @@ rust_decimal.workspace = true
 async-trait.workspace = true
 
 # tree-sitter COBOL grammar for parsing legacy code
-arborium-cobol = "2.12.0"
 
 # Data parallelism for parallel‑run comparison
 rayon = "1.10"

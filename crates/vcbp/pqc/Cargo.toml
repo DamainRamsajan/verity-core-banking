@@ -19,13 +19,12 @@ blake3.workspace = true
 ed25519-dalek.workspace = true
 
 # RustCrypto ML-DSA — pure Rust FIPS 204
-ml-dsa = "0.2"
+ml-dsa = "0.1"
 
 # dcrypt — pure-Rust ML-KEM + ML-DSA, hybrid KEM/signatures
-dcrypt = "0.5"
+dcrypt = "1.2"
 
 # Crypto agility framework
-crypto-agile = "0.1"
 
 # Dependency graph scanning
 cargo-deny = "0.16"

@@ -21,10 +21,8 @@ async-trait.workspace = true
 tfhe = "1.6"
 
 # FHE circuit introspection and type analysis
-fhe-rs-analyzer = "0.4.0"
 
 # Intel HEXL library bindings for AVX-512 NTT acceleration
-hexl-rs = "0.1"
 
 # rand for cryptographic seeding
 rand = "0.8"

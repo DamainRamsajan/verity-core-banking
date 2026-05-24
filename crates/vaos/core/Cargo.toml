@@ -3,7 +3,6 @@ name = "vaos-core"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-repository.workspace = true
 description = "Verity Agent OS — Capability Microkernel"
 
 [dependencies]
@@ -19,17 +18,6 @@ ed25519-dalek.workspace = true
 thiserror.workspace = true
 async-trait.workspace = true
 opentelemetry.workspace = true
-
-# PASETO v4 capability tokens — pure Rust, no_std, forbid(unsafe_code)
-pasetors = { version = "0.7.8", features = ["v4", "ed25519-compact", "serde"] }
-
-# TLA+ runtime model checking
-tla-connect = "0.0.4"
-
-[dev-dependencies]
-tokio-test = "0.4"
-criterion = "0.5"
-
-[[bench]]
-name = "capability_validation"
-harness = false
+rust_decimal.workspace = true
+pasetors = "0.7.8"
+tla-checker = "0.1.0"

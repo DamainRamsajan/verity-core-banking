@@ -17,7 +17,7 @@ rand = "0.8"
 # wolfssl = "0.1"
 
 # PQC primitives (dcrypt for ML-KEM + ML-DSA)
-dcrypt = "0.5"
+dcrypt = "1.2"
 
 # Constant-time comparison
 constant_time_eq = "0.3"

@@ -16,11 +16,8 @@ uuid.workspace = true
 async-trait.workspace = true
 
 # Lean 4 embedded theorem-prover capability
-lean-rs-host = "0.1.0"
 # External verification foundation — SMT-LIB2 + Lean 4 export
-karpal-verify = "0.4.0"
 # Lean 4 FFI bindings
-lean-rs = "0.1"
 
 [dev-dependencies]
 tokio-test.workspace = true

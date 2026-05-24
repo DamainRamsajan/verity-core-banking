@@ -16,4 +16,3 @@ chrono.workspace = true
 async-trait.workspace = true
 
 # circuitbreaker-rs — production-grade, lock-efficient, observability-ready
-circuitbreaker-rs = "0.1"

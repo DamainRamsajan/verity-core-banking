@@ -21,10 +21,8 @@ blake3.workspace = true
 ed25519-dalek.workspace = true
 
 # Mesh synchronisation for offline nodes
-bellande-mesh-sync = "0.1.0"
 
 # DAG-based parallel task execution (no_std, zero-dependency)
-taskgraph-rs = "0.1.0"
 
 [dev-dependencies]
 tokio-test.workspace = true

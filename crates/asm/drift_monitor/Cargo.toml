@@ -16,6 +16,4 @@ chrono.workspace = true
 async-trait.workspace = true
 
 # anomstream-core — composable streaming anomaly detection
-anomstream-core = "2026.4.1"
 # dsfb_gray — deterministic telemetry trajectory interpretation
-dsfb-gray = "0.1"

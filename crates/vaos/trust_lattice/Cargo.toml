@@ -1,0 +1,24 @@
+[package]
+name = "vaos-trust-lattice"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Agent OS — Trust Lattice Engine (Spera Theorem 9.2, Datalog equivalence)"
+
+[dependencies]
+vaos-core = { path = "../core" }
+tokio.workspace = true
+serde.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+blake3.workspace = true
+ed25519-dalek.workspace = true
+rust_decimal.workspace = true
+uuid.workspace = true
+async-trait.workspace = true
+
+# Datalog compiler embedded in Rust — semi-naive evaluation
+crepe = "0.2.0"
+
+[dev-dependencies]
+tokio-test.workspace = true

@@ -1,0 +1,20 @@
+[package]
+name = "vaos-hti"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Agent OS — Hardware Trust Interface (TEE, NMI, attestation)"
+
+[dependencies]
+vaos-core = { path = "../core" }
+tokio.workspace = true
+serde.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+async-trait.workspace = true
+
+# TEE attestation
+attestation = "0.2"           # Intel/AMD attestation abstraction
+tdx-attest = "0.1"             # Intel TDX
+sev-attest = "0.1"             # AMD SEV-SNP
+tpm = "0.1"                    # TPM 2.0 for sealed storage

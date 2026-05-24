@@ -1,0 +1,26 @@
+[package]
+name = "vaos-compliance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Agent OS — Lean-Agent Compliance Verifier (Lean 4 kernel)"
+
+[dependencies]
+vaos-core = { path = "../core" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+async-trait.workspace = true
+
+# Lean 4 embedded theorem-prover capability
+lean-rs-host = "0.1.0"
+# External verification foundation — SMT-LIB2 + Lean 4 export
+karpal-verify = "0.4.0"
+# Lean 4 FFI bindings
+lean-rs = "0.1"
+
+[dev-dependencies]
+tokio-test.workspace = true

@@ -1,0 +1,29 @@
+[package]
+name = "asm-prompt-guardian"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity ASM — PromptGuardian Input Sanitization (JailGuard MLP + PromptGuard 4-layer)"
+
+[dependencies]
+vaos-core = { path = "../../vaos/core" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+async-trait.workspace = true
+
+# JailGuard — pure-Rust prompt-injection detector, 98.40% accuracy
+jailguard = "1.0"
+
+# llm-guard — zero-copy pure-Rust scanners (invisible text, secret leakage, token limit)
+llm-guard = "0.9"
+
+# Armorer-Guard — fast local Rust scanner for AI-agent prompt injection
+armorer-guard = "0.1"
+
+[dev-dependencies]
+tokio-test.workspace = true

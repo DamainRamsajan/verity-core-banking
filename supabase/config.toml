@@ -1,0 +1,18 @@
+[project]
+id = "verity-core-banking"
+
+[db]
+port = 54322
+
+[api]
+port = 54321
+
+[studio]
+port = 54323
+
+[edge_runtime]
+enabled = true
+
+[functions]
+verity-auth = "supabase/functions/auth/index.ts"
+verity-realtime = "supabase/functions/realtime/index.ts"

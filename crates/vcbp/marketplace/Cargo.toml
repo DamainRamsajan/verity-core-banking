@@ -1,0 +1,26 @@
+[package]
+name = "vcbp-marketplace"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Core Banking — Agent Marketplace (TCR, Staking, Reputation)"
+
+[dependencies]
+vaos-core = { path = "../../vaos/core" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+async-trait.workspace = true
+blake3.workspace = true
+ed25519-dalek.workspace = true
+
+# Bayesian inference for reputation scoring
+bayesian = "0.1.0"
+
+[dev-dependencies]
+tokio-test.workspace = true

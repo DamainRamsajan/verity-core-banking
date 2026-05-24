@@ -1,0 +1,91 @@
+[workspace]
+members = [
+    "crates/verity",
+    "crates/vaos/core",
+    "crates/vaos/hti",
+    "crates/vaos/session",
+    "crates/vaos/trust_lattice",
+    "crates/vaos/compliance",
+    "crates/vaos/containment",
+    "crates/vaos/assume_guarantee",
+    "crates/vaos/runtime_tla",
+    "crates/vaos/identity",
+    "crates/vaos/privacy",
+    "crates/vaos/consensus",
+    "crates/vaos/emergent",
+    "crates/vaos/pqc_tokens",
+    "crates/vaos/sil3",
+    "crates/vcbp/ledger",
+    "crates/vcbp/bian",
+    "crates/vcbp/product_engine",
+    "crates/vcbp/banking_ops",
+    "crates/vcbp/identity",
+    "crates/vcbp/payments",
+    "crates/vcbp/reporting",
+    "crates/vcbp/fraud",
+    "crates/vcbp/federated",
+    "crates/vcbp/quantum",
+    "crates/vcbp/edge",
+    "crates/vcbp/migration",
+    "crates/vcbp/marketplace",
+    "crates/vcbp/regtech",
+    "crates/vcbp/fhe",
+    "crates/vcbp/pqc",
+    "crates/vcbp/risk",
+    "crates/vcbp/assets",
+    "crates/vcbp/go_dark",
+    "crates/haip/claim",
+    "crates/haip/eta",
+    "crates/haip/dashboard",
+    "crates/haip/inclusive",
+    "crates/asm/prompt_guardian",
+    "crates/asm/mem_lineage",
+    "crates/asm/execution_guard",
+    "crates/asm/vet_pipeline",
+    "crates/asm/drift_monitor",
+    "crates/asm/kill_switch",
+    "crates/asm/cascade_guard",
+    "crates/asm/fim",
+    "crates/asm/rampart",
+    "crates/common/validation",
+    "crates/common/telemetry",
+    "crates/common/crypto",
+]
+resolver = "2"
+
+[workspace.dependencies]
+tokio = { version = "1.42", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "sqlite"] }
+reqwest = { version = "0.12", features = ["json"] }
+uuid = { version = "1.0", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+rust_decimal = "1.0"
+blake3 = "1.0"
+ed25519-dalek = "2.0"
+pasetors = "0.6"
+tla = "0.3"  # TLA+ runtime checker (placeholder)
+merkle = "0.2"  # Merkle tree library
+lean-sys = "0.1"  # Lean 4 FFI bindings
+zkvm = "0.1"  # zkVM interface
+orchid = "0.1"  # Quantum consensus
+qaoa = "0.1"  # Quantum optimizer
+fhe = "0.1"  # Fully Homomorphic Encryption
+mpc = "0.1"  # Secure Multi-Party Computation
+dp = "0.1"  # Differential Privacy
+gnn = "0.1"  # Graph Neural Networks (ONNX runtime)
+fl = "0.1"  # Federated Learning
+opentelemetry = "0.25"
+prometheus = "0.14"
+thiserror = "2.0"
+async-trait = "0.1"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "BSL-1.1"
+repository = "https://github.com/DamainRamsajan/verity-core-banking"

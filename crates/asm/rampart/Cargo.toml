@@ -1,0 +1,17 @@
+[package]
+name = "asm-rampart"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity ASM — RAMPART CI/CD Automated Adversarial Testing"
+
+[dependencies]
+vaos-core = { path = "../../vaos/core" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+async-trait.workspace = true

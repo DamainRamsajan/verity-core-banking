@@ -1,0 +1,18 @@
+[package]
+name = "vaos-sil3"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Agent OS — IEC 61508 SIL3 Safety Kernel"
+
+[dependencies]
+vaos-core = { path = "../core" }
+tokio.workspace = true
+serde.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+async-trait.workspace = true
+
+# Deterministic scheduling primitives
+# Ferrocene-qualified Rust core library subset (SIL 2 certified)
+# Full SIL 3 qualification via Ferrocene v26.02.0 compiler

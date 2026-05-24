@@ -1,0 +1,17 @@
+
+Default owners for everything
+@DamainRamsajan
+
+Architecture documentation
+/VERITY_ARC42.md @DamainRamsajan
+/ARCHITECTURE.md @DamainRamsajan
+
+Security‑critical paths
+/crates/vaos/core/ @DamainRamsajan
+/crates/vaos/hti/ @DamainRamsajan
+/crates/asm/ @DamainRamsajan
+/crates/vcbp/ledger/ @DamainRamsajan
+
+Infrastructure
+/.github/workflows/ @DamainRamsajan
+/Dockerfile @DamainRamsajan

@@ -1,0 +1,18 @@
+[project]
+name = "verity-ml"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+"torch>=2.6",
+"transformers>=4.45",
+"onnxruntime>=1.20",
+"scikit-learn>=1.6",
+"pandas>=2.2",
+"numpy>=2.0",
+"matplotlib>=3.9",
+"jupyter>=1.1",
+]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"

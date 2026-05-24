@@ -1,0 +1,15 @@
+[package]
+name = "common-validation"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Common — Shared Validation Utilities (ISO 4217, BIAN, Regulatory)"
+
+[dependencies]
+rust_decimal.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+regex = "1.11"

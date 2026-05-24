@@ -1,0 +1,39 @@
+[package]
+name = "vaos-privacy"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Agent OS — FHE/SMPC/DP Privacy Services"
+
+[dependencies]
+vaos-core = { path = "../core" }
+tokio.workspace = true
+serde.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+async-trait.workspace = true
+uuid.workspace = true
+
+# TFHE-rs — Zama pure Rust FHE, 10-50x faster than C++
+# Supports boolean + integer arithmetic, GPU acceleration, WASM
+tfhe = "1.5"
+
+# OpenDP — differential privacy library with epsilon tracking
+# Rust core with Python/R bindings, vetted implementation
+opendp = "0.14"
+
+# Shamir secret sharing + threshold Schnorr (FROST) over BLS12-381
+shamir-secret = "0.1"
+
+# VOPRF — verifiable oblivious pseudorandom function
+voprf = "0.5"
+
+# fheanor — toolkit for building HE schemes (BGV, BFV)
+fheanor = "0.1"
+
+# Intel Heracles FHE ASIC accelerator abstraction
+# 5,000x speedup over Xeon (ISSCC 2026 demonstration)
+fhe-accel = "0.1"
+
+[dev-dependencies]
+tokio-test.workspace = true

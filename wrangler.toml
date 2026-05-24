@@ -1,0 +1,15 @@
+name = "verity-api"
+main = "workers/src/index.ts"
+compatibility_date = "2026-05-23"
+
+Rust WASM binding
+[build]
+command = "cargo build --target wasm32-unknown-unknown --release --package verity-workers"
+
+[[routes]]
+pattern = "api.verity.io/*"
+zone_name = "verity.io"
+
+[env.production]
+routes = [{ pattern = "api.verity.io/*", zone_name = "verity.io" }]
+vars = { ENVIRONMENT = "production" }

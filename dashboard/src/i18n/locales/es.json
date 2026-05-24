@@ -1,0 +1,5 @@
+{
+  "app": { "title": "Verity Mission Control", "tagline": "Soberano. Formalmente Verificado. Agente‑Nativo." },
+  "nav": { "governance": "Gobernanza", "wellness": "Bienestar", "lifeStage": "Etapa de Vida", "agents": "Flota de Agentes", "atm": "Flota de Cajeros", "migration": "Migración", "compliance": "Cumplimiento", "settings": "Configuración" },
+  "governance": { "title": "Gobernanza Delegativa", "activeAgents": "Agentes Activos", "actionsToday": "Acciones Hoy", "boundaryViolations": "Violaciones de Límites", "complianceRate": "Tasa de Cumplimiento" }
+}

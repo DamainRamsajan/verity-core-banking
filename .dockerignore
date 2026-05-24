@@ -1,0 +1,5 @@
+target/
+.git/
+.github/
+dashboard/node_modules/
+**/*.md

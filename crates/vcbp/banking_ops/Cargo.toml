@@ -1,0 +1,19 @@
+[package]
+name = "vcbp-banking-ops"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Core Banking — Capability‑Based Banking Operations"
+
+[dependencies]
+vaos-core = { path = "../../vaos/core" }
+vcbp-ledger = { path = "../ledger" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+async-trait.workspace = true

@@ -1,0 +1,33 @@
+[package]
+name = "vcbp-fhe"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Core Banking — FHE Hardware Acceleration Abstraction Layer"
+
+[dependencies]
+vaos-core = { path = "../../vaos/core" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+async-trait.workspace = true
+
+# Zama TFHE-rs — pure Rust FHE (v1.6.1, 588 stars)
+tfhe = "1.6"
+
+# FHE circuit introspection and type analysis
+fhe-rs-analyzer = "0.4.0"
+
+# Intel HEXL library bindings for AVX-512 NTT acceleration
+hexl-rs = "0.1"
+
+# rand for cryptographic seeding
+rand = "0.8"
+
+[dev-dependencies]
+tokio-test.workspace = true

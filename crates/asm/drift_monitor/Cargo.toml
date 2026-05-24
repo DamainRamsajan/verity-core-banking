@@ -1,0 +1,21 @@
+[package]
+name = "asm-drift-monitor"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity ASM — DriftMonitor Behavioral Anomaly Detection (anomstream-core)"
+
+[dependencies]
+vaos-core = { path = "../../vaos/core" }
+tokio.workspace = true
+serde.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+async-trait.workspace = true
+
+# anomstream-core — composable streaming anomaly detection
+anomstream-core = "2026.4.1"
+# dsfb_gray — deterministic telemetry trajectory interpretation
+dsfb-gray = "0.1"

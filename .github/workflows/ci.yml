@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 3 * * *'   # nightly adversarial test suite
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  build:
+    name: Build & Test (Rust ${{ matrix.rust }})
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        rust: [stable, beta]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy, llvm-tools-preview
+      - uses: Swatinem/rust-cache@v2
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler libssl-dev
+      - name: Build workspace
+        run: cargo build --workspace --all-features
+      - name: Run tests
+        run: cargo test --workspace --all-features -- --nocapture
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Run Clippy
+        run: cargo clippy --workspace --all-features -- -D warnings
+      - name: Security audit (cargo-deny)
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check all
+      - name: Security audit (cargo-audit)
+        uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  fuzz:
+    name: Fuzz Testing
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - name: Run fuzz engine (500K sequences)
+        run: cargo run --bin fuzz_engine -- --sequences 500000
+
+  tla:
+    name: TLA+ Model Checking
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install TLA+ tools
+        run: |
+          wget https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar -O /tmp/tla2tools.jar
+          echo 'java -cp /tmp/tla2tools.jar tlc2.TLC "$@"' > /usr/local/bin/tlc && chmod +x /usr/local/bin/tlc
+      - name: Run TLA+ model checker
+        run: |
+          cd crates/vaos/runtime_tla
+          tlc VerityLedger.tla -deadlock -workers auto
+
+  lean:
+    name: Lean 4 Compliance Proofs
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: crates/vaos/compliance
+
+  rampart:
+    name: RAMPART Adversarial Testing (Nightly)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run RAMPART OWASP Agentic Top 10 test suite
+        run: cargo run --bin rampart -- --suite owasp-agentic --mttd-target 2000
+
+  dashboard:
+    name: Dashboard UI Tests
+    runs-on: ubuntu-24.04
+    defaults: { run: { working-directory: dashboard } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm test
+
+  container:
+    name: Container Build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t verity-core-banking:ci .
+      - name: Scan image (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: verity-core-banking:ci
+          format: sarif
+          output: trivy-results.sarif

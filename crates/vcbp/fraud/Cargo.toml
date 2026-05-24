@@ -1,0 +1,31 @@
+[package]
+name = "vcbp-fraud"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Core Banking — GNN Fraud Detection Engine"
+
+[dependencies]
+vaos-core = { path = "../../vaos/core" }
+vcbp-ledger = { path = "../ledger" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+async-trait.workspace = true
+
+# ONNX inference runtime (pure Rust)
+tract-onnx = "0.21"
+
+# Graph data structures
+petgraph = "0.6"
+
+# Lightweight ML for structural invariants
+ndarray = "0.16"
+
+[dev-dependencies]
+tokio-test.workspace = true

@@ -1,0 +1,32 @@
+[package]
+name = "vcbp-ledger"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Core Banking Platform — Merkle Double‑Entry Ledger"
+
+[dependencies]
+vaos-core = { path = "../../vaos/core" }
+vaos-runtime-tla = { path = "../../vaos/runtime_tla" }
+asm-fim = { path = "../../asm/fim" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+blake3.workspace = true
+ed25519-dalek.workspace = true
+sqlx.workspace = true
+async-trait.workspace = true
+
+# Merkle tree with BLAKE3
+rs-merkle = "2.2"
+
+# TLA+ runtime checking
+modelator = "0.2.1"
+
+[dev-dependencies]
+tokio-test.workspace = true

@@ -1,0 +1,27 @@
+# Rust
+target/
+**/*.rs.bk
+*.pdb
+
+# Node / Dashboard
+node_modules/
+dist/
+.env
+
+# Python / ML
+__pycache__/
+*.py[cod]
+.venv/
+
+# Database / Storage
+ledger_data/
+*.db-journal
+
+# IDE
+.idea/
+.vscode/
+
+# Misc
+*.log
+.DS_Store
+Thumbs.db

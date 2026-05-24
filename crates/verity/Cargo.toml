@@ -1,0 +1,16 @@
+[package]
+name = "verity"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+vaos-core = { path = "../vaos/core" }
+vaos-hti = { path = "../vaos/hti" }
+vcbp-ledger = { path = "../vcbp/ledger" }
+vcbp-payments = { path = "../vcbp/payments" }
+vcbp-reporting = { path = "../vcbp/reporting" }
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

@@ -1,0 +1,19 @@
+[package]
+name = "asm-cascade-guard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity ASM — CascadeGuard Inter-Agent Circuit Breaker (circuitbreaker-rs)"
+
+[dependencies]
+vaos-core = { path = "../../vaos/core" }
+tokio.workspace = true
+serde.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+async-trait.workspace = true
+
+# circuitbreaker-rs — production-grade, lock-efficient, observability-ready
+circuitbreaker-rs = "0.1"

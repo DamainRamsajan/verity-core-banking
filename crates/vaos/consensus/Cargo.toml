@@ -1,0 +1,15 @@
+[package]
+name = "vaos-consensus"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Agent OS — ORCHID Quantum-Augmented Consensus"
+
+[dependencies]
+vaos-core = { path = "../core" }
+tokio.workspace = true
+serde.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+async-trait.workspace = true
+uuid.workspace = true

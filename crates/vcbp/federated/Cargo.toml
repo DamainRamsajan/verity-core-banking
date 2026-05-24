@@ -1,0 +1,18 @@
+[package]
+name = "vcbp-federated"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Core Banking — Federated Learning Mesh"
+
+[dependencies]
+vaos-core = { path = "../../vaos/core" }
+vcbp-fraud = { path = "../fraud" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+async-trait.workspace = true

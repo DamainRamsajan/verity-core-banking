@@ -1,0 +1,28 @@
+[package]
+name = "vcbp-go-dark"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Core Banking — GoDark ZK Institutional Trading Bridge"
+
+[dependencies]
+vaos-core = { path = "../../vaos/core" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+async-trait.workspace = true
+blake3.workspace = true
+ed25519-dalek.workspace = true
+
+# ZK-SNARK proof generation (arkworks groth16)
+ark-groth16 = "0.5"
+ark-bls12-381 = "0.5"
+ark-serialize = "0.5"
+
+[dev-dependencies]
+tokio-test.workspace = true

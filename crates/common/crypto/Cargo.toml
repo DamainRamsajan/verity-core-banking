@@ -1,0 +1,23 @@
+[package]
+name = "common-crypto"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Common — Shared Cryptographic Primitives (Ed25519, BLAKE3, PQC)"
+
+[dependencies]
+blake3.workspace = true
+ed25519-dalek.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+rand = "0.8"
+
+# FIPS-certifiable crypto via wolfSSL
+# wolfssl = "0.1"
+
+# PQC primitives (dcrypt for ML-KEM + ML-DSA)
+dcrypt = "0.5"
+
+# Constant-time comparison
+constant_time_eq = "0.3"

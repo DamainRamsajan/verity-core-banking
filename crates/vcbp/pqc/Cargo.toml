@@ -27,7 +27,6 @@ dcrypt = "1.2"
 # Crypto agility framework
 
 # Dependency graph scanning
-cargo-deny = "0.16"
 
 [dev-dependencies]
 tokio-test.workspace = true

@@ -52,7 +52,7 @@ impl Transaction {
         hasher.update(self.id.as_bytes());
         for entry in &self.entries {
             hasher.update(entry.account_id.as_bytes());
-            hasher.update(&entry.amount.to_string());
+            hasher.update(&entry.amount.to_string().as_bytes());
         }
         *hasher.finalize().as_bytes()
     }

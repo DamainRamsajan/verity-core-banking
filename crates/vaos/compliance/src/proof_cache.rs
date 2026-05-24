@@ -38,7 +38,7 @@ impl ProofCache {
     pub fn flush_expired(&mut self) {
         let ttl = self.ttl_secs;
         self.entries.retain(|_, e| {
-            (chrono::Utc::now() - e.inserted_at).num_seconds() as u64 < ttl
+            ((chrono::Utc::now() - e.inserted_at).num_seconds() as u64) < ttl
         });
     }
 }

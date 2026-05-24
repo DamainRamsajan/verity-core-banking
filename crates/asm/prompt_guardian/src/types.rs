@@ -1,18 +1,13 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// Classification of an external input after sanitization.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InputClassification {
-    /// Input is safe — passed to agent unchanged
     Benign,
-    /// Input contained injection — sanitized version passed
     Sanitized,
-    /// Input is malicious — blocked entirely
     Blocked,
 }
 
-/// Threat level assigned by the detection pipeline.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum ThreatLevel {
     None = 0,
@@ -22,7 +17,17 @@ pub enum ThreatLevel {
     Critical = 4,
 }
 
-/// An external input that has been sanitized by PromptGuardian.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum InputSource {
+    UserMessage,
+    TransactionMemo,
+    Email,
+    WebPage,
+    File,
+    ToolOutput,
+    AgentToAgent,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SanitizedInput {
     pub input_id: Uuid,
@@ -37,19 +42,6 @@ pub struct SanitizedInput {
     pub forensic_log: Vec<SanitizerStep>,
 }
 
-/// Source of an external input.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum InputSource {
-    UserMessage,
-    TransactionMemo,
-    Email,
-    WebPage,
-    File,
-    ToolOutput,
-    AgentToAgent,
-}
-
-/// A single step in the sanitization pipeline (for forensic audit).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SanitizerStep {
     pub step_name: String,

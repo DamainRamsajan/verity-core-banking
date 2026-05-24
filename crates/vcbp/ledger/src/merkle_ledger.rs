@@ -16,10 +16,13 @@ impl MerkleHasher for Blake3Hasher {
     fn hash(data: &[u8]) -> Self::Hash { *blake3::hash(data).as_bytes() }
 }
 
+#[allow(dead_code)]
 pub struct MerkleLedger {
+#[allow(dead_code)]
     event_store: Arc<RwLock<EventStore>>,
     merkle_tree: Arc<RwLock<MerkleTree<Blake3Hasher>>>,
     positions: Arc<RwLock<PositionKeeper>>,
+    leaf_count: Arc<RwLock<usize>>,
     config: LedgerConfig,
 }
 
@@ -39,6 +42,7 @@ impl MerkleLedger {
             event_store: Arc::new(RwLock::new(EventStore::new())),
             merkle_tree: Arc::new(RwLock::new(MerkleTree::new())),
             positions: Arc::new(RwLock::new(PositionKeeper::new())),
+            leaf_count: Arc::new(RwLock::new(0)),
             config,
         }
     }
@@ -46,24 +50,21 @@ impl MerkleLedger {
     pub async fn append(&self, tx: Transaction) -> Result<MerkleProof, LedgerError> {
         tx.verify_conservation()?;
 
-        // FIM check (if enabled)
-        if self.config.enable_fim {
-            // In production: self.fim.check_transaction(&tx).await?;
-        }
-
-        // TLA+ sample (if enabled)
-        if self.config.enable_tla_runtime_check {
-            // In production: self.tla_verifier.sample(&tx).await?;
-        }
-
         let mut store = self.event_store.write().await;
         store.append(&tx)?;
 
+        let tx_hash = tx.hash();
+        let leaf_hash = Blake3Hasher::hash(&tx_hash);
+
         let mut tree = self.merkle_tree.write().await;
-        let leaf_hash = Blake3Hasher::hash(&tx.hash());
+        let mut leaf_count = self.leaf_count.write().await;
+
         tree.insert(leaf_hash);
-        let proof = let leaf_index = tree.leaves().len().saturating_sub(1);
-        let proof = tree.proof(tree.proof(&[leaf_hash]);[leaf_index]);
+        let leaf_index = *leaf_count;
+        *leaf_count += 1;
+
+        let indices = vec![leaf_index];
+        let proof = tree.proof(&indices);
         let root = tree.root().ok_or(LedgerError::MerkleTreeEmpty)?;
 
         let mut pos = self.positions.write().await;
@@ -72,10 +73,10 @@ impl MerkleLedger {
         }
 
         Ok(MerkleProof {
-            transaction_hash: tx.hash(),
+            transaction_hash: tx_hash,
             merkle_root: root,
             proof_hashes: proof.proof_hashes().to_vec(),
-            proof_index: proof.proof_hashes().len() as u64,
+            proof_index: leaf_index as u64,
         })
     }
 

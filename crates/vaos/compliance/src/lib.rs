@@ -81,18 +81,6 @@ impl ComplianceEngine {
     }
 
     /// Verify that an agent action complies with all applicable regulatory axioms.
-    ///
-    /// # Pre-conditions
-    /// - The action must be well-formed with complete context
-    /// - Applicable regulatory axioms must be loaded in the axiom library
-    ///
-    /// # Post-conditions
-    /// - Returns a `ComplianceProof` if the action satisfies all axioms
-    /// - Returns a `ComplianceError` with a Lean counter-example if any axiom fails
-    ///
-    /// # Invariants
-    /// - Proofs are deterministic: same action + same axioms → same result
-    /// - No false positives: a proof of compliance is mathematically sound
     #[tracing::instrument(name = "compliance.verify", level = "info", skip(self))]
     pub async fn verify(
         &self,

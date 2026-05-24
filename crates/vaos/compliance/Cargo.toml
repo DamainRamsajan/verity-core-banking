@@ -6,6 +6,7 @@ license.workspace = true
 description = "Verity Agent OS — Lean-Agent Compliance Verifier (Lean 4 kernel)"
 
 [dependencies]
+chrono.workspace = true
 vaos-core = { path = "../core" }
 tokio.workspace = true
 serde.workspace = true

@@ -3,7 +3,7 @@ name = "asm-execution-guard"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Verity ASM — ExecutionGuard Tool Execution Sandbox (kavach, gVisor, MCP validation)"
+description = "Verity ASM – ExecutionGuard Tool Execution Sandbox"
 
 [dependencies]
 vaos-core = { path = "../../vaos/core" }
@@ -16,8 +16,3 @@ uuid.workspace = true
 chrono.workspace = true
 blake3.workspace = true
 async-trait.workspace = true
-
-# kavach v1.0.0 — unified sandbox abstraction, 10 backends, strength scoring 0-100
-
-[dev-dependencies]
-tokio-test.workspace = true

@@ -3,16 +3,20 @@
 //!
 //! Source: lean-rs-host v0.1.0, verified-ledger pattern (Jan 2026)
 
+use std::sync::Mutex;
+#[allow(unused_imports)]
 use std::time::Duration;
+
 use super::{LeanVerificationOutcome, ComplianceError};
 
 /// The Lean-Agent Verifier bridges Rust agent actions with the Lean 4 kernel.
 #[derive(Debug)]
 pub struct LeanAgentVerifier {
     /// Whether the Lean 4 FFI is initialized
+    #[allow(dead_code)]
     initialized: bool,
-    /// Accumulated proof statistics
-    stats: VerificationStats,
+    /// Accumulated proof statistics (interior mutability so `check` can take `&self`)
+    stats: Mutex<VerificationStats>,
 }
 
 #[derive(Debug, Default)]
@@ -27,7 +31,7 @@ impl LeanAgentVerifier {
     pub fn new() -> Self {
         Self {
             initialized: false,
-            stats: VerificationStats::default(),
+            stats: Mutex::new(VerificationStats::default()),
         }
     }
 
@@ -74,17 +78,21 @@ impl LeanAgentVerifier {
     /// - `LeanHost` manages the process
     /// - `LeanSession` provides the interaction context
     /// - `LeanEvidence` captures the kernel outcome
+    ///
+    /// Takes `&self` (not `&mut self`) via interior mutability on `stats`,
+    /// so the parent `ComplianceEngine::verify` can hold a shared reference.
     pub async fn check(
-        &mut self,
-        theorem: &FormalizedTheorem,
+        &self,
+         _theorem: &FormalizedTheorem,
     ) -> Result<LeanVerificationOutcome, ComplianceError> {
         // In production, this calls the Lean 4 FFI via lean-rs-host:
         //   let mut session = host.create_session(caps)?;
         //   let evidence = session.verify(&theorem.lean_code)?;
         //   evidence.check_outcome() → LeanKernelOutcome
 
-        self.stats.total_checks += 1;
-        self.stats.satisfied += 1;
+        let mut stats = self.stats.lock().unwrap();
+        stats.total_checks += 1;
+        stats.satisfied += 1;
 
         // For now, return Satisfied — full FFI integration in Batch 5
         Ok(LeanVerificationOutcome::Satisfied)

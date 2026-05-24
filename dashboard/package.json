@@ -67,7 +67,7 @@
     "jsdom": "^26.0.0",
     "msw": "^2.7.0",
     "orval": "^7.0.0",
-    "@hey-api/openapi-ts": "^0.1.0"
+    "@hey-api/openapi-ts": "^0.97.2"
   },
   "msw": {
     "workerDirectory": ["public"]

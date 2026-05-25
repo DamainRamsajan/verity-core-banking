@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verity Agent Integrity Engine — User Manual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&family=Barlow+Condensed:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Core Design System ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --obsidian:    #08090b;
+      --vault:       #0d0f12;
+      --plate:       #111318;
+      --border:      #1e2128;
+      --border-hi:   #2e3240;
+      --gold:        #c9a84c;
+      --gold-bright: #e8c96a;
+      --gold-dim:    #7a6330;
+      --gold-glow:   rgba(201,168,76,0.12);
+      --amber:       #d4853a;
+      --text-primary: #e8e4da;
+      --text-secondary: #8a8680;
+      --text-dim:    #4a4845;
+      --mono: 'JetBrains Mono', monospace;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --cond: 'Barlow Condensed', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--obsidian);
+      color: var(--text-primary);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 999; opacity: 0.6;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+      pointer-events: none; z-index: 998;
+    }
+    .status-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 36px;
+      background: rgba(8,9,11,0.92); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px);
+    }
+    .status-left { display: flex; align-items: center; gap: 1.5rem; }
+    .status-indicator { display: flex; align-items: center; gap: 0.4rem; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); }
+    .status-indicator .dot { width: 5px; height: 5px; border-radius: 50%; background: #2d6a2d; box-shadow: 0 0 6px #2d6a2d; animation: pulse-green 2.4s ease-in-out infinite; }
+    @keyframes pulse-green { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .status-right { font-size: 0.58rem; letter-spacing: 0.12em; color: var(--text-dim); }
+    .status-divider { width: 1px; height: 14px; background: var(--border); }
+    nav {
+      position: fixed; top: 36px; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem; height: 64px; background: rgba(8,9,11,0.88); border-bottom: 1px solid var(--border); backdrop-filter: blur(16px);
+    }
+    .nav-logo { display: flex; flex-direction: column; gap: 1px; }
+    .nav-logo-mark { font-family: var(--serif); font-size: 1.3rem; font-weight: 300; letter-spacing: 0.25em; color: var(--text-primary); line-height: 1; text-decoration: none; transition: opacity 0.2s; }
+    .nav-logo-mark:hover { opacity: 0.8; }
+    .nav-logo-mark span { color: var(--gold); }
+    .nav-logo-sub { font-size: 0.5rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-dim); font-family: var(--mono); }
+    .nav-links { display: flex; align-items: center; gap: 0; list-style: none; }
+    .nav-links a { display: flex; align-items: center; gap: 0.5rem; padding: 0 1.4rem; height: 64px; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-secondary); text-decoration: none; border-left: 1px solid var(--border); transition: color 0.2s, background 0.2s; font-family: var(--mono); position: relative; }
+    .nav-links a:last-child { border-right: 1px solid var(--border); }
+    .nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease; }
+    .nav-links a:hover { color: var(--gold); background: var(--gold-glow); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+    .nav-links .nav-icon { font-size: 0.7rem; opacity: 0.6; }
+    .nav-links a.primary-link { color: var(--gold); border-color: var(--gold-dim); background: rgba(201,168,76,0.06); }
+    .nav-links a.primary-link:hover { background: rgba(201,168,76,0.14); }
+    .nav-links a.active { color: var(--gold); background: var(--gold-glow); cursor: default; pointer-events: none; }
+    .nav-links a.active::after { transform: scaleX(1); }
+
+    .content-wrapper { padding: 140px 3rem 6rem; max-width: 1000px; margin: 0 auto; }
+    .section-label { font-size: 0.5rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.5rem; }
+    .section-heading { font-family: var(--serif); font-size: 2.4rem; font-weight: 300; letter-spacing: 0.05em; color: var(--text-primary); margin-bottom: 1.5rem; }
+    .section-heading em { color: var(--gold); font-style: italic; }
+
+    .feature-section { margin-bottom: 3rem; }
+    .feature-section-header { display: flex; align-items: center; gap: 1rem; cursor: pointer; padding: 1rem 0; border-bottom: 1px solid var(--border); font-family: var(--cond); font-size: 1.1rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-primary); transition: color 0.2s; }
+    .feature-section-header:hover { color: var(--gold); }
+    .feature-section-header::after { content: '▼'; font-size: 0.6rem; transition: transform 0.3s ease; margin-left: auto; }
+    .feature-section.open .feature-section-header::after { transform: rotate(180deg); }
+    .feature-grid { display: none; grid-template-columns: 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 0; }
+    .feature-section.open .feature-grid { display: grid; }
+    .feature-card { background: var(--vault); padding: 1.5rem; transition: background 0.25s; }
+    .feature-card:hover { background: var(--plate); }
+
+    .body-text { font-size: 0.62rem; line-height: 1.85; color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .gold { color: var(--gold); }
+    .dim  { color: var(--text-dim); }
+    code { background: var(--plate); padding: 0.2em 0.4em; font-size: 0.58rem; color: var(--gold); border: 1px solid var(--border-hi); font-family: var(--mono); }
+    .code-block { background: var(--vault); border: 1px solid var(--border); padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; font-family: var(--mono); font-size: 0.6rem; line-height: 1.8; color: var(--text-primary); }
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.62rem; }
+    th { text-align: left; padding: 0.6rem 0.8rem; font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.8rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+    tr:last-child td { border-bottom: none; }
+    .divider { display: flex; align-items: center; gap: 1.5rem; margin: 3rem 0; }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-label { font-size: 0.5rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-dim); white-space: nowrap; }
+    footer { padding: 2rem 3rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .footer-left { display: flex; flex-direction: column; gap: 0.3rem; }
+    .footer-brand { font-family: var(--serif); font-size: 0.9rem; font-weight: 300; letter-spacing: 0.2em; color: var(--text-secondary); }
+    .footer-brand span { color: var(--gold); }
+    .footer-tagline { font-size: 0.48rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); }
+    .footer-right { font-size: 0.5rem; letter-spacing: 0.15em; color: var(--text-dim); text-align: right; line-height: 1.8; }
+    @media (max-width: 900px) { nav { padding: 0 1.5rem; } .content-wrapper { padding: 140px 1.5rem 4rem; } footer { flex-direction: column; gap: 1.5rem; text-align: center; } .footer-right { text-align: center; } }
+    @media (max-width: 600px) { .status-bar { display: none; } nav { top: 0; } .content-wrapper { padding-top: 100px; } }
+  </style>
+</head>
+<body>
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="status-indicator"><span class="dot"></span><span>All systems nominal</span></div>
+      <div class="status-divider"></div>
+      <div class="status-indicator"><span>TEE Attestation Active</span></div>
+      <div class="status-divider"></div>
+      <div class="status-indicator"><span>Conservation of Value: Verified</span></div>
+    </div>
+    <div class="status-right">ARC42 v15.0+ · BIAN v14.0 · DORA · ISO 20022</div>
+  </div>
+
+    <nav>
+    <a href="../index.html" class="nav-logo">
+      <div class="nav-logo-mark">VERITY<span>.</span></div>
+      <div class="nav-logo-sub">Core Banking Platform</div>
+    </a>
+    <ul class="nav-links">
+      <li>
+        <a href="../download.html" class="primary-link">
+          <span class="nav-icon">↓</span>
+          Download
+        </a>
+      </li>
+      <li>
+        <a href="user.html">
+          <span class="nav-icon">◈</span>
+          User Manual
+        </a>
+      </li>
+      <li>
+        <a href="install.html">
+          <span class="nav-icon">⊞</span>
+          Implementation Manual
+        </a>
+      </li>
+      <li>
+        <a href="features.html">
+          <span class="nav-icon">◉</span>
+          Features
+        </a>
+      </li>
+      <li>
+        <a href="agent-integrity-engine.html" class="active">
+          <span class="nav-icon">🛡</span>
+          Agent Integrity Engine
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="content-wrapper">
+    <div class="section-label">Version 0.1.0 · May 2026 · For Security Engineers & AI‑Agent Developers</div>
+    <h1 class="section-heading">Agent <em>Integrity Engine</em></h1>
+
+    <div class="feature-section open" id="s1">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">1 · What is the Verity Agent Integrity Engine?</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text">
+            The Verity Agent Integrity Engine is the safety microkernel and agent runtime that sits beneath the Verity Core Banking Platform. While the banking platform provides accounts, payments, loans, and regulatory reporting, the Agent Integrity Engine ensures that every AI agent and every automated action obeys the bank’s safety, security, and regulatory rules at the hardware level, at compile time, and at runtime.
+          </div>
+          <div class="body-text">
+            It is not a cloud service, a framework, or a library. It is a capability‑based microkernel written in Rust that compiles into the same static binary as the banking application. It enforces:
+          </div>
+          <ul class="body-text" style="margin-left:1.5rem;">
+            <li><strong>Compile‑time safety</strong> — an agent that could violate a safety rule cannot be compiled (via the ASL language and seedvm runtime).</li>
+            <li><strong>Hardware‑rooted trust</strong> — the binary proves it is running on genuine, untampered hardware before any agent starts.</li>
+            <li><strong>Capability‑based access control</strong> — no agent has ambient authority; every action requires a specific, unforgeable PASETO v4 token.</li>
+            <li><strong>Mathematical compliance</strong> — regulatory rules are checked by the Lean 4 theorem prover at microsecond latency.</li>
+            <li><strong>Privacy by construction</strong> — FHE, SMPC, and DP are embedded as kernel services.</li>
+            <li><strong>Post‑quantum readiness</strong> — capability tokens can carry both classical and PQC signatures.</li>
+          </ul>
+          <div class="body-text">The engine consists of 19 subsystems across three architectural layers: Hardware Abstraction, Capability Microkernel, and Agent Services.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Hardware Trust Interface -->
+    <div class="feature-section" id="s2">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">2 · Hardware Trust Interface (HTI)</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Abstracts Intel TDX / AMD SEV‑SNP. Performs remote attestation on every startup, seals encryption keys to the TEE’s hardware identity.</div>
+          <div class="code-block"><code>pub trait HtiTrait: Send + Sync {
+    async fn attest(&self) -> Result<TeeAttestationReport, HtiError>;
+    async fn seal(&self, data: &[u8]) -> Result<SealedKey, HtiError>;
+    async fn unseal(&self, key: &SealedKey) -> Result<Vec<u8>, HtiError>;
+    fn arm_nmi(&self) -> Result<(), HtiError>;
+    fn nmi_triggered(&self) -> bool;
+}</code></div>
+          <table>
+            <tr><th>Setting</th><th>Values</th></tr>
+            <tr><td>TEE_MODE</td><td>production, simulation, off</td></tr>
+            <tr><td>TEE_VENDOR</td><td>intel_tdx, amd_sev, auto</td></tr>
+          </table>
+          <div class="body-text"><strong>TEE Vulnerability Response Controller:</strong> Monitors CVE feeds, triggers 72‑hour failover for critical CVEs (CVSS ≥ 7.0).</div>
+          <div class="body-text"><strong>KingsGuard:</strong> Fine‑grained data flow tracking within enclaves. Compile‑time policies prevent host‑to‑guest data leaks.</div>
+          <div class="body-text"><strong>Troubleshooting:</strong></div>
+          <table>
+            <tr><th>Symptom</th><th>Resolution</th></tr>
+            <tr><td>TEE attestation failed</td><td>Enable TDX/SEV in BIOS; verify firmware measurement.</td></tr>
+            <tr><td>Both TEEs compromised</td><td>Platform halts until at least one is patched and re‑attested.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Capability Microkernel -->
+    <div class="feature-section" id="s3">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">3 · Capability Microkernel</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Central enforcement point. Every action requires a PASETO v4 capability token. Tokens are unforgeable, time‑bound, scope‑limited.</div>
+          <div class="code-block"><code>pub struct CapabilityToken {
+    pub id: TokenId,
+    pub agent_id: AgentId,
+    pub scope: CapScope,
+    pub delegation_depth: u8,
+    pub issued_by: AgentId,
+    pub issued_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
+    pub signature: Vec<u8>,
+    pub pq_signature: Option<Vec<u8>>,
+    pub has_dual_approval: bool,
+}</code></div>
+          <div class="body-text"><strong>Dual‑Control:</strong> VM‑level invariant: actions ≥ $10,000 require two tokens from different principals.</div>
+          <div class="body-text"><strong>Token Store & Session Registry:</strong> Append‑only token store; session registry checks protocol compatibility.</div>
+          <div class="body-text"><strong>Operations:</strong></div>
+          <ul class="body-text" style="margin-left:1.5rem;">
+            <li>Check tokens: Mission Control → Agent Fleet → Capability Tokens</li>
+            <li>Revoke token: click Revoke (immediate effect)</li>
+            <li>Audit log: Governance → Activity Feed</li>
+          </ul>
+          <table>
+            <tr><th>Error</th><th>Resolution</th></tr>
+            <tr><td>TokenExpired</td><td>Re‑issue with new expiry</td></tr>
+            <tr><td>TokenRevoked</td><td>Issue a new token</td></tr>
+            <tr><td>DualControlRequired</td><td>Present second token</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Session Type Checker -->
+    <div class="feature-section" id="s4">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">4 · Session Type Checker</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Deadlock‑freedom at compile time for all inter‑agent communication. Uses McDermott‑Yoshida denotational semantics for asynchronous multiparty session types.</div>
+          <div class="body-text">Extended with fault‑tolerant, context‑free, and probabilistic session types.</div>
+          <div class="body-text"><strong>Operations:</strong> Automatic at agent composition time. Rejections appear in Governance → Activity Feed.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5: Trust Lattice Engine -->
+    <div class="feature-section" id="s5">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">5 · Trust Lattice Engine</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Implements Spera Theorem 9.2 — prevents two individually safe agents from collectively reaching a forbidden goal via conjunctive hyperedges.</div>
+          <div class="body-text">Computes conjunctive capability hypergraph closure; if any forbidden state is reachable, composition is rejected.</div>
+          <div class="body-text"><strong>Trust Levels:</strong> Untrusted → Verified → Trusted → SystemCore.</div>
+          <div class="body-text"><strong>Spera Certificate:</strong> Cryptographically signed attestation of safety.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6: Containment Verification Layer -->
+    <div class="feature-section" id="s6">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">6 · Containment Verification Layer</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Havoc oracle semantics — treats AI model as unconstrained adversary; enforces boundary policy for every possible output.</div>
+          <div class="code-block"><code>pub struct BoundaryPolicy {
+    pub allowed_operations: Vec<String>,
+    pub max_transaction_amount: Option<Decimal>,
+    pub counterparty_allowlist: Option<Vec<String>>,
+    pub havoc_enforced: bool,
+}</code></div>
+          <div class="body-text">Updated with Z3 SMT‑based pre‑deployment verification against Mythos escape patterns (CWE‑190/191/195).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 7: Assume‑Guarantee Contract Monitor -->
+    <div class="feature-section" id="s7">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">7 · Assume‑Guarantee Contract Monitor</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Three‑layer contract: Layer 1 (ASL) assumes kernel enforces capability discipline; Layer 2 (Kernel) guarantees to VeriChain that state transitions are capability‑valid; Layer 3 (VeriChain) guarantees tamper‑evident audit trail.</div>
+          <div class="body-text">Continuously monitors all layers; violations trigger safe halt.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 8: Runtime TLA+ Model Checker -->
+    <div class="feature-section" id="s8">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">8 · Runtime TLA+ Model Checker</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Samples live transactions against formal TLA+ spec. Detects implementation drift from verified state space.</div>
+          <table>
+            <tr><th>Invariant</th><th>Description</th></tr>
+            <tr><td>ConservationOfValue</td><td>Σ tx.entries = 0</td></tr>
+            <tr><td>MerkleRootConsistency</td><td>root = MerkleHash(entries)</td></tr>
+            <tr><td>NoDoubleSpend</td><td>No transaction spends the same funds twice</td></tr>
+          </table>
+          <div class="body-text">Config: sampling_rate (default 0.10), halt_on_violation, emit_telemetry.</div>
+          <div class="body-text">Commands: <code>verity tla check --full</code> (full model check).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 9: Lean‑Agent Compliance Verifier -->
+    <div class="feature-section" id="s9">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">9 · Lean‑Agent Compliance Verifier</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Auto‑formalises agent actions into Lean 4 theorems, checks against pre‑compiled regulatory axioms at microsecond latency.</div>
+          <div class="body-text">Axiom library: SEC Rule 15c3‑5, SR 11‑7, Reg Z, Reg E, Reg DD, ECOA/FCRA.</div>
+          <div class="body-text"><strong>Axiom Completeness Monitor:</strong> Flags affected axioms within 24 hours of any regulatory change.</div>
+          <div class="body-text">Proof cache with configurable TTL (default 3600 s). Commands: <code>verity compliance refresh-axioms</code>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 10: Non‑Human Identity Manager (1A1A) -->
+    <div class="feature-section" id="s10">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">10 · Non‑Human Identity Manager (1A1A)</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> One Agent, One Account. Every agent gets a zkVM‑attested binary‑hash identity and a capability‑governed smart account.</div>
+          <div class="code-block"><code>pub struct AgentIdentity {
+    pub agent_id: AgentId,
+    pub binary_hash: [u8; 32],
+    pub zk_proof: ZkpIdentityProof,
+    pub did: String,
+    pub verichain_address: String,
+    pub kya_credential_id: Option<Uuid>,
+    pub eidas_wallet_id: Option<String>,
+    pub smart_account: SmartAccount,
+    pub created_at: DateTime<Utc>,
+    pub revoked_at: Option<DateTime<Utc>>,
+}</code></div>
+          <div class="body-text">KYA credentials: Level 1–3. eIDAS 2.0 bridge for EU digital identity wallets.</div>
+          <div class="body-text">Commands: <code>verity agent register</code>, <code>verity agent kya-issue</code>, <code>verity agent revoke</code>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 11: Privacy Services (FHE + SMPC + DP) -->
+    <div class="feature-section" id="s11">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">11 · Privacy Services (FHE + SMPC + DP)</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>FHE:</strong> TFHE‑rs with optional Intel Heracles ASIC / GPU acceleration. Encrypt, add, multiply on encrypted data.</div>
+          <div class="body-text"><strong>SMPC:</strong> Shamir secret sharing, FROST threshold Schnorr over BLS12‑381.</div>
+          <div class="body-text"><strong>DP:</strong> OpenDP ε‑budget tracking, Laplace mechanism.</div>
+          <div class="body-text">Commands: <code>verity privacy fhe-benchmark</code>, <code>verity privacy dp-budget</code>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 12: ORCHID Consensus -->
+    <div class="feature-section" id="s12">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">12 · ORCHID — Quantum‑Augmented Consensus</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Bio‑inspired consensus mapping Kuramoto oscillators to distributed consensus. Order parameter r(t) triggers consensus when above threshold θ_b (default 0.75). Quantum Secret Sharing layer finalises blocks with quantum‑secure proofs.</div>
+          <div class="body-text">Scalable for n ≥ 150 nodes, sub‑second finality. Status visible in Mission Control → Agents → VeriChain Consensus.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 13: Post‑Quantum Capability Token Engine -->
+    <div class="feature-section" id="s13">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">13 · Post‑Quantum Capability Token Engine</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Manages transition from Ed25519 to ML‑DSA‑44. Hybrid dual‑signature mode. Phases: Inventory (2026 H2) → Hybrid (mid‑2027) → PQC‑Only (2029).</div>
+          <div class="body-text">Liveness condition: Δeff ≥ ⌈4(1‑ϵ)f⌉ (Fukuda‑Matsuo).</div>
+          <div class="body-text">Commands: <code>verity pqc status</code>, <code>verity pqc advance-phase</code>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 14: IEC 61508 SIL3 Safety Kernel -->
+    <div class="feature-section" id="s14">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">14 · IEC 61508 SIL3 Safety Kernel</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Deterministic scheduling with bounded WCET. Time‑triggered scheduling. Ferrocene safety‑qualified Rust compiler. CODESYS‑pattern virtual safety lifecycle.</div>
+          <div class="body-text">Commands: <code>verity sil3 status</code>, <code>verity sil3 wcet-report</code>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 15: Emergent Protocol Learner -->
+    <div class="feature-section" id="s15">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">15 · Emergent Protocol Learner</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>Purpose:</strong> Agents negotiate task‑specific communication protocols within the session‑type safety envelope. Based on MARL‑CPC (collective predictive coding).</div>
+          <div class="body-text">All learned protocols must pass session type checker; unsafe protocols are rejected.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 16: Agent Security Mesh (ASM) -->
+    <div class="feature-section" id="s16">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">16 · Agent Security Mesh (ASM)</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="body-text"><strong>PromptGuardian:</strong> 4‑layer input sanitisation, encoded content detection, JailGuard MLP (98.4% accuracy).</div>
+          <div class="body-text"><strong>MemLineage:</strong> Memory integrity with Merkle DAG, zero ASR against Trojan Hippo.</div>
+          <div class="body-text"><strong>ExecutionGuard:</strong> gVisor sandbox, MCP tool descriptor validation, multi‑turn trajectory analysis.</div>
+          <div class="body-text"><strong>VetPipeline:</strong> 4‑stage marketplace skill vetting (static, dynamic, semantic, human).</div>
+          <div class="body-text"><strong>DriftMonitor:</strong> Real‑time behavioural anomaly detection; external to agent reasoning.</div>
+          <div class="body-text"><strong>Kill Switch:</strong> PAUSE / SUSPEND / TERMINATE; hardware NMI tier.</div>
+          <div class="body-text"><strong>CascadeGuard:</strong> Circuit breakers CLOSED→OPEN→HALF_OPEN; default 3 failures/60s.</div>
+          <div class="body-text"><strong>FIM:</strong> Financial Invariants Monitor — rejects parameter mutations without signed policy change.</div>
+          <div class="body-text"><strong>RAMPART CI/CD:</strong> Automated adversarial testing on every build.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 17: Command Reference -->
+    <div class="feature-section" id="s17">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">17 · VAOS Command Reference</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <table>
+            <tr><th>Command</th><th>Purpose</th></tr>
+            <tr><td><code>verity agent list</code></td><td>List all registered agents</td></tr>
+            <tr><td><code>verity agent status &lt;id&gt;</code></td><td>Detailed agent status</td></tr>
+            <tr><td><code>verity agent register --binary-hash &lt;h&gt; --zk-proof &lt;p&gt;</code></td><td>Register new agent identity</td></tr>
+            <tr><td><code>verity agent kya-issue --agent-id &lt;id&gt; --level &lt;1-3&gt;</code></td><td>Issue KYA credential</td></tr>
+            <tr><td><code>verity agent revoke --agent-id &lt;id&gt;</code></td><td>Revoke an agent identity</td></tr>
+            <tr><td><code>verity agent pause &lt;id&gt;</code></td><td>Pause agent (resumable)</td></tr>
+            <tr><td><code>verity agent suspend &lt;id&gt;</code></td><td>Suspend agent (human reactivation)</td></tr>
+            <tr><td><code>verity agent terminate &lt;id&gt; --reason "..."</code></td><td>Terminate agent with forensic snapshot</td></tr>
+            <tr><td><code>verity agent boundaries set &lt;id&gt; --spending-limit &lt;n&gt; --approval-threshold &lt;n&gt;</code></td><td>Set agent boundaries</td></tr>
+            <tr><td><code>verity tla check --full</code></td><td>Full TLA+ model check</td></tr>
+            <tr><td><code>verity compliance refresh-axioms</code></td><td>Refresh regulatory axiom library</td></tr>
+            <tr><td><code>verity privacy fhe-benchmark</code></td><td>FHE performance benchmark</td></tr>
+            <tr><td><code>verity privacy dp-budget</code></td><td>Check DP privacy budget</td></tr>
+            <tr><td><code>verity pqc status</code></td><td>PQC migration status</td></tr>
+            <tr><td><code>verity pqc advance-phase</code></td><td>Advance PQC migration phase</td></tr>
+            <tr><td><code>verity sil3 status</code></td><td>SIL3 safety kernel status</td></tr>
+            <tr><td><code>verity sil3 wcet-report</code></td><td>WCET analysis report</td></tr>
+            <tr><td><code>verity cascade reset --channel &lt;id&gt;</code></td><td>Manually reset tripped circuit breaker</td></tr>
+            <tr><td><code>verity version</code></td><td>Print Verity version</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"><div class="divider-line"></div><div class="divider-label">Verity Agent Integrity Engine</div><div class="divider-line"></div></div>
+  </div>
+
+  <footer>
+    <div class="footer-left">
+      <div class="footer-brand">VERITY<span>.</span> Core Banking</div>
+      <div class="footer-tagline">Sovereign · Formally Verified · Agent‑Native · Quantum‑Ready</div>
+    </div>
+    <div class="footer-right">
+      ARC42 v15.0+ · BIAN v14.0 · ISO 20022 · DORA · BCBS 239<br />
+      NIST FIPS 203/204/205 · PCI DSS 4.0 · SWIFT CSCF v2026<br />
+      OWASP Agentic Top 10 · EU AI Act · ISO/IEC 25010
+    </div>
+  </footer>
+
+  <script>
+    // Collapse all sections except the first
+    document.querySelectorAll('.feature-section').forEach((el, idx) => {
+      if (idx > 0) el.classList.remove('open');
+    });
+  </script>
+</body>
+</html>

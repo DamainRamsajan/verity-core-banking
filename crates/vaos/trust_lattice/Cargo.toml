@@ -6,6 +6,7 @@ license.workspace = true
 description = "Verity Agent OS — Trust Lattice Engine (Spera Theorem 9.2, Datalog equivalence)"
 
 [dependencies]
+chrono.workspace = true
 vaos-core = { path = "../core" }
 tokio.workspace = true
 serde.workspace = true

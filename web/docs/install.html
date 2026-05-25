@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verity Installation Manual</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <div class="max-w-4xl mx-auto px-6 py-12">
+    
+    <!-- Header -->
+    <div class="mb-12">
+      <h1 class="text-4xl font-bold mb-2">Verity Core Banking Platform</h1>
+      <p class="text-xl text-gray-400">Installation Manual for Implementation Engineers</p>
+      <p class="text-sm text-gray-500 mt-2">Version 0.1.0 — May 2026</p>
+    </div>
+
+    <!-- Prerequisites -->
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">Prerequisites</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-300">
+        <li>A Linux server running a recent kernel (5.15+). Bare‑metal is required for production; a VM may be used for evaluation with reduced security guarantees.</li>
+        <li>For production: Intel Xeon with TDX support, or AMD EPYC with SEV‑SNP support.</li>
+        <li>The server must have at least 8 CPU cores, 32 GB RAM, and 512 GB SSD storage.</li>
+        <li>A static IP address and a valid TLS certificate (self‑signed is acceptable for initial setup).</li>
+        <li>A valid Verity licence key, provided by Intellectica AI LLC.</li>
+        <li><code>systemd</code> (default on most distributions) or the ability to run a long‑lived process.</li>
+      </ul>
+    </section>
+
+    <!-- Obtaining the binary -->
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">1. Obtain the Verity Binary</h2>
+      <ol class="list-decimal list-inside space-y-3 text-gray-300">
+        <li>Open a web browser and navigate to <a href="/download" class="text-blue-400 underline">verity.io/download</a> (or the URL provided in your licence email).</li>
+        <li>Enter your licence key exactly as provided. The download will begin automatically.</li>
+        <li>Save the file <code class="bg-gray-800 px-2 py-0.5 rounded text-sm">verity-&lt;version&gt;.bin</code> to your local machine.</li>
+      </ol>
+    </section>
+
+    <!-- Verify integrity -->
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">2. Verify Binary Integrity</h2>
+      <p class="text-gray-300 mb-3">A SHA‑256 checksum file is available next to the download. Verify the binary before executing it:</p>
+      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">sha256sum -c verity-&lt;version&gt;.bin.sha256</pre>
+      <p class="text-gray-400 text-sm mt-2">Expected output: <code class="bg-gray-800 px-2 py-0.5 rounded">verity-&lt;version&gt;.bin: OK</code></p>
+    </section>
+
+    <!-- Installation -->
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">3. Install Verity</h2>
+      <p class="text-gray-300 mb-3">Copy the binary to a system directory, make it executable, and run the installer:</p>
+      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
+# Copy binary
+sudo cp verity-&lt;version&gt;.bin /usr/local/bin/verity
+sudo chmod +x /usr/local/bin/verity
+
+# Run the installer (replaces &lt;licence-key&gt; with your actual key)
+sudo verity install --license-key "VERITY-..."
+      </pre>
+      <p class="text-gray-400 text-sm mt-2">The installer will:</p>
+      <ul class="list-disc list-inside text-gray-400 text-sm space-y-1 mt-2">
+        <li>Validate the licence key cryptographically.</li>
+        <li>Bind the licence to the server’s hardware.</li>
+        <li>Generate a configuration file at <code class="bg-gray-800 px-2 py-0.5 rounded">/etc/verity/config.toml</code>.</li>
+        <li>Initialise the Merkle ledger.</li>
+        <li>Print “Verity installed successfully” upon completion.</li>
+      </ul>
+    </section>
+
+    <!-- Start -->
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">4. Start the Platform</h2>
+      <p class="text-gray-300 mb-3">The recommended way is to use <code class="bg-gray-800 px-2 py-0.5 rounded">systemd</code>:</p>
+      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
+# Create a systemd service file
+sudo tee /etc/systemd/system/verity.service &lt;&lt; 'EOF'
+[Unit]
+Description=Verity Core Banking Platform
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/verity serve
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Enable and start
+sudo systemctl daemon-reload
+sudo systemctl enable verity
+sudo systemctl start verity
+      </pre>
+      <p class="text-gray-300 mt-3">Or run it directly in the foreground:</p>
+      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">verity serve</pre>
+    </section>
+
+    <!-- Access -->
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">5. Access the Mission Control Dashboard</h2>
+      <p class="text-gray-300 mb-3">Open a web browser and navigate to:</p>
+      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">https://&lt;your-server-address&gt;:8080</pre>
+      <p class="text-gray-400 text-sm mt-2">The dashboard is served directly by the Verity binary — no separate web server is required.</p>
+    </section>
+
+    <!-- License management -->
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">6. Licence Management</h2>
+      <p class="text-gray-300 mb-3">Check the status of your licence at any time:</p>
+      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">verity license status</pre>
+      <p class="text-gray-300 mt-3">Output example:</p>
+      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
+Organisation: First Interstate Bank
+Expiry:       2027-06-01T00:00:00Z
+Hardware match: 100%
+Signature:     ✅ valid
+      </pre>
+      <p class="text-gray-400 text-sm mt-2">If the licence is due to expire, contact Intellectica AI LLC for a renewal key. The new key can be applied without reinstalling.</p>
+    </section>
+
+    <!-- Troubleshooting -->
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">7. Troubleshooting</h2>
+      <div class="space-y-4 text-gray-300">
+        <div>
+          <h3 class="font-semibold text-white">“Licence is bound to different hardware”</h3>
+          <p>The server’s hardware fingerprint has changed. This can happen after major hardware upgrades. Contact support for a re‑issued licence.</p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-white">“System clock appears to have been rolled back”</h3>
+          <p>Ensure NTP is enabled and the system clock is correct. The licence enforcement detects clock manipulation.</p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-white">“Virtualised/container environment detected”</h3>
+          <p>Verity is running in a VM or container. This is acceptable for evaluation; a warning is printed but the platform will start. Production deployments should use bare‑metal with TEE support.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Support -->
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">8. Support</h2>
+      <p class="text-gray-300">
+        For assistance, contact <strong>Intellectica AI LLC</strong> at
+        <a href="mailto:support@verity.io" class="text-blue-400 underline">support@verity.io</a>
+        or call your designated implementation contact.
+      </p>
+    </section>
+
+  </div>
+</body>
+</html>

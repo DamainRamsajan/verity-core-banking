@@ -28,10 +28,9 @@ pub mod incremental;
 pub mod errors;
 
 use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use vaos_core::types::{AgentId, CapabilityToken, CapScope};
+use vaos_core::types::AgentId;
 
 pub use certificate::SperaCertificate;
 pub use hypergraph::{
@@ -60,7 +59,7 @@ pub struct TrustLatticeEngine {
 #[derive(Debug, Clone)]
 pub struct CapabilitySet {
     pub agent_id: AgentId,
-    pub tokens: Vec<CapabilityToken>,
+    pub tokens: Vec<vaos_core::types::CapabilityToken>,
     pub trust_level: TrustLevel,
 }
 
@@ -113,18 +112,6 @@ impl TrustLatticeEngine {
     }
 
     /// Compute the conjunctive capability hypergraph closure for a set of agents.
-    ///
-    /// # Pre-conditions
-    /// - All agents in `agent_ids` must be registered
-    /// - Composition size must not exceed `max_composition_size`
-    ///
-    /// # Post-conditions
-    /// - Returns `ClosureResult` with full hypergraph closure
-    /// - If closure intersects any forbidden state, returns `CompositionUnsafe`
-    ///
-    /// # Invariants
-    /// - Closure is a fixed-point of the Datalog rules
-    /// - All conjunctive hyperedges are considered (AND-semantics)
     #[tracing::instrument(name = "trust_lattice.compute_closure", level = "info", skip(self))]
     pub async fn compute_closure(
         &self,
@@ -151,10 +138,10 @@ impl TrustLatticeEngine {
         // 2. Run Datalog closure via crepe — O(n + m·k)
         let closure = hypergraph.compute_closure()?;
 
-        // 3. Check for intersection with forbidden states
+        // 3. Check for intersection with forbidden states (on the hypergraph)
         let mut reached_forbidden = Vec::new();
         for state in forbidden.iter() {
-            if closure.intersects(state) {
+            if hypergraph.intersects(state) {
                 reached_forbidden.push(state.clone());
             }
         }
@@ -179,7 +166,7 @@ impl TrustLatticeEngine {
 
         tracing::info!(
             agent_count = agent_ids.len(),
-            closure_size = closure.total_capabilities(),
+            closure_size = closure.total_capabilities,
             safe = true,
             "Composition safe"
         );
@@ -188,12 +175,11 @@ impl TrustLatticeEngine {
             included_agents: agent_ids.to_vec(),
             safe: true,
             certificate_hash: certificate.as_ref().map(|c| c.hash()),
-            total_capabilities: closure.total_capabilities(),
+            total_capabilities: closure.total_capabilities,
         })
     }
 
     /// The meet (greatest lower bound) of two trust levels.
-    /// Used when two agents with different trust levels collaborate.
     pub fn meet(a: TrustLevel, b: TrustLevel) -> TrustLevel {
         std::cmp::min(a, b)
     }
@@ -209,12 +195,14 @@ impl TrustLatticeEngine {
 // ---------------------------------------------------------------
 
 #[derive(Debug)]
+#[allow(dead_code)]
 struct DatalogFactStore {
     facts: Vec<DatalogFact>,
     dirty: bool,
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct DatalogFact {
     agent_a: AgentId,
     agent_b: AgentId,

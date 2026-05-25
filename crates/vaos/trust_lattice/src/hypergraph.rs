@@ -7,9 +7,6 @@ use vaos_core::types::AgentId;
 
 use super::{CapabilitySet, LatticeError};
 
-/// A capability hypergraph. Unlike pairwise graphs, hyperedges can connect
-/// more than two nodes — enabling AND-semantics where a capability requires
-/// simultaneous presence of multiple agents.
 #[derive(Debug, Clone)]
 pub struct CapabilityHypergraph {
     pub nodes: HashMap<AgentId, CapabilityNode>,
@@ -23,23 +20,18 @@ pub struct CapabilityNode {
     pub trust_level: super::TrustLevel,
 }
 
-/// A conjunctive hyperedge — fires only when ALL source capabilities are
-/// simultaneously present. This is the AND-semantics that pairwise models
-/// cannot express.
 #[derive(Debug, Clone)]
 pub struct ConjunctiveHyperedge {
     pub sources: Vec<(AgentId, String)>,
     pub target: String,
 }
 
-/// A forbidden capability state — any closure intersecting this is unsafe.
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct ForbiddenState {
     pub capabilities: Vec<String>,
     pub reason: String,
 }
 
-/// Result of hypergraph closure computation.
 #[derive(Debug, Clone, Default)]
 pub struct ClosureResult {
     pub included_agents: Vec<AgentId>,
@@ -50,17 +42,25 @@ pub struct ClosureResult {
 
 impl CapabilityHypergraph {
     pub fn new() -> Self {
-        Self { nodes: HashMap::new(), hyperedges: Vec::new() }
+        Self {
+            nodes: HashMap::new(),
+            hyperedges: Vec::new(),
+        }
     }
 
     pub fn add_agent_node(&mut self, agent_id: AgentId, caps: &CapabilitySet) {
-        self.nodes.insert(agent_id, CapabilityNode {
+        self.nodes.insert(
             agent_id,
-            capabilities: caps.tokens.iter()
-                .flat_map(|t| t.scope.operations.clone())
-                .collect(),
-            trust_level: caps.trust_level,
-        });
+            CapabilityNode {
+                agent_id,
+                capabilities: caps
+                    .tokens
+                    .iter()
+                    .flat_map(|t| t.scope.operations.clone())
+                    .collect(),
+                trust_level: caps.trust_level,
+            },
+        );
     }
 
     /// Compute conjunctive capability closure using fixed-point iteration.
@@ -68,14 +68,12 @@ impl CapabilityHypergraph {
     pub fn compute_closure(&self) -> Result<ClosureResult, LatticeError> {
         let mut reachable: HashSet<String> = HashSet::new();
 
-        // Initialize with individual agent capabilities
         for node in self.nodes.values() {
             for cap in &node.capabilities {
                 reachable.insert(cap.clone());
             }
         }
 
-        // Fixed-point iteration: apply all hyperedges
         let mut changed = true;
         let mut iteration = 0;
         let max_iterations = 1000;
@@ -84,7 +82,8 @@ impl CapabilityHypergraph {
             changed = false;
             for edge in &self.hyperedges {
                 let all_sources_present = edge.sources.iter().all(|(agent, cap)| {
-                    self.nodes.get(agent)
+                    self.nodes
+                        .get(agent)
                         .map(|n| n.capabilities.contains(cap))
                         .unwrap_or(false)
                 });
@@ -109,9 +108,11 @@ impl CapabilityHypergraph {
     }
 
     pub fn intersects(&self, forbidden: &ForbiddenState) -> bool {
-        let all_caps: HashSet<&String> = self.nodes.values()
-            .flat_map(|n| &n.capabilities)
-            .collect();
-        forbidden.capabilities.iter().all(|c| all_caps.contains(c))
+        let all_caps: HashSet<&String> =
+            self.nodes.values().flat_map(|n| &n.capabilities).collect();
+        forbidden
+            .capabilities
+            .iter()
+            .all(|c| all_caps.contains(c))
     }
 }

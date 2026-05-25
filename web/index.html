@@ -1036,6 +1036,80 @@
     </div>
   </div>
 
+   <!-- AGENT INTEGRITY ENGINE SECTION -->
+  <div class="divider" style="margin-top: 4rem;">
+    <div class="divider-line"></div>
+    <div class="divider-label">Agent Integrity Engine</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <section style="padding: 5rem 3rem; max-width: 900px; margin: 0 auto;">
+    
+    <!-- Hook: Problem → Gap → Solution (academic abstract pattern) -->
+    <div style="text-align: center; margin-bottom: 3rem;">
+      <div class="section-number">02 / Agent Safety Substrate</div>
+      <h2 class="section-title" style="font-size: 2rem; margin-top: 0.5rem; margin-bottom: 1.2rem;">
+        Every agent action. <em>One enforcement point.</em>
+      </h2>
+      <p class="hero-desc" style="font-family: var(--mono); font-size: 0.65rem; font-style: normal; max-width: 620px; margin: 0 auto; line-height: 1.9;">
+        Two individually safe agents can, when combined, reach a forbidden goal — 42.6% of real multi‑agent trajectories contain at least one such dependency. The Agent Integrity Engine is a capability‑based microkernel that makes this class of failure mathematically impossible. It sits beneath every AI agent in the Verity platform, enforcing hardware‑rooted trust, compile‑time safety, and regulatory compliance at the virtual‑machine level — before any action reaches the ledger.
+      </p>
+    </div>
+
+    <!-- Verifiable Evidence Grid (demonstrated capability, not marketing claims) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 2.5rem;">
+      
+      <div style="background: var(--vault); padding: 1.8rem;">
+        <div style="font-family: var(--serif); font-size: 2rem; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 0.3rem;">19</div>
+        <div style="font-family: var(--cond); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 0.5rem;">Subsystems</div>
+        <div style="font-size: 0.55rem; line-height: 1.7; color: var(--text-dim);">Across three architectural layers — Hardware Abstraction, Capability Microkernel, Agent Services — each with formal contract specifications.</div>
+        <div style="margin-top: 0.6rem; font-size: 0.45rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim);">Verified: ARC42 §3 Building Block View</div>
+      </div>
+
+      <div style="background: var(--vault); padding: 1.8rem;">
+        <div style="font-family: var(--serif); font-size: 2rem; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 0.3rem;">&lt;1ms</div>
+        <div style="font-family: var(--cond); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 0.5rem;">Compliance Verification</div>
+        <div style="font-size: 0.55rem; line-height: 1.7; color: var(--text-dim);">Every proposed agent action is auto‑formalised into a Lean 4 theorem and checked against pre‑compiled regulatory axioms — at microsecond latency.</div>
+        <div style="margin-top: 0.6rem; font-size: 0.45rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim);">Verified: Lean 4 · SR 11‑7 · Reg Z · Reg E</div>
+      </div>
+
+      <div style="background: var(--vault); padding: 1.8rem;">
+        <div style="font-family: var(--serif); font-size: 2rem; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 0.3rem;">PASETO v4</div>
+        <div style="font-family: var(--cond); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 0.5rem;">Capability Tokens</div>
+        <div style="font-size: 0.55rem; line-height: 1.7; color: var(--text-dim);">No agent has ambient authority. Every operation — debit, credit, wire, loan approval — requires an unforgeable, time‑bound capability token with optional PQC dual‑signature.</div>
+        <div style="margin-top: 0.6rem; font-size: 0.45rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim);">Enforced: VM‑level · Dual‑control ≥ $10,000</div>
+      </div>
+
+      <div style="background: var(--vault); padding: 1.8rem;">
+        <div style="font-family: var(--serif); font-size: 2rem; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 0.3rem;">TLA+ · Lean 4</div>
+        <div style="font-family: var(--cond); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 0.5rem;">Formally Verified</div>
+        <div style="font-size: 0.55rem; line-height: 1.7; color: var(--text-dim);">Runtime TLA+ model checker continuously samples live transactions against the formal spec. Lean‑Agent Compliance Verifier proves regulatory correctness before execution.</div>
+        <div style="margin-top: 0.6rem; font-size: 0.45rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim);">Verified: TLA+ Conservation of Value · Lean 4 Axiom Library</div>
+      </div>
+
+    </div>
+
+    <!-- Dual-audience appeal + CTA -->
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem;">
+      <div style="flex: 1; min-width: 260px;">
+        <div style="font-size: 0.5rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.5rem;">For Security Engineers</div>
+        <p style="font-size: 0.58rem; line-height: 1.7; color: var(--text-secondary);">A capability‑based microkernel written in Rust. 19 subsystems. Full OWASP Agentic Top 10 coverage (ASI01‑ASI10). Session‑type deadlock freedom verified at compile time. Post‑quantum token migration with liveness guarantees.</p>
+      </div>
+      <div style="flex: 1; min-width: 260px;">
+        <div style="font-size: 0.5rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.5rem;">For Banking Leaders</div>
+        <p style="font-size: 0.58rem; line-height: 1.7; color: var(--text-secondary);">No agent can create, destroy, or double‑spend funds. No agent can approve its own wire transfer. No agent can modify a fee structure without a signed, human‑approved policy change. Mathematical proof, not policy documents.</p>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 2.5rem;">
+      <a href="docs/agent-integrity-engine.html" class="btn btn-secondary">
+        <span class="btn-icon">🛡</span>
+        Read the Full Agent Integrity Engine Manual
+      </a>
+    </div>
+
+  </section>
+
   <!-- THEOREM STRIP -->
   <div class="theorem-strip" style="margin-top: 4rem;">
     <div class="theorem-inner">

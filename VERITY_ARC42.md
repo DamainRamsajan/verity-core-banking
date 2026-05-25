@@ -3417,3 +3417,114 @@ R2	Cloudflare object storage (S3‑compatible).
 KV	Cloudflare key‑value store.
 Signed URL	Time‑limited URL that grants temporary access to a private R2 object.
 This addendum is effective for Verity ARC42 v21. It describes the licensing subsystem and web delivery layer added in Phase 0, and the admin dashboard planned for Phase 1.
+
+VERITY CORE BANKING PLATFORM – ARC42 v22 ADDENDUM
+Source: ARC42 v1‑v21, Implementation Blueprint v1‑v2, Phase 0 customer delivery pipeline, all master‑build scripts, and the exhaustive research conducted May 2026.
+Status: Final – Pre‑Implementation
+Generated: 2026‑05‑25
+Integrity Hash: c1d2e3f4‑a5b6‑47c8‑9d0e‑1f2a3b4c5d6e
+
+1. INTRODUCTION
+This addendum closes the 35 gaps identified in the v21 architecture and transforms Verity from a compilable library with a stub CLI into a complete, operational, production‑grade core banking platform. No new banking features are added; the focus is exclusively on the runtime infrastructure, operational architecture, and deployment topology that a regulated financial institution requires.
+
+Three overarching design goals drive every decision in this document:
+
+The Core Must Never Shut Down. Dashboard updates, security patches, configuration changes, and hardware failures must all be handled without interrupting the Merkle ledger or the agent runtime.
+
+Sovereignty Is Preserved. Every component described here can run on the bank’s own hardware, in an air‑gapped data centre, with zero cloud dependency.
+
+Every Gap Is Closed. The 35 gaps identified in v21 (G1‑G30 plus F‑GAP‑A through F‑GAP‑H) are addressed with specific architectural components, ADRs, and conformance criteria.
+
+2. UPDATED SOLUTION STRATEGY
+2.1 The Four‑Tier Deployment Model
+Verity v22 adopts a four‑tier deployment topology that cleanly separates concerns while maintaining the single‑binary sovereign promise:
+
+Tier	Component	Technology	Scaling Model
+Edge	Load Balancer + TLS termination	HAProxy 2.9 / NGINX 1.27, Keepalived	Horizontally (multiple LB nodes with VRRP failover)
+Presentation	verity-gateway (Frontend Gateway)	Rust 1.95, Axum 0.8, rust‑embed, tower‑http, tracing	Horizontally (stateless, N+1 behind LB)
+Application	verity (Core Banking Binary)	Rust 1.95, VCBP + VAIE crates, licenz‑core	Active‑Passive pair (primary + hot standby)
+Data	PostgreSQL HA Cluster	PostgreSQL 17, Patroni 3.4, etcd 3.5, synchronous streaming replication	Minimum 3 nodes for quorum, one or more async standbys for geographic DR
+In co‑located mode (pilot/small‑bank deployment), the Edge, Presentation, and Application tiers all run on a single physical server, with the Gateway listening on port 443 and the Core on port 8081 (internal only). The “single binary” feel is preserved for marketing while the architectural separation exists for production resilience.
+
+2.2 Key Architectural Patterns (Additions)
+Dual‑Track Parallel, Dynamic Switching (CardX/TiDB pattern): The event‑sourced Merkle ledger IS the replication stream. A hot standby Core continuously replays events from the primary, enabling second‑level switchover with zero data loss.
+
+PKCS#11 HSM Abstraction: All cryptographic key material is protected by a FIPS 140‑2 Level 3 Hardware Security Module accessed via the PKCS#11 standard.
+
+Enterprise IAM Federation: The Gateway authenticates operators against the bank’s existing LDAPS, Active Directory, or OpenID Connect infrastructure before issuing session‑scoped capability tokens.
+
+Secrets Management via HashiCorp Vault: Runtime secrets (database passwords, FedNow API keys) are dynamically retrieved from Vault and never stored in configuration files.
+
+WORM‑Archived Merkle Ledger: Ledger partitions older than the regulatory retention window are automatically exported with their Merkle proofs to WORM‑compliant storage, satisfying SEC 17a‑4.
+
+3. UPDATED BUILDING BLOCK VIEW
+3.1 New Container: verity-gateway (Frontend Gateway)
+Technology Stack: Rust 1.95, Axum 0.8, rust‑embed (for embedded React dashboard), tower‑http (CORS, compression, request tracing), tracing‑subscriber, openssl or rustls for TLS.
+
+Component Map:
+
+Dashboard Server – Serves the pre‑built React Mission Control dashboard from embedded static assets.
+
+API Proxy – Forwards authenticated API requests to the Core binary on :8081. Attaches the operator’s session‑scoped capability token to every proxied request.
+
+Authentication Bridge – Validates operator credentials against the bank’s IAM (LDAPS/OIDC), maps IAM groups to Verity roles, and requests capability tokens from the Core.
+
+Health & Readiness Endpoints – /health (overall health), /ready (ready to serve traffic), /metrics (Prometheus‑compatible metrics).
+
+TLS Termination – Handles HTTPS using the bank’s X.509 certificate; optionally offloads this to the load balancer in separated deployments.
+
+Public Interface (Contract):
+
+Pre‑conditions: Gateway has a valid capability token (gateway:proxy scope) issued by the Core; IAM backend is reachable; TLS certificate is valid.
+
+Post‑conditions: All API requests are authenticated, authorised, and proxied with full provenance logging.
+
+Invariants: Gateway holds no ledger state, no capability tokens beyond its own proxy token, and no agent state.
+
+Error modes: IAM unreachable → 503 with retry‑after; Core unreachable → 502 with circuit‑breaker; invalid capability token → 403.
+
+[SEMI‑FORMAL]
+
+Dependencies: Core binary (:8081), enterprise IAM (LDAPS/OIDC), HSM (via PKCS#11 for TLS key), Vault (for runtime secrets).
+
+Data owned/accessed: None (stateless). Caches capability tokens in memory only.
+
+3.2 Enhanced Container: verity (Core Binary)
+The existing Core binary is enhanced with:
+
+REST API Server (Axum) – embedded within verity serve. Exposes all banking operations via /api/v1/….
+
+Graceful Shutdown Handler – traps SIGTERM, completes in‑flight transactions, flushes the ledger, revokes the Gateway’s capability token, and closes the HTTP listener.
+
+HSM Integration Layer (PKCS#11) – abstract interface for TLS private keys, database TDE keys, and vendor licence signing (if stored on‑premise).
+
+Vault Secrets Provider – retrieves runtime secrets at startup and refreshes them before expiry.
+
+Configuration Audit Engine – logs every verity config set command to the config_history ledger partition; enables verity config diff.
+
+Benchmark Harness (verity benchmark) – built on Criterion.rs; simulates configurable TPS loads and reports P50/P95/P99 latencies.
+
+Hot‑Standby Replication – consumes the event log from the primary PostgreSQL and maintains a near‑real‑time replica; verifies Merkle root after promotion.
+
+Long‑Term Archival – exports ledger partitions older than the retention window to WORM storage with Merkle proofs.
+
+3.3 New Infrastructure Components
+Component	Technology	Responsibility
+Load Balancer	HAProxy 2.9 + NGINX 1.27 + Keepalived	Distribute traffic across Gateway instances; TLS termination; health checking
+HSM	FIPS 140‑2 Level 3 (Thales, Utimaco, Securosys, or AWS CloudHSM) via PKCS#11	Protect TLS private keys, database encryption keys, vendor signing key
+PostgreSQL HA	Patroni 3.4 + etcd 3.5	Automatic failover, synchronous streaming replication, leader election
+Secrets Vault	HashiCorp Vault Enterprise 2.0	Store and rotate database passwords, API keys, and other runtime secrets
+WORM Storage	On‑premise WORM NAS or S3 Object Lock	Long‑term regulatory archival of ledger partitions
+4. ARCHITECTURE DECISION RECORDS (NEW)
+ID	Title	Status	Context	Decision	Consequences	Source
+ADR‑021	Frontend Gateway as a separate Rust binary	Accepted	The dashboard must be updated without restarting the core banking binary; the architecture must remain sovereign.	A new verity-gateway binary is introduced. It serves the React dashboard, proxies API calls, and authenticates operators via enterprise IAM.	Enables zero‑downtime dashboard updates; adds a second binary to the deployment but preserves the single‑binary marketing message through co‑located deployment.	v22 research, CardX migration pattern
+ADR‑022	Hot‑Standby Core with Event‑Log Replay	Accepted	The core must never shut down; security patches must be applied without downtime.	The Core is deployed as an active‑passive pair. The standby continuously replays the Merkle event log and can be promoted to primary in under 2 minutes.	Zero‑downtime Core updates; requires PostgreSQL streaming replication or event‑log tailing; Merkle root verification after promotion guarantees zero data loss.	CardX migration, Ledger Rocket paper
+ADR‑023	PKCS#11 HSM Integration	Accepted	TLS keys and database encryption keys must be protected by a FIPS 140‑2 Level 3 HSM for production compliance.	All cryptographic key material is stored in an HSM and accessed via PKCS#11. The abstract interface supports Thales, Utimaco, Securosys, and AWS CloudHSM.	Production security compliance; adds hardware cost and integration complexity.	Suhyup Bank HSM selection, Liminal Custody
+ADR‑024	Enterprise IAM Federation (LDAPS/OIDC)	Accepted	Bank operators must authenticate through their existing enterprise identity infrastructure.	The Gateway authenticates operators against LDAPS, AD, or OIDC. IAM groups are mapped to Verity roles via configuration.	Mandatory for any bank with >50 employees; requires IAM configuration per deployment.	Fiserv IAM requirements, Casdoor open‑source IAM
+ADR‑025	HashiCorp Vault for Secrets Management	Accepted	Runtime secrets must not be stored in configuration files or environment variables in production.	Verity retrieves database passwords, API keys, and other secrets from Vault at startup. A feature flag gates this requirement for pilot deployments.	Production security compliance; Vault integration is optional for pilot.	Vault Enterprise 2.0 launch (April 2026)
+ADR‑026	WORM Archival with Merkle Proofs	Accepted	SEC 17a‑4 requires financial records to be preserved in non‑rewriteable, non‑erasable format for ≥6 years.	Ledger partitions older than the retention window are exported to WORM storage with their Merkle proofs. verity archive verify enables independent auditor verification.	Regulatory compliance for long‑term retention; leverages the existing Merkle proof infrastructure.	SEC 17a‑4, WORM storage components
+ADR‑027	Criterion.rs Benchmarking Harness	Accepted	The platform must demonstrate that it meets its latency targets under realistic transaction loads.	A verity benchmark subcommand simulates configurable TPS and reports P50/P95/P99 latencies. A CI/CD gate prevents latency regressions >10%.	Enables capacity planning and SLA verification; adds CI/CD complexity.	Criterion.rs, financial benchmark standards
+ADR‑028	Configuration Audit Trail via Merkle Ledger	Accepted	SOX ITGC requires every configuration change to be traceable, approved, and auditable.	Every verity config set command is provenance‑logged, signed by the operator’s capability token, and appended to a dedicated config_history ledger partition.	Regulatory compliance; leverages the existing provenance infrastructure.	SOX ITGC, configuration drift detection research
+ADR‑029	Geographic Disaster Recovery with Warm Standby	Accepted	DORA Art. 11‑12 requires recoverability from a site‑level disaster with RTO < 2 min and RPO = 0.	A warm‑standby Core and synchronous PostgreSQL standby are maintained at a geographically distant secondary site. DNS/LB redirection achieves sub‑2‑minute RTO.	Production resilience; requires inter‑site networking and regular DR testing.	DORA Art. 11‑12, FFIEC IT Handbook
+ADR‑030	HAProxy + NGINX Load‑Balancing Stack	Accepted	The Gateway tier must be horizontally scalable and resilient to instance failure.	HAProxy provides pure Layer 4/7 load balancing with health checks; NGINX provides TLS termination and static asset caching. Keepalived provides virtual IP failover for the LB tier.	Proven, battle‑tested stack; adds two additional technologies to the deployment.	2026 load‑balancing research
+

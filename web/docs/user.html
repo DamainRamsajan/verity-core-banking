@@ -1,41 +1,783 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verity User Manual</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verity Core Banking — User Manual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&family=Barlow+Condensed:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Core Design System (identical to index.html) ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --obsidian:    #08090b;
+      --vault:       #0d0f12;
+      --plate:       #111318;
+      --border:      #1e2128;
+      --border-hi:   #2e3240;
+      --gold:        #c9a84c;
+      --gold-bright: #e8c96a;
+      --gold-dim:    #7a6330;
+      --gold-glow:   rgba(201,168,76,0.12);
+      --amber:       #d4853a;
+      --text-primary: #e8e4da;
+      --text-secondary: #8a8680;
+      --text-dim:    #4a4845;
+      --mono: 'JetBrains Mono', monospace;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --cond: 'Barlow Condensed', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--obsidian);
+      color: var(--text-primary);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.6;
+    }
+
+    /* Scanline */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.08) 3px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 998;
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 36px;
+      background: rgba(8,9,11,0.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .status-indicator .dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #2d6a2d;
+      box-shadow: 0 0 6px #2d6a2d;
+      animation: pulse-green 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .status-right {
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    .status-divider {
+      width: 1px;
+      height: 14px;
+      background: var(--border);
+    }
+
+    /* ── Main Navigation ── */
+    nav {
+      position: fixed;
+      top: 36px; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 3rem;
+      height: 64px;
+      background: rgba(8,9,11,0.88);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .nav-logo-mark {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      color: var(--text-primary);
+      line-height: 1;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-logo-mark:hover { opacity: 0.8; }
+
+    .nav-logo-mark span { color: var(--gold); }
+
+    .nav-logo-sub {
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      list-style: none;
+    }
+
+    .nav-links a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0 1.4rem;
+      height: 64px;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-left: 1px solid var(--border);
+      transition: color 0.2s, background 0.2s;
+      font-family: var(--mono);
+      position: relative;
+    }
+
+    .nav-links a:last-child { border-right: 1px solid var(--border); }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold);
+      background: var(--gold-glow);
+    }
+
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    .nav-links .nav-icon { font-size: 0.7rem; opacity: 0.6; }
+
+    .nav-links a.primary-link {
+      color: var(--gold);
+      border-color: var(--gold-dim);
+      background: rgba(201,168,76,0.06);
+    }
+
+    .nav-links a.primary-link:hover { background: rgba(201,168,76,0.14); }
+
+    .nav-links a.active {
+      color: var(--gold);
+      background: var(--gold-glow);
+      cursor: default;
+      pointer-events: none;
+    }
+    .nav-links a.active::after { transform: scaleX(1); }
+
+    /* ── Content Container ── */
+    .content-wrapper {
+      padding: 140px 3rem 6rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── Typography ── */
+    .section-label {
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-heading {
+      font-family: var(--serif);
+      font-size: 2.2rem;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-heading em { color: var(--gold); font-style: italic; }
+
+    .sub-heading {
+      font-family: var(--cond);
+      font-size: 1.1rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sub-heading-sm {
+      font-family: var(--cond);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-top: 1.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .body-text {
+      font-size: 0.62rem;
+      line-height: 1.85;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .gold { color: var(--gold); }
+    .dim  { color: var(--text-dim); }
+
+    /* ── Code Blocks ── */
+    .code-block {
+      background: var(--vault);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      line-height: 1.8;
+      color: var(--text-primary);
+    }
+
+    .code-block code {
+      background: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    /* ── Inline Code ── */
+    code {
+      background: var(--plate);
+      padding: 0.2em 0.4em;
+      font-size: 0.58rem;
+      color: var(--gold);
+      border: 1px solid var(--border-hi);
+      font-family: var(--mono);
+    }
+
+    /* ── Lists ── */
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.7;
+      font-size: 0.62rem;
+      color: var(--text-secondary);
+    }
+
+    li { margin-bottom: 0.4rem; }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.62rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.5rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.6rem 0.8rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin: 3rem 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-label {
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .footer-brand {
+      font-family: var(--serif);
+      font-size: 0.9rem;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      color: var(--text-secondary);
+    }
+
+    .footer-brand span { color: var(--gold); }
+
+    .footer-tagline {
+      font-size: 0.48rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .footer-right {
+      font-size: 0.5rem;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+      text-align: right;
+      line-height: 1.8;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 1.5rem; }
+      .content-wrapper { padding: 140px 1.5rem 4rem; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .footer-right { text-align: center; }
+    }
+
+    @media (max-width: 600px) {
+      .status-bar { display: none; }
+      nav { top: 0; }
+      .content-wrapper { padding-top: 100px; }
+    }
+  </style>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen">
-  <div class="max-w-4xl mx-auto px-6 py-12">
-    <h1 class="text-4xl font-bold mb-6">Verity User Manual</h1>
-    
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">Mission Control Dashboard</h2>
-      <p class="text-gray-300 mb-3">Access the dashboard at <code class="bg-gray-800 px-2 py-0.5 rounded">https://&lt;your-server&gt;:8080</code>.</p>
-      <ul class="list-disc list-inside space-y-2 text-gray-300">
-        <li><strong>Governance</strong> — View and manage delegative agent boundaries, spending limits, and approval thresholds.</li>
-        <li><strong>Wellness</strong> — Monitor financial wellness metrics, spending patterns, and savings rates.</li>
-        <li><strong>Life Stage</strong> — Orchestrate multi‑product journeys (home buying, business starting, wealth building).</li>
-        <li><strong>Agent Fleet</strong> — Monitor all AI agents, their capability tokens, and activity feeds.</li>
-        <li><strong>ATM Fleet</strong> — Manage ATM devices, cash levels, and biometric authentication.</li>
-        <li><strong>Migration</strong> — Track legacy core migration progress with parallel‑run validation.</li>
-        <li><strong>Compliance</strong> — View regulatory reports, ZK‑proof audit packages, and DORA status.</li>
-      </ul>
-    </section>
+<body>
 
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">AI Agents</h2>
-      <p class="text-gray-300">Verity includes autonomous AI agents that operate within capability‑governed boundaries. Each agent holds a cryptographic identity and cannot exceed its delegated authority. Common agents include Payment Agent, Fraud Detection Agent, and the Verity Companion (customer‑facing financial assistant).</p>
-    </section>
-
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">Licence Status</h2>
-      <p class="text-gray-300">Check licence status from the server terminal:</p>
-      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto mt-2">verity license status</pre>
-    </section>
-
-    <p class="text-gray-500 text-sm mt-8">Full documentation will be expanded as features stabilise. Contact support@verity.io for assistance.</p>
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="status-indicator">
+        <span class="dot"></span>
+        <span>All systems nominal</span>
+      </div>
+      <div class="status-divider"></div>
+      <div class="status-indicator">
+        <span>TEE Attestation Active</span>
+      </div>
+      <div class="status-divider"></div>
+      <div class="status-indicator">
+        <span>Conservation of Value: Verified</span>
+      </div>
+    </div>
+    <div class="status-right">ARC42 v15.0+ · BIAN v14.0 · DORA · ISO 20022</div>
   </div>
+
+  <!-- Navigation -->
+    <nav>
+    <a href="../index.html" class="nav-logo">
+      <div class="nav-logo-mark">VERITY<span>.</span></div>
+      <div class="nav-logo-sub">Core Banking Platform</div>
+    </a>
+    <ul class="nav-links">
+      <li>
+        <a href="../download.html" class="primary-link">
+          <span class="nav-icon">↓</span>
+          Download
+        </a>
+      </li>
+      <li>
+        <a href="user.html" class="active">
+          <span class="nav-icon">◈</span>
+          User Manual
+        </a>
+      </li>
+      <li>
+        <a href="install.html">
+          <span class="nav-icon">⊞</span>
+          Implementation Manual
+        </a>
+      </li>
+      <li>
+        <a href="features.html">
+          <span class="nav-icon">◉</span>
+          Features
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+
+    <!-- Header -->
+    <div style="margin-bottom: 3rem;">
+      <div class="section-label">For Bank Operators, Tellers, Loan Officers, Compliance Analysts, and Customer‑Facing Staff</div>
+      <h1 class="section-heading">User <em>Manual</em></h1>
+      <p class="body-text">
+        Verity is sovereign, formally‑verified, and agent‑native. It runs entirely on your bank’s own hardware (no cloud). Every number in every account is backed by a Merkle‑proofed, TLA+‑verified ledger – it is mathematically impossible to lose money or double‑spend.
+      </p>
+      <p class="body-text">
+        Banking products (checking, savings, loans, CDs) are compiled from safe code (ASL) – if a product rule can be broken, it won’t compile. AI agents work alongside you; they have their own bank accounts and cannot exceed the permissions you give them.
+      </p>
+    </div>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">01 — The Basics</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">1. What You Are Using</h2>
+    <p class="body-text">
+      Verity is sovereign, formally‑verified, and agent‑native. It runs entirely on your bank’s own hardware (no cloud). Every number in every account is backed by a Merkle‑proofed, TLA+‑verified ledger – it is mathematically impossible to lose money or double‑spend.
+    </p>
+    <p class="body-text">
+      Banking products (checking, savings, loans, CDs) are compiled from safe code (ASL) – if a product rule can be broken, it won’t compile. AI agents work alongside you; they have their own bank accounts (1A1A) and cannot exceed the permissions you give them.
+    </p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">02 — Customers & Accounts</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">2. Customers & Accounts</h2>
+
+    <h3 class="sub-heading-sm">2.1 Opening an Account (Instant, AI‑Native)</h3>
+    <ol>
+      <li>Go to <strong>Customers → New Account</strong>.</li>
+      <li>Enter the applicant’s name, address, date of birth, and SSN (or national ID).</li>
+      <li>The system performs instant KYC (SSN verification + a 15‑second selfie liveness check).</li>
+      <li>If approved (85%+ automated), the account is active immediately.</li>
+      <li>A Verity Companion AI introduces itself to the customer (see § 9).</li>
+    </ol>
+    <p class="body-text"><strong>What really happens:</strong></p>
+    <ul>
+      <li>The KYA identity framework (v14.0) verifies the customer cryptographically.</li>
+      <li>A new account is created on the Merkle ledger.</li>
+      <li>A capability‑governed smart account is issued to the customer’s personal AI agent (if they choose one).</li>
+    </ul>
+
+    <h3 class="sub-heading-sm">2.2 Account Types</h3>
+    <ul>
+      <li><strong>Current / Checking Account</strong> – regulated by Reg DD (Truth in Savings) and Reg E (error resolution).</li>
+      <li><strong>Savings Account</strong> – with automatic interest calculation (Reg DD compliant).</li>
+      <li><strong>Term Deposit (CD)</strong> – maturity date, early withdrawal penalty.</li>
+      <li><strong>Loan Accounts</strong> – mortgage, personal, auto (see § 6).</li>
+    </ul>
+    <p class="body-text">All accounts are defined as ASL‑compiled products. This means the interest rate can never be negative, the APY is always calculated correctly, and the bank cannot accidentally violate Reg DD – the compiler would reject the product.</p>
+
+    <h3 class="sub-heading-sm">2.3 Viewing / Editing a Customer</h3>
+    <ul>
+      <li>Search by name, SSN, account number, or DID.</li>
+      <li>The Party Service Domain (BIAN v14.0) keeps a single view of the customer across all products.</li>
+      <li>You can freeze/unfreeze accounts, update contact details, or add notes.</li>
+    </ul>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">03 — Money Movement</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">3. Payments & Transfers</h2>
+    <p class="body-text">Verity processes every transaction in real time (no batch windows).</p>
+
+    <h3 class="sub-heading-sm">3.1 Internal Transfers (Account‑to‑Account)</h3>
+    <ol>
+      <li>Go to <strong>Payments → Transfer</strong>.</li>
+      <li>Select the debit and credit accounts.</li>
+      <li>Enter the amount and a reference.</li>
+      <li>Click <strong>Submit</strong>.</li>
+    </ol>
+    <p class="body-text"><strong>What really happens:</strong></p>
+    <ul>
+      <li>The transaction is validated against the capability token of the user (or agent).</li>
+      <li>The Merkle Double‑Entry Ledger appends two entries (debit + credit) with a Merkle proof.</li>
+      <li>The FIM (Financial Invariants Monitor) checks that no system parameter was modified.</li>
+      <li>The Runtime TLA+ Checker samples the transaction against the formal spec.</li>
+    </ul>
+
+    <h3 class="sub-heading-sm">3.2 Wire Transfers (FedWire / CHIPS)</h3>
+    <p class="body-text">Wires above $10,000 require dual approval (two different people, or a person + an agent). The system automatically formats the message in ISO 20022 (structured address compliant).</p>
+
+    <h3 class="sub-heading-sm">3.3 Instant Payments (FedNow / RTP)</h3>
+    <ul>
+      <li>Send up to $10 million instantly.</li>
+      <li>Pre‑transaction risk assessment via the FedNow Network Intelligence API.</li>
+      <li>Settlement is reflected on the ledger in milliseconds.</li>
+    </ul>
+
+    <h3 class="sub-heading-sm">3.4 Cross‑Border (SWIFT)</h3>
+    <ul>
+      <li>The SWIFT Blockchain Bridge settles tokenised deposits 24/7.</li>
+      <li>Both legs (e.g., EUR → USD) are atomically linked by the Oraclizer cross‑domain state contract – if one side fails, both fail.</li>
+    </ul>
+
+    <h3 class="sub-heading-sm">3.5 ACH / Batch Payments</h3>
+    <p class="body-text">For low‑priority, high‑volume payments, use the ACH rail. The Smart Router automatically picks the cheapest/fastest rail based on the amount and priority.</p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">04 — Loans & Credit</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">4. Loans & Credit</h2>
+
+    <h3 class="sub-heading-sm">4.1 Loan Origination</h3>
+    <ol>
+      <li>Go to <strong>Lending → New Application</strong>.</li>
+      <li>Select the product (personal loan, mortgage, auto, etc.).</li>
+      <li>The system retrieves the customer’s identity and financial history.</li>
+      <li>An AI agent performs the initial credit assessment (using the ASL‑compiled product rules).</li>
+      <li>The decision is presented with a plain‑language explanation (CFPB ECOA compliant).</li>
+    </ol>
+
+    <h3 class="sub-heading-sm">4.2 Loan Approval (Dual Control)</h3>
+    <p class="body-text">All loans require two separate approvals – this is enforced by the capability microkernel, not by a policy.</p>
+    <ul>
+      <li><strong>Approver A:</strong> <code>loan:approve:&lt;id&gt;</code></li>
+      <li><strong>Approver B:</strong> <code>risk:signoff</code></li>
+    </ul>
+
+    <h3 class="sub-heading-sm">4.3 Loan Servicing</h3>
+    <ul>
+      <li>View repayment schedule, interest accrued, outstanding principal.</li>
+      <li>Accept early repayments, handle defaults.</li>
+      <li>The GNN Fraud Engine continuously monitors for unusual repayment patterns.</li>
+    </ul>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">05 — Deposits & Savings</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">5. Deposits & Savings</h2>
+
+    <h3 class="sub-heading-sm">5.1 Interest Calculation</h3>
+    <p class="body-text">Interest is calculated daily and compounded according to the product’s temporal contract (Reg DD). The formula is part of the ASL code – it cannot be changed without re‑compiling the product.</p>
+
+    <h3 class="sub-heading-sm">5.2 Overdrafts</h3>
+    <ul>
+      <li>Overdraft fees are only applied if the customer has explicitly opted in (Reg E).</li>
+      <li>The system prevents negative balances for accounts without overdraft protection.</li>
+    </ul>
+
+    <h3 class="sub-heading-sm">5.3 Reg D (Savings Withdrawal Limits)</h3>
+    <p class="body-text">The product’s temporal contract enforces the six‑withdrawal‑per‑month limit. Violations are caught at compile time, not after the fact.</p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">06 — Compliance & Reporting</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">6. Compliance & Regulatory Reporting</h2>
+    <p class="body-text">No more waiting for end‑of‑day batches. Every transaction is tagged at posting time.</p>
+
+    <h3 class="sub-heading-sm">6.1 Key Reports</h3>
+    <table>
+      <thead>
+        <tr><th>Report</th><th>Details</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>FFIEC 041 Call Report</td><td>Generated directly from the ledger (no ETL).</td></tr>
+        <tr><td>FinCEN SAR</td><td>Automatically generated when the GNN fraud engine or AML agent detects suspicious activity.</td></tr>
+        <tr><td>FinCEN CTR</td><td>Auto‑filed for cash transactions >$10,000.</td></tr>
+        <tr><td>DORA Register of Information</td><td>Auto‑generated in XBRL‑CSV format.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-heading-sm">6.2 ZK‑Proof Audit Packages</h3>
+    <p class="body-text">A regulator can receive a zero‑knowledge proof that a report is accurate without seeing the underlying customer data. This is the “show me a proof, not the data” paradigm.</p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">07 — AI Agents</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">7. AI Agents (Your Digital Workforce)</h2>
+
+    <h3 class="sub-heading-sm">7.1 Agents as First‑Class Participants</h3>
+    <p class="body-text">Every agent has:</p>
+    <ul>
+      <li>A zkVM identity (a cryptographic hash of its binary).</li>
+      <li>A capability‑governed smart account (1A1A).</li>
+      <li>A KYA credential (Know Your Agent).</li>
+    </ul>
+
+    <h3 class="sub-heading-sm">7.2 Built‑in Banking Agents</h3>
+    <table>
+      <thead>
+        <tr><th>Agent</th><th>What It Does</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Payment Agent</td><td>Processes debits, credits, wire transfers</td></tr>
+        <tr><td>Fraud Detection Agent</td><td>Scans the transaction graph in real time (SCAFDS, AGNAE, etc.)</td></tr>
+        <tr><td>AML Agent</td><td>Generates Suspicious Activity Reports, monitors for structuring</td></tr>
+        <tr><td>Verity Companion</td><td>Customer‑facing AI financial assistant (see § 9)</td></tr>
+        <tr><td>Loan Origination Agent</td><td>Handles mortgage/consumer loan applications</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-heading-sm">7.3 Controlling Agents (Delegative Governance)</h3>
+    <ol>
+      <li>Go to <strong>Governance</strong>.</li>
+      <li>Select an agent.</li>
+      <li>Set its spending limit, approval threshold, and allowed operations.</li>
+    </ol>
+    <p class="body-text">The agent cannot exceed these boundaries – the capability token system enforces this at the VM level.</p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">08 — ATM & Physical Channels</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">8. ATM & Physical Channels</h2>
+
+    <h3 class="sub-heading-sm">8.1 Cardless Biometric Access</h3>
+    <p class="body-text">Customers walk up, scan their palm or face. No card, no PIN. Identity is verified by the KYA framework (the same one that verifies AI agents).</p>
+
+    <h3 class="sub-heading-sm">8.2 Instant Card Issuance</h3>
+    <p class="body-text">Lost or swallowed card? The ATM dispenses a new one in under 60 seconds. The old token is revoked on VeriChain before the customer walks away.</p>
+
+    <h3 class="sub-heading-sm">8.3 Precious Metals ATM</h3>
+    <p class="body-text">Some ATMs allow customers to deposit gold jewellery (purity verified by XRF spectrometer) and receive instant credit. Customers can also purchase physical gold/silver bars.</p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">09 — Verity Companion</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">9. The Verity Companion (Personal AI)</h2>
+    <p class="body-text">Every customer gets a personal AI agent (if enabled). It:</p>
+    <ul>
+      <li>Monitors spending and suggests savings.</li>
+      <li>Alerts before overdraft.</li>
+      <li>Pays bills automatically within user‑set boundaries.</li>
+      <li>Explains everything in plain language (CFPB ECOA compliant).</li>
+    </ul>
+    <p class="body-text">The Companion never deviates from its stated plan without telling the customer (Apple Principle).</p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">10 — Security</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">10. Security That You Can Feel</h2>
+    <ul>
+      <li>No password can be stolen – all access is capability‑based, not identity‑based.</li>
+      <li><strong>Kill Switch</strong> – any agent (or customer session) can be paused, suspended, or terminated with a full forensic snapshot.</li>
+      <li><strong>Hardware‑rooted trust</strong> – on TEE‑enabled servers, the binary proves it is running on genuine hardware.</li>
+      <li><strong>Post‑quantum ready</strong> – the platform is migrating to NIST FIPS 203/204/205 cryptography.</li>
+    </ul>
+
+  </div> <!-- /content-wrapper -->
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">
+      <div class="footer-brand">VERITY<span>.</span> Core Banking</div>
+      <div class="footer-tagline">Sovereign · Formally Verified · Agent-Native · Quantum-Ready</div>
+    </div>
+    <div class="footer-right">
+      ARC42 v15.0+ · BIAN v14.0 · ISO 20022 · DORA · BCBS 239<br />
+      NIST FIPS 203/204/205 · PCI DSS 4.0 · SWIFT CSCF v2026<br />
+      OWASP Agentic Top 10 · EU AI Act · ISO/IEC 25010
+    </div>
+  </footer>
+
 </body>
 </html>

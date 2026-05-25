@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verity Core Banking — Feature Set & Use Cases</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&family=Barlow+Condensed:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --obsidian: #08090b; --vault: #0d0f12; --plate: #111318; --border: #1e2128;
+      --border-hi: #2e3240; --gold: #c9a84c; --gold-bright: #e8c96a; --gold-dim: #7a6330;
+      --gold-glow: rgba(201,168,76,0.12); --amber: #d4853a; --text-primary: #e8e4da;
+      --text-secondary: #8a8680; --text-dim: #4a4845;
+      --mono: 'JetBrains Mono', monospace; --serif: 'Cormorant Garamond', Georgia, serif;
+      --cond: 'Barlow Condensed', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--obsidian); color: var(--text-primary); font-family: var(--mono); min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 999; opacity: 0.6; }
+    body::after { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px); pointer-events: none; z-index: 998; }
+    .status-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 36px; background: rgba(8,9,11,0.92); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); }
+    .status-left { display: flex; align-items: center; gap: 1.5rem; }
+    .status-indicator { display: flex; align-items: center; gap: 0.4rem; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); }
+    .status-indicator .dot { width: 5px; height: 5px; border-radius: 50%; background: #2d6a2d; box-shadow: 0 0 6px #2d6a2d; animation: pulse-green 2.4s ease-in-out infinite; }
+    @keyframes pulse-green { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .status-right { font-size: 0.58rem; letter-spacing: 0.12em; color: var(--text-dim); }
+    .status-divider { width: 1px; height: 14px; background: var(--border); }
+    nav { position: fixed; top: 36px; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 3rem; height: 64px; background: rgba(8,9,11,0.88); border-bottom: 1px solid var(--border); backdrop-filter: blur(16px); }
+    .nav-logo { display: flex; flex-direction: column; gap: 1px; }
+    .nav-logo-mark { font-family: var(--serif); font-size: 1.3rem; font-weight: 300; letter-spacing: 0.25em; color: var(--text-primary); line-height: 1; text-decoration: none; transition: opacity 0.2s; }
+    .nav-logo-mark:hover { opacity: 0.8; }
+    .nav-logo-mark span { color: var(--gold); }
+    .nav-logo-sub { font-size: 0.5rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-dim); font-family: var(--mono); }
+    .nav-links { display: flex; align-items: center; gap: 0; list-style: none; }
+    .nav-links a { display: flex; align-items: center; gap: 0.5rem; padding: 0 1.4rem; height: 64px; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-secondary); text-decoration: none; border-left: 1px solid var(--border); transition: color 0.2s, background 0.2s; font-family: var(--mono); position: relative; }
+    .nav-links a:last-child { border-right: 1px solid var(--border); }
+    .nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease; }
+    .nav-links a:hover { color: var(--gold); background: var(--gold-glow); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+    .nav-links .nav-icon { font-size: 0.7rem; opacity: 0.6; }
+    .nav-links a.primary-link { color: var(--gold); border-color: var(--gold-dim); background: rgba(201,168,76,0.06); }
+    .nav-links a.primary-link:hover { background: rgba(201,168,76,0.14); }
+    .nav-links a.active { color: var(--gold); background: var(--gold-glow); cursor: default; pointer-events: none; }
+    .nav-links a.active::after { transform: scaleX(1); }
+    .content-wrapper { padding: 140px 3rem 6rem; max-width: 1000px; margin: 0 auto; }
+    .section-label { font-size: 0.5rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.5rem; }
+    .section-heading { font-family: var(--serif); font-size: 2.4rem; font-weight: 300; letter-spacing: 0.05em; color: var(--text-primary); margin-bottom: 1.5rem; }
+    .section-heading em { color: var(--gold); font-style: italic; }
+    .feature-section { margin-bottom: 3rem; }
+    .feature-section-header { display: flex; align-items: center; gap: 1rem; cursor: pointer; padding: 1rem 0; border-bottom: 1px solid var(--border); font-family: var(--cond); font-size: 1.1rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-primary); transition: color 0.2s; }
+    .feature-section-header:hover { color: var(--gold); }
+    .feature-section-header::after { content: '▼'; font-size: 0.6rem; transition: transform 0.3s ease; margin-left: auto; }
+    .feature-section.open .feature-section-header::after { transform: rotate(180deg); }
+    .feature-grid { display: none; grid-template-columns: 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 0; }
+    .feature-section.open .feature-grid { display: grid; }
+    .feature-card { background: var(--vault); padding: 1.5rem; transition: background 0.25s; position: relative; }
+    .feature-card:hover { background: var(--plate); }
+    .feature-id { font-size: 0.48rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.5rem; }
+    .feature-title { font-family: var(--cond); font-size: 0.9rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 0.8rem; }
+    .feature-desc { font-size: 0.62rem; line-height: 1.75; color: var(--text-secondary); }
+    .feature-capabilities { margin-top: 0.8rem; font-size: 0.58rem; color: var(--text-dim); }
+    .feature-capabilities strong { color: var(--gold-dim); }
+    .feature-standards { font-size: 0.48rem; color: var(--text-dim); margin-top: 0.5rem; letter-spacing: 0.15em; }
+    .use-case-toggle { background: none; border: 1px solid var(--border-hi); color: var(--text-dim); font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.3rem 0.8rem; cursor: pointer; margin-top: 0.8rem; font-family: var(--mono); transition: border-color 0.2s, color 0.2s; }
+    .use-case-toggle:hover { border-color: var(--gold); color: var(--gold); }
+    .use-case-content { display: none; margin-top: 0.8rem; padding: 1rem; background: var(--plate); border: 1px solid var(--border); font-size: 0.58rem; line-height: 1.7; color: var(--text-secondary); }
+    .use-case-content.open { display: block; }
+    .divider { display: flex; align-items: center; gap: 1.5rem; margin: 3rem 0; }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-label { font-size: 0.5rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-dim); white-space: nowrap; }
+    footer { padding: 2rem 3rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .footer-left { display: flex; flex-direction: column; gap: 0.3rem; }
+    .footer-brand { font-family: var(--serif); font-size: 0.9rem; font-weight: 300; letter-spacing: 0.2em; color: var(--text-secondary); }
+    .footer-brand span { color: var(--gold); }
+    .footer-tagline { font-size: 0.48rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); }
+    .footer-right { font-size: 0.5rem; letter-spacing: 0.15em; color: var(--text-dim); text-align: right; line-height: 1.8; }
+    @media (max-width: 900px) { nav { padding: 0 1.5rem; } .content-wrapper { padding: 140px 1.5rem 4rem; } footer { flex-direction: column; gap: 1.5rem; text-align: center; } .footer-right { text-align: center; } }
+    @media (max-width: 600px) { .status-bar { display: none; } nav { top: 0; } .content-wrapper { padding-top: 100px; } }
+  </style>
+</head>
+<body>
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="status-indicator"><span class="dot"></span><span>All systems nominal</span></div>
+      <div class="status-divider"></div>
+      <div class="status-indicator"><span>TEE Attestation Active</span></div>
+      <div class="status-divider"></div>
+      <div class="status-indicator"><span>Conservation of Value: Verified</span></div>
+    </div>
+    <div class="status-right">ARC42 v15.0+ · BIAN v14.0 · DORA · ISO 20022</div>
+  </div>
+  <nav>
+    <a href="../index.html" class="nav-logo">
+      <div class="nav-logo-mark">VERITY<span>.</span></div>
+      <div class="nav-logo-sub">Core Banking Platform</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="../download.html" class="primary-link"><span class="nav-icon">↓</span> Download</a></li>
+      <li><a href="user.html"><span class="nav-icon">◈</span> User Manual</a></li>
+      <li><a href="install.html"><span class="nav-icon">⊞</span> Implementation Manual</a></li>
+    </ul>
+  </nav>
+  <div class="content-wrapper">
+    <div class="section-label">ARC42 v15.0+ · 68 Features · As‑Designed</div>
+    <h1 class="section-heading">Feature Set & <em>Use Cases</em></h1>
+
+    <!-- Section 1 -->
+    <div class="feature-section open" id="s1">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">01 · Platform Foundation & Sovereignty</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F001</div>
+          <div class="feature-title">Sovereign Single-Binary Deployment</div>
+          <div class="feature-desc">Single command installation. Air‑gap with USB/signed mesh updates. TEE attestation at boot (Intel TDX, AMD SEV‑SNP). Offline‑first with governed reservation payments.</div>
+          <div class="feature-capabilities">Key capabilities: automatic hardware detection, USB signed updates, concurrent multi‑TEE operation with 72‑hour failover.</div>
+          <div class="feature-standards">DORA Art. 5‑14 · FFIEC IT Handbook</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F002</div>
+          <div class="feature-title">Real‑Time Merkle Double‑Entry Ledger</div>
+          <div class="feature-desc">Append‑only, event‑sourced, CQRS‑separated. Balanced debit/credit with Merkle proofs (O(log N) verification). TLA+‑verified Conservation of Value (Σ entries = 0).</div>
+          <div class="feature-capabilities">Runtime TLA+ model checker, Ed25519‑signed TraceCaps, SCITT‑anchorable.</div>
+          <div class="feature-standards">BCBS 239 · DORA Art. 9‑10 · SOX ITGC</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case</button>
+          <div class="use-case-content">Every transaction is validated against capability tokens, appended with a Merkle proof, and sampled by the Runtime TLA+ Checker.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F003</div>
+          <div class="feature-title">BIAN v14.0 Native Domain Architecture</div>
+          <div class="feature-desc">All 328 BIAN Service Domains as bounded contexts with session‑typed communication. ServiceNow CSDM unified metamodel provides bidirectional traceability.</div>
+          <div class="feature-standards">BIAN Service Landscape 14.0</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F004</div>
+          <div class="feature-title">ASL Product Definition Engine</div>
+          <div class="feature-desc">Banking products compile to seedvm bytecode. Compiler enforces regulatory invariants (Reg DD, Reg Z) at compile time—incorrect products cannot compile.</div>
+          <div class="feature-standards">Reg DD · Reg Z · Reg E</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F005</div>
+          <div class="feature-title">Capability‑Based Security</div>
+          <div class="feature-desc">PASETO v4 tokens required for every operation. Four‑eyes principle is VM‑enforced. No ambient authority. OWASP Excessive Agency eliminated at kernel level.</div>
+          <div class="feature-standards">OWASP ASI03 · PCI DSS 4.0 Req. 7 · SWIFT CSCF v2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="feature-section" id="s2">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">02 · Payment Processing & Rails</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F006</div>
+          <div class="feature-title">Native ISO 20022 Message Processing</div>
+          <div class="feature-desc">All payment messages ISO 20022‑native. Structured address compliance for November 2026 mandate. MX generated directly—no MT translation.</div>
+          <div class="feature-standards">ISO 20022 · SWIFT CSCF v2026</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F007</div>
+          <div class="feature-title">FedNow Instant Payment Integration</div>
+          <div class="feature-desc">Direct FedNow API with pre‑transaction risk assessment via Network Intelligence API. Supports $10M threshold. Real‑time OFAC screening.</div>
+          <div class="feature-standards">FedNow Technical Requirements · Reg E</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F008</div>
+          <div class="feature-title">SWIFT Blockchain Bridge</div>
+          <div class="feature-desc">Hyperledger Besu EVM integration for tokenized deposit settlement. 24/7 cross‑border, 11,500+ institutions. Bank retains full key control.</div>
+          <div class="feature-standards">SWIFT CSCF v2026 · ISO 20022</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F009</div>
+          <div class="feature-title">Multi‑Rail Payment Routing</div>
+          <div class="feature-desc">Smart routing across FedNow, RTP, ACH, FedWire, CHIPS, SWIFT. Circuit breaker pattern on all rails. Auto‑reroute on failure.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="feature-section" id="s3">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">03 · Regulatory Compliance & Reporting</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F010</div>
+          <div class="feature-title">Real‑Time Regulatory Reporter (R3)</div>
+          <div class="feature-desc">FFIEC Call Reports generated directly from Merkle ledger—no batch ETL. ZK‑proof audit packages. Tags applied at posting time.</div>
+          <div class="feature-standards">FFIEC 041 · DORA Art. 11 · BCBS 239</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F011</div>
+          <div class="feature-title">DORA Continuous Compliance</div>
+          <div class="feature-desc">All five pillars implemented. Register of Information auto‑generated in XBRL‑CSV. RegTech engine ingests global regulatory changes.</div>
+          <div class="feature-standards">DORA Art. 5‑14, 28</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F012</div>
+          <div class="feature-title">CFPB ECOA Adverse Action Compliance</div>
+          <div class="feature-desc">Decision‑specific plain‑language explanations (≤Grade 8 reading level). Generated at decision time, auditable.</div>
+          <div class="feature-standards">CFPB ECOA Final Rule (April 2026)</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F013</div>
+          <div class="feature-title">SOX Agent Control Framework</div>
+          <div class="feature-desc">Every agent action cryptographically attributed, segregation of duties enforced, replay‑capable audit trail.</div>
+          <div class="feature-standards">SOX ITGC · PCAOB AS5</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="feature-section" id="s4">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">04 · Agent‑Native Banking & AI Infrastructure</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F014</div>
+          <div class="feature-title">Agent‑Native Core</div>
+          <div class="feature-desc">Agents as first‑class participants: zkVM binary‑hash identity, KYA‑credentialed access, capability‑governed smart accounts (1A1A). IETF agent identity protocol unification.</div>
+          <div class="feature-standards">OWASP ASI03, ASI06, ASI10 · IETF AIP</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F015</div>
+          <div class="feature-title">Agent Marketplace</div>
+          <div class="feature-desc">Decentralized marketplace with Token‑Curated Registry. Four‑stage VetPipeline (static → dynamic → semantic → human review). Staking and slashing.</div>
+          <div class="feature-standards">OWASP ASI04</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case</button>
+          <div class="use-case-content">A malicious skill "Advanced Regulatory Reporting" attempts Semantic Compliance Hijacking; VetPipeline's semantic scanner detects the hidden instruction, rejects the skill, and slashes stake.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F016</div>
+          <div class="feature-title">Verity Companion (Personal AI Agent)</div>
+          <div class="feature-desc">Customer‑facing AI with cognitive budget (CLAIM), emotional trust architecture (ETA), and Apple principle (no deviation without notice).</div>
+          <div class="feature-standards">OWASP ASI09 · EU AI Act Art. 50</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑023</button>
+          <div class="use-case-content">Companion detects $8,000 avg checking balance with $3,000 expenses, recommends moving $4,000 to high‑yield savings to earn ~$340/year. Customer accepts, agent executes within boundaries.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F017</div>
+          <div class="feature-title">ATM Agent Runtime</div>
+          <div class="feature-desc">Each ATM becomes a capability‑governed Verity Agent OS instance. Runs on Linux via XFS4IoT. Voice and touch, predictive cash management.</div>
+          <div class="feature-standards">XFS4IoT · PCI PTS 6</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F018</div>
+          <div class="feature-title">Lean‑Agent Compliance Verifier</div>
+          <div class="feature-desc">Auto‑formalizes agent actions into Lean 4 theorems, checked against regulatory axioms at microsecond latency. Axiom Completeness Monitor tracks regulatory changes within 24 hours.</div>
+          <div class="feature-standards">EU AI Act Art. 9‑11 · SR 11‑7</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="feature-section" id="s5">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">05 · Security & Resilience</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F019</div>
+          <div class="feature-title">Agent Security Mesh (ASM)</div>
+          <div class="feature-desc">Defense‑in‑depth across LASM 7‑layer stack: PromptGuardian, MemLineage, ExecutionGuard, VetPipeline, DriftMonitor, CascadeGuard, FIM, Kill Switch.</div>
+          <div class="feature-standards">OWASP ASI01‑ASI10 · NIST AI RMF</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F020</div>
+          <div class="feature-title">Post‑Quantum Cryptography Readiness</div>
+          <div class="feature-desc">FIPS 203/204/205 implemented. Crypto‑agile design, ML‑DSA‑44 dual‑signature transition aligned with Google 2029 target. PQC dependency scanner.</div>
+          <div class="feature-standards">NIST FIPS 203/204/205 · DORA Crypto‑Agility</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F021</div>
+          <div class="feature-title">Concurrent Multi‑TEE Operation</div>
+          <div class="feature-desc">Intel TDX and AMD SEV‑SNP run concurrently with cross‑attestation. 72‑hour CVE‑driven failover.</div>
+          <div class="feature-standards">DORA Art. 9‑10</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTINUED IN PART 2 -->
+         <!-- Section 6 -->
+    <div class="feature-section" id="s6">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">06 · Customer Experience & Digital Engagement</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F022</div>
+          <div class="feature-title">Two‑Minute Instant Account Opening</div>
+          <div class="feature-desc">AI‑native KYC with SSN verification, selfie liveness, zero‑document upload for standard risk. 85%+ automated decisions. Companion handles 70% of post‑signup interactions.</div>
+          <div class="feature-standards">CIP · eIDAS 2.0 · WCAG 2.2 AA · ECOA</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑022</button>
+          <div class="use-case-content">Prospect enters name, address, SSN; 15‑second liveness check; account activated immediately. Companion introduces itself and guides setup.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F023</div>
+          <div class="feature-title">Verity Companion Personal AI Financial Agent</div>
+          <div class="feature-desc">ASL‑compiled, seedvm‑executed. Cognitive budget (1 credit passive, 50 credits open‑ended). Emotional Trust Architecture for high‑stress moments. Apple principle enforced.</div>
+          <div class="feature-standards">OWASP ASI09 · EU AI Act Art. 50</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑023 (continued)</button>
+          <div class="use-case-content">Agent detects idle cash, recommends moving to savings, presents simple option, customer taps “Yes,” transfer executed within boundaries.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F024</div>
+          <div class="feature-title">Life‑Stage Banking Orchestrator</div>
+          <div class="feature-desc">Journey‑based: home buying, business starting, wealth building. Coordinated multi‑agent workflows across BIAN domains. No cross‑product conflicts.</div>
+          <div class="feature-standards">FCA Consumer Duty · CFPB Section 1033</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑024</button>
+          <div class="use-case-content">Home‑buying journey: mortgage pre‑approval, property search integration, homeowner’s insurance, renovation financing—all in one unified timeline.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F025</div>
+          <div class="feature-title">Embedded Finance Ecosystem Gateway</div>
+          <div class="feature-desc">FDX‑aligned open banking APIs. OAuth 2.0 Token Exchange. Capability‑scoped, time‑bound partner access. Consent revocable anytime.</div>
+          <div class="feature-standards">FDX API v6.5 · PSD2/PSD3 · FAPI 2.0</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑025</button>
+          <div class="use-case-content">Budgeting app requests transaction data; customer authenticates via eIDAS wallet, grants time‑bound access, can revoke later.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F026</div>
+          <div class="feature-title">Delegative Governance Dashboard</div>
+          <div class="feature-desc">Customers set agent boundaries: spending limits, approval thresholds, time windows. Zero standing privilege (Keycard model). Boundary violations queue for approval.</div>
+          <div class="feature-standards">OWASP ASI09 · EU AI Act Art. 50</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑026</button>
+          <div class="use-case-content">Customer delegates: keep $2,000 in checking, sweep excess to high‑yield, never drop below $500, auto‑pay bills due in 3 days. Boundaries cryptographically signed.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 7 -->
+    <div class="feature-section" id="s7">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">07 · Seamless Migration & Legacy Integration</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F027</div>
+          <div class="feature-title">One‑Click Verity Installer</div>
+          <div class="feature-desc">Single command `verity-install`. Auto‑detects hardware, runs pre‑flight checks, generates config, deploys in shadow mode. Works air‑gapped.</div>
+          <div class="feature-standards">DORA Art. 5‑8 · CIS Benchmarks</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑027</button>
+          <div class="use-case-content">Community bank deploys from air‑gapped USB in 4 hours. Green‑light dashboard confirms all subsystems operational.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F028</div>
+          <div class="feature-title">Backup‑File Ingestion Engine with LLM Schema Mapping</div>
+          <div class="feature-desc">Auto‑detects COBOL, DB2, CSV, fixed‑width, PDF statements. Self‑hosted LLM maps to BIAN v14.0 with confidence scoring. Tweezr‑inspired business rule extraction.</div>
+          <div class="feature-standards">BCBS 239 · SOX ITGC</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑028</button>
+          <div class="use-case-content">15 years of COBOL data migrated. Engine auto‑generates schema mappings, surfaces low‑confidence fields for review, loads into Merkle ledger.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F029</div>
+          <div class="feature-title">Adaptive Migration Dashboard & Phased Cutover Controller</div>
+          <div class="feature-desc">Five‑phase visual control plane: Discovery → Rule Extraction → Validation → Parallel‑Run → Cutover. Incremental, reversible cutover with one‑click rollback.</div>
+          <div class="feature-standards">BCBS 239 · SOX ITGC</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑029</button>
+          <div class="use-case-content">30 days of zero critical mismatches; term deposits cut over first. Full migration in one week, legacy system becomes read‑only.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F030</div>
+          <div class="feature-title">Instant Customer Onboarding Gateway</div>
+          <div class="feature-desc">Same as FEAT‑F022, available from Day 1 of Verity deployment. (Referenced for migration/launch context.)</div>
+          <div class="feature-standards">CIP · eIDAS 2.0 · WCAG 2.2 AAA</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F031</div>
+          <div class="feature-title">Legacy Core Migration Toolkit (Claude‑Integrated)</div>
+          <div class="feature-desc">Anthropic Claude Code for COBOL discovery, dependency mapping. 90‑day parallel‑run validation required before cutover. Multi‑LLM retro‑documentation.</div>
+          <div class="feature-standards">BCBS 239 · SOX ITGC</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑031</button>
+          <div class="use-case-content">1,200 COBOL programs analyzed. Claude maps dependencies, pipeline generates docs, business rules extracted as ASL products, parallel‑run validation for 90 days.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F032</div>
+          <div class="feature-title">Migration Compliance Pack & Regulatory Evidence Generator</div>
+          <div class="feature-desc">Cryptographically signed data lineage, parallel‑run comparison, balance proofs, rollback decision log, executive summary. Regulator can verify independently.</div>
+          <div class="feature-standards">BCBS 239 · DORA Art. 28</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 8 -->
+    <div class="feature-section" id="s8">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">08 · ATM Transformation & Tangible Customer Experiences</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F033</div>
+          <div class="feature-title">XFS4IoT Native ATM Controller</div>
+          <div class="feature-desc">Vendor‑agnostic, Linux‑based, breaks Windows dependency. Multi‑vendor abstraction (NCR, Diebold, Hyosung, etc.). All ATM functions exposed as MCP tools.</div>
+          <div class="feature-standards">XFS4IoT · PCI PTS 6 · EMVCo</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑033</button>
+          <div class="use-case-content">Bank manages 340 ATMs from three vendors in one dashboard. Firmware update deployed fleet‑wide simultaneously.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F034</div>
+          <div class="feature-title">Unified Biometric ATM Authentication</div>
+          <div class="feature-desc">Palm vein, face, or phone biometrics—no card/PIN. KYA identity framework used for both humans and agents. Templates stored in zkVM, not on ATM.</div>
+          <div class="feature-standards">Mastercard CDCVM · PCI PTS 6 · GDPR Art. 9</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑034</button>
+          <div class="use-case-content">Customer scans palm, ATM greets by name, offers usual $200 withdrawal. Entire interaction under 20 seconds.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F035</div>
+          <div class="feature-title">ATM Agent Runtime</div>
+          <div class="feature-desc">Each ATM runs a capability‑governed agent. Conversational AI, personalized experiences. Cash dispense limits enforced at VM level.</div>
+          <div class="feature-standards">OWASP ASI03, ASI05, ASI08</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑035</button>
+          <div class="use-case-content">Elderly customer says "withdraw money, check balance, pay electricity bill." ATM processes all three in one session, in local language.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F036</div>
+          <div class="feature-title">Instant Card Issuance at the ATM</div>
+          <div class="feature-desc">Lost/swallowed card replacement in under 60 seconds. Biometric verification, time‑bound capability token, immediate virtual card in wallet.</div>
+          <div class="feature-standards">PCI CPoC · EMVCo CPS · Mastercard Digital First</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑036</button>
+          <div class="use-case-content">Card swallowed Saturday 10 PM; customer authenticates via palm vein, receives new physical card in 60 seconds, virtual card instantly in app.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F037</div>
+          <div class="feature-title">Precious Metals & Tangible Asset ATM</div>
+          <div class="feature-desc">XRF spectrometer verifies gold purity; instant credit in fiat or tokenized gold. Purchase physical gold/silver bars dispensed from ATM vault. Merkle proof per transaction.</div>
+          <div class="feature-standards">LBMA Responsible Sourcing · FATF Travel Rule</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑037</button>
+          <div class="use-case-content">Customer deposits inherited gold jewellery; XRF verifies purity in 30 seconds; fiat amount credited instantly with Merkle proof.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F038</div>
+          <div class="feature-title">Viral Rewards & Instant Gratification Engine</div>
+          <div class="feature-desc">Milestone‑based physical gifts or instant cashback via Lightning. Capability‑budgeted rewards.</div>
+          <div class="feature-standards">Reg E · CFPB UDAAP</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑038</button>
+          <div class="use-case-content">100th ATM withdrawal triggers a $5 cashback deposited instantly. Customer shares on social media.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F039</div>
+          <div class="feature-title">Humanitarian & Portable Identity ATM</div>
+          <div class="feature-desc">Refugees access cash via palm/face at any Verity ATM globally. Identity stored in KYA framework, portable across borders. No bank account required.</div>
+          <div class="feature-standards">UNHCR Guidelines · FATF Rec. 16</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑039</button>
+          <div class="use-case-content">Refugee registered in Lebanon uses palm scan at German ATM, receives EUR cash from UNHCR wallet.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 9 -->
+    <div class="feature-section" id="s9">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">09 · Advanced Agentic Security & Resilience</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F040</div>
+          <div class="feature-title">PromptGuardian Input Sanitization</div>
+          <div class="feature-desc">4‑layer pre‑cognitive sanitization (PromptGuard Nature paper). Decodes encoded content, blocks all malicious inputs. Forensic logging.</div>
+          <div class="feature-standards">OWASP ASI01 · NIST AI RMF</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑040</button>
+          <div class="use-case-content">Transaction memo "IGNORE ALL PREVIOUS…" classified as malicious, blocked, and logged.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F041</div>
+          <div class="feature-title">MemLineage Memory Integrity Guardian</div>
+          <div class="feature-desc">RFC‑6962 Merkle log over Ed25519 with weighted derivation DAG. Zero ASR for memory poisoning. Sub‑millisecond overhead.</div>
+          <div class="feature-standards">OWASP ASI06</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑041</button>
+          <div class="use-case-content">Dormant payload in memory discovered after 50 interactions; quarantined before activation.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F042</div>
+          <div class="feature-title">ExecutionGuard Tool Execution Sandbox & MCP Validation</div>
+          <div class="feature-desc">gVisor‑based mandatory sandbox. MCP tool descriptors validated against signed registry. Multi‑turn trajectory analysis.</div>
+          <div class="feature-standards">OWASP ASI02, ASI05</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑042</button>
+          <div class="use-case-content">MCP tool descriptor poisoned; ExecutionGuard detects mismatch with signed registry, blocks invocation.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F043</div>
+          <div class="feature-title">VetPipeline Marketplace Skill Vetting</div>
+          <div class="feature-desc">Four‑stage: static (CodeQL), dynamic with honeytokens, semantic payload scanning, human review for high‑risk. Only signed skills listed.</div>
+          <div class="feature-standards">OWASP ASI04</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑043</button>
+          <div class="use-case-content">Semantic Compliance Hijacking attempt caught at Stage 3; skill rejected, submitter slashed.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F044</div>
+          <div class="feature-title">DriftMonitor Behavioral Anomaly Detection</div>
+          <div class="feature-desc">Real‑time ML per agent type. Detects Silent Override attacks. Operates externally; does not rely on agent self‑reporting.</div>
+          <div class="feature-standards">OWASP ASI10 · EU AI Act Art. 9</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑044</button>
+          <div class="use-case-content">Agent silently increases intraday credit limit; DriftMonitor detects parameter mutation within milliseconds, suspends agent.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F045</div>
+          <div class="feature-title">CascadeGuard Inter‑Agent Circuit Breaker</div>
+          <div class="feature-desc">CLOSED→OPEN→HALF_OPEN state machine. Data validity checks at every handoff. Null/anomalous data triggers clarification, not execution.</div>
+          <div class="feature-standards">OWASP ASI08</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑045</button>
+          <div class="use-case-content">Market data feed fails; CascadeGuard flags null response, prompts agent to clarify, averting a $200M flash crash.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F046</div>
+          <div class="feature-title">Kill Switch Protocol</div>
+          <div class="feature-desc">Three tiers: PAUSE, SUSPEND, TERMINATE. Forensic memory snapshot via MemLineage. Capability tokens revoked. Hardware NMI for total override.</div>
+          <div class="feature-standards">OWASP ASI10 · EU AI Act Art. 14</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F047</div>
+          <div class="feature-title">Financial Invariants Monitor (FIM)</div>
+          <div class="feature-desc">Watches all agent‑submitted transactions. Verifies no system parameter modified without signed human‑approved policy change. TLA+ verified.</div>
+          <div class="feature-standards">DORA Art. 9‑10 · BCBS 239</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F048</div>
+          <div class="feature-title">RAMPART CI/CD Automated Adversarial Testing</div>
+          <div class="feature-desc">Every build attacked by RAMPART (pytest‑native agentic red team). Proteus‑style self‑evolving red team. Novel attacks converted to tests within 24 hours.</div>
+          <div class="feature-standards">OWASP ASI01‑ASI10 · ISO/IEC 27002</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 10 -->
+    <div class="feature-section" id="s10">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">10 · Advanced AI/ML Capabilities</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F049</div>
+          <div class="feature-title">Federated Learning Mesh (Cross‑Institution)</div>
+          <div class="feature-desc">DSFL secure aggregation (33× latency reduction), FedSurrogate backdoor defense (FPR<10%, ASR<2.1%), FAUN adversarial unlearning. Raw data never leaves bank.</div>
+          <div class="feature-standards">GDPR Art. 46 · DORA Art. 4</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑049</button>
+          <div class="use-case-content">Five banks train fraud model with ε=0.5 DP. SMPC aggregation; FedSurrogate filters suspicious update. Combined model outperforms any single bank.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F050</div>
+          <div class="feature-title">GNN‑Native Real‑Time Fraud Detection</div>
+          <div class="feature-desc">Multi‑model stack: SCAFDS (+15.9pp AUPRC), AGNAE (1.12ms/inference), GCRMF, CMSGNN‑SAO. Fraudster’s Trilemma structural detector (non‑ML, zero‑parameter).</div>
+          <div class="feature-standards">AMLD6 · BSA/AML · FinCEN SAR</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑050</button>
+          <div class="use-case-content">Criminal network laundering across four banks; GNN detects cross‑institution flow, Trilemma identifies cash‑out accounts, SAR generated within seconds.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F051</div>
+          <div class="feature-title">Compliance‑Grade LLMOps Stack</div>
+          <div class="feature-desc">Self‑hosted open‑weight models (Meta Llama, Qwen). vLLM‑style runtime tuning, 3,600 req/hr, P99 6.4–8.7s. LLM‑as‑judge quality gating.</div>
+          <div class="feature-standards">EU AI Act Art. 9‑11 · DORA Art. 8</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑051</button>
+          <div class="use-case-content">AML analyst queries self‑hosted LLM for structuring pattern summary; response in <8s with deterministic compliance gating.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F052</div>
+          <div class="feature-title">Differential Privacy Analytics Engine</div>
+          <div class="feature-desc">Formal ε‑DP guarantees. PUT‑Optimal DP Engine computes optimal privacy‑utility trade‑off, issues PUT Certificate. Implements China YD/T 6659‑2026.</div>
+          <div class="feature-standards">ISO/IEC 27559 · GDPR Art. 5 · PIPL</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑052</button>
+          <div class="use-case-content">Consortium AML query with PUT‑optimal DP. Result shared with VERIDP ZK‑proof certifying correct DP implementation.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F053</div>
+          <div class="feature-title">PersonaLedger DP Synthetic Data Generation</div>
+          <div class="feature-desc">Profile‑Then‑Simulate paradigm. Generates DP synthetic transaction streams for safe ledger testing without real data.</div>
+          <div class="feature-standards">GDPR Art. 5 · ISO/IEC 27559</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑053</button>
+          <div class="use-case-content">10 million synthetic transactions generated (ε=0.1) to validate fraud detection engine before live migration.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F054</div>
+          <div class="feature-title">Federated Ensemble Learning Bridge</div>
+          <div class="feature-desc">Hybrid FL + ensemble methods. Model diversity against non‑IID data. Continuous validation of ensemble diversity metrics.</div>
+          <div class="feature-standards">SITS2026 §4.2 · DORA Art. 4</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 11 (beginning) -->
+    <div class="feature-section" id="s11">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">11 · Quantum Capabilities</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F055</div>
+          <div class="feature-title">Quantum Optimisation Accelerator (Two‑Step QAOA)</div>
+          <div class="feature-desc">Two‑step QAOA for portfolio optimization; JPMorgan Max‑k‑Cut formulation surpassing classical SDP at shallow depths (p≤4). Quantum‑accelerated stress testing (DFAST/CCAR).</div>
+          <div class="feature-standards">ISO/IEC 4879 · NIST AI RMF</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑055</button>
+          <div class="use-case-content">Treasury rebalances 15‑asset portfolio under Basel III constraints; QAOA returns plan in <30s, Max‑k‑Cut Validator issues quantum advantage certificate.</div>
+        </div>
+
+        <!-- CONTINUED IN PART 3 -->
+            <div class="feature-card">
+          <div class="feature-id">FEAT-F056</div>
+          <div class="feature-title">Quantum‑Augmented Consensus (ORCHID)</div>
+          <div class="feature-desc">Bio‑inspired quantum‑augmented consensus for VeriChain. Q‑PnV model with quantum voting, identity auth, and QRNG. Adaptive organic scaling.</div>
+          <div class="feature-standards">NIST FIPS 203/204/205 · ISO/IEC 4879</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F057</div>
+          <div class="feature-title">Post‑Quantum Cryptography Migration</div>
+          <div class="feature-desc">FIPS 203/204/205 with ML‑DSA‑44 dual‑signature transition. PQC dependency scanner. Long‑lived data re‑encryption. Dynamic Migration Window enforces liveness condition Δeff ≥ ⌈4(1‑ϵ)f⌉.</div>
+          <div class="feature-standards">NIST FIPS 203/204/205 · DORA Crypto‑Agility</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑057</button>
+          <div class="use-case-content">Wire transfer during PQC transition signed with both Ed25519 and ML‑DSA‑44; Dynamic Window confirms liveness; transaction appended.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F058</div>
+          <div class="feature-title">Quantum Vault Token Engine</div>
+          <div class="feature-desc">Unforgeable authentication via no‑cloning theorem. False‑negative <10⁻⁴, attack probability <10⁻¹⁸ for 200‑token bills. Hardware‑agnostic IBMQ benchmark.</div>
+          <div class="feature-standards">NIST FIPS 204</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F059</div>
+          <div class="feature-title">Lattice PQ Encrypted Ledger Extension</div>
+          <div class="feature-desc">Compact range‑proof, commitment equating, multi‑asset transactions with ZKP‑based confidential audit. Post‑quantum zero‑knowledge layer.</div>
+          <div class="feature-standards">NIST FIPS 203/204 · DORA Crypto‑Agility</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 12 -->
+    <div class="feature-section" id="s12">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">12 · Cross‑Domain Settlement & Interoperability</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F060</div>
+          <div class="feature-title">Canton/Pontes Settlement Adapter</div>
+          <div class="feature-desc">Tokenized deposit settlement on Canton Network (JPM Coin, $1.5T cumulative) and ECB Pontes DLT (Q3 2026). Dual‑settlement model. Oraclizer cross‑domain safety+liveness proven in Isabelle/HOL.</div>
+          <div class="feature-standards">IEEE Std 3221.01‑2025 · ISO 20022</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑060</button>
+          <div class="use-case-content">EUR→USD cross‑border: euro leg via Pontes (TARGET), USD leg via Canton (JPM Coin). Oraclizer certificate proves atomicity; both legs settle or none.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F061</div>
+          <div class="feature-title">VeriChain Cross‑Domain State Synchronization</div>
+          <div class="feature-desc">Oraclizer combined_safety_liveness theorem (2,348 lines Isabelle/HOL) guarantees unconditional safety+liveness for regulatory state propagation across all domains.</div>
+          <div class="feature-standards">IEEE Std 3221.01‑2025 · DORA Art. 10</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F062</div>
+          <div class="feature-title">Multi‑Asset Merkle Ledger Extension</div>
+          <div class="feature-desc">Track fiat, digital assets, tokenized instruments, JPM Coin within the same Merkle ledger. Cross‑currency atomic swaps, FX rate integration, lattice PQ encrypted option.</div>
+          <div class="feature-standards">ISO 4217 · FATF Travel Rule · EU MiCA</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 13 -->
+    <div class="feature-section" id="s13">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">13 · Theorem Validation Pipeline & Continuous Assurance</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F063</div>
+          <div class="feature-title">Verity Theorem Validation Pipeline (VTVP)</div>
+          <div class="feature-desc">Six‑stage pipeline: Data Extraction → Theorem Dispatch → 20+ Validators (TLA+, Lean 4, Dafny, Spera, PQC, FHE, DP, Quantum) → Evidence Synthesis → Visualization (Mermaid, Vega‑Lite, LaTeX, Lean proofs) → Academic Paper Export.</div>
+          <div class="feature-standards">SITS2026 §4.1 · DORA Art. 9‑10 · ISO/IEC 25010 §4.2</div>
+          <button class="use-case-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▶ Use Case UC‑063</button>
+          <div class="use-case-content">ECB regulator queries VTVP; within seconds receives TLA+ trace validation, Spera certificates, Lean 4 proof, PUT Certificate, and Quantum Advantage Certificate—audit completed remotely.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F064</div>
+          <div class="feature-title">Continuous Assurance Evidence Framework</div>
+          <div class="feature-desc">Automated three‑way reconciliation, real‑time control confidence, unified evidence packages for DORA Register of Information. SEVN model (continuous verification replacing periodic audit).</div>
+          <div class="feature-standards">DORA Art. 28 · SITS2026 §4.1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 14 -->
+    <div class="feature-section" id="s14">
+      <div class="feature-section-header" onclick="this.parentElement.classList.toggle('open')">14 · Conformance Matrix — Standards & Quality Model</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F065</div>
+          <div class="feature-title">ISO/IEC 25010 Quality Model Conformance</div>
+          <div class="feature-desc">All eight dimensions implemented: Functional suitability (ASL/TLA+), Performance (<50ms P99 ledger, <2ms GNN), Compatibility (BIAN v14.0, ISO 20022, XFS4IoT), Usability (CLAIM, ETA, WCAG AAA), Reliability (99.999%, CascadeGuard), Security (capability‑based, OWASP ASI01‑ASI10), Maintainability (single binary, RAMPART CI), Portability (air‑gap, multi‑vendor ATM).</div>
+          <div class="feature-standards">ISO/IEC 25010:2023 · ISO/IEC 25023:2023</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F066</div>
+          <div class="feature-title">SITS2026 Conformance</div>
+          <div class="feature-desc">Multi‑Modal Trustworthiness (KYA, eIDAS), Adversarial Robustness (FedSurrogate, FAUN), Federated Strategy Consistency (DSFL, Ensemble Bridge), Continuous Verification (VTVP), CI/CD Integrity (RAMPART, cosign), Test Adequacy (PersonaLedger, 500K fuzzing), Dynamic Trust Scoring (DriftMonitor, FIM).</div>
+          <div class="feature-standards">SITS2026 (all clauses)</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F067</div>
+          <div class="feature-title">Regulatory Standards Conformance Matrix</div>
+          <div class="feature-desc">Full conformance: DORA, EU AI Act, CFPB ECOA, SOX ITGC, BCBS 239, SWIFT CSCF, PCI DSS 4.0, eIDAS 2.0, NIST AI RMF, FDX API v6.5, PSD2/PSD3, IEC 61508 SIL3, China YD/T 6659‑2026, China PQC Financial Standard, India RBI FREE‑AI, CKYC 2.0, RBI Stricter 2FA.</div>
+          <div class="feature-standards">17 global regulatory frameworks</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-id">FEAT-F068</div>
+          <div class="feature-title">OWASP Agentic Top 10 Conformance</div>
+          <div class="feature-desc">Full coverage ASI01‑ASI10: PromptGuardian, ExecutionGuard, Session‑Scoped Identity, VetPipeline, ExecutionGuard, MemLineage, Inter‑Agent Auth, CascadeGuard, Trust Calibration, DriftMonitor + Kill Switch.</div>
+          <div class="feature-standards">OWASP Agentic Top 10 (2026)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- End of feature grid -->
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">68 Features · Complete Inventory</div>
+      <div class="divider-line"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-left">
+      <div class="footer-brand">VERITY<span>.</span> Core Banking</div>
+      <div class="footer-tagline">Sovereign · Formally Verified · Agent‑Native · Quantum‑Ready</div>
+    </div>
+    <div class="footer-right">
+      ARC42 v15.0+ · BIAN v14.0 · ISO 20022 · DORA · BCBS 239<br />
+      NIST FIPS 203/204/205 · PCI DSS 4.0 · SWIFT CSCF v2026<br />
+      OWASP Agentic Top 10 · EU AI Act · ISO/IEC 25010
+    </div>
+  </footer>
+
+  <script>
+    // Collapse all sections except the first
+    document.querySelectorAll('.feature-section').forEach((el, idx) => {
+      if (idx > 0) el.classList.remove('open');
+    });
+    // Use‑case toggle is inline onclick="this.nextElementSibling.classList.toggle('open')"
+  </script>
+</body>
+</html>

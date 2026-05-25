@@ -9,8 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&family=Barlow+Condensed:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
   <style>
+    /* … exactly the same CSS as you provided … */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --obsidian:    #08090b;
       --vault:       #0d0f12;
@@ -29,9 +29,7 @@
       --serif: 'Cormorant Garamond', Georgia, serif;
       --cond: 'Barlow Condensed', sans-serif;
     }
-
     html { scroll-behavior: smooth; }
-
     body {
       background: var(--obsidian);
       color: var(--text-primary);
@@ -40,8 +38,6 @@
       overflow-x: hidden;
       cursor: crosshair;
     }
-
-    /* ── NOISE OVERLAY ── */
     body::before {
       content: '';
       position: fixed;
@@ -51,8 +47,6 @@
       z-index: 999;
       opacity: 0.6;
     }
-
-    /* ── SCANLINE ── */
     body::after {
       content: '';
       position: fixed;
@@ -67,8 +61,6 @@
       pointer-events: none;
       z-index: 998;
     }
-
-    /* ── TOP STATUS BAR ── */
     .status-bar {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -82,13 +74,11 @@
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(12px);
     }
-
     .status-left {
       display: flex;
       align-items: center;
       gap: 1.5rem;
     }
-
     .status-indicator {
       display: flex;
       align-items: center;
@@ -98,7 +88,6 @@
       text-transform: uppercase;
       color: var(--text-dim);
     }
-
     .status-indicator .dot {
       width: 5px; height: 5px;
       border-radius: 50%;
@@ -106,26 +95,21 @@
       box-shadow: 0 0 6px #2d6a2d;
       animation: pulse-green 2.4s ease-in-out infinite;
     }
-
     @keyframes pulse-green {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.4; }
     }
-
     .status-right {
       font-size: 0.58rem;
       letter-spacing: 0.12em;
       color: var(--text-dim);
       font-family: var(--mono);
     }
-
     .status-divider {
       width: 1px;
       height: 14px;
       background: var(--border);
     }
-
-    /* ── MAIN NAV ── */
     nav {
       position: fixed;
       top: 36px; left: 0; right: 0;
@@ -139,13 +123,11 @@
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(16px);
     }
-
     .nav-logo {
       display: flex;
       flex-direction: column;
       gap: 1px;
     }
-
     .nav-logo-mark {
       font-family: var(--serif);
       font-size: 1.3rem;
@@ -154,11 +136,9 @@
       color: var(--text-primary);
       line-height: 1;
     }
-
     .nav-logo-mark span {
       color: var(--gold);
     }
-
     .nav-logo-sub {
       font-size: 0.5rem;
       letter-spacing: 0.3em;
@@ -166,14 +146,12 @@
       color: var(--text-dim);
       font-family: var(--mono);
     }
-
     .nav-links {
       display: flex;
       align-items: center;
       gap: 0;
       list-style: none;
     }
-
     .nav-links a {
       display: flex;
       align-items: center;
@@ -190,11 +168,9 @@
       font-family: var(--mono);
       position: relative;
     }
-
     .nav-links a:last-child {
       border-right: 1px solid var(--border);
     }
-
     .nav-links a::after {
       content: '';
       position: absolute;
@@ -205,32 +181,25 @@
       transform-origin: left;
       transition: transform 0.25s ease;
     }
-
     .nav-links a:hover {
       color: var(--gold);
       background: var(--gold-glow);
     }
-
     .nav-links a:hover::after {
       transform: scaleX(1);
     }
-
     .nav-links .nav-icon {
       font-size: 0.7rem;
       opacity: 0.6;
     }
-
     .nav-links a.primary-link {
       color: var(--gold);
       border-color: var(--gold-dim);
       background: rgba(201,168,76,0.06);
     }
-
     .nav-links a.primary-link:hover {
       background: rgba(201,168,76,0.14);
     }
-
-    /* ── HERO ── */
     .hero {
       min-height: 100vh;
       display: flex;
@@ -240,8 +209,6 @@
       position: relative;
       overflow: hidden;
     }
-
-    /* Radial vault glow */
     .hero-glow {
       position: absolute;
       top: 50%; left: 50%;
@@ -254,8 +221,6 @@
       );
       pointer-events: none;
     }
-
-    /* Grid background */
     .hero-grid {
       position: absolute;
       inset: 0;
@@ -267,8 +232,6 @@
       pointer-events: none;
       mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 10%, transparent 75%);
     }
-
-    /* Corner brackets */
     .corner {
       position: absolute;
       width: 40px; height: 40px;
@@ -278,14 +241,12 @@
     .corner.tr { top: 120px; right: 2rem; border-top: 1px solid var(--gold-dim); border-right: 1px solid var(--gold-dim); }
     .corner.bl { bottom: 2rem; left: 2rem; border-bottom: 1px solid var(--gold-dim); border-left: 1px solid var(--gold-dim); }
     .corner.br { bottom: 2rem; right: 2rem; border-bottom: 1px solid var(--gold-dim); border-right: 1px solid var(--gold-dim); }
-
     .hero-inner {
       position: relative;
       max-width: 900px;
       text-align: center;
       z-index: 2;
     }
-
     .hero-classification {
       display: inline-flex;
       align-items: center;
@@ -301,15 +262,12 @@
       animation: fade-in 0.8s ease forwards;
       opacity: 0;
     }
-
     .hero-classification .bracket {
       color: var(--gold-dim);
     }
-
     @keyframes fade-in {
       to { opacity: 1; }
     }
-
     .hero-eyebrow {
       font-size: 0.62rem;
       letter-spacing: 0.35em;
@@ -320,7 +278,6 @@
       animation: fade-in 0.8s 0.15s ease forwards;
       opacity: 0;
     }
-
     .hero-title {
       font-family: var(--serif);
       font-size: clamp(3.2rem, 7vw, 6.5rem);
@@ -332,12 +289,10 @@
       animation: fade-in 0.8s 0.3s ease forwards;
       opacity: 0;
     }
-
     .hero-title em {
       font-style: italic;
       color: var(--gold);
     }
-
     .hero-title-sub {
       font-family: var(--serif);
       font-size: clamp(1.1rem, 2.5vw, 1.8rem);
@@ -349,7 +304,6 @@
       animation: fade-in 0.8s 0.45s ease forwards;
       opacity: 0;
     }
-
     .hero-rule {
       display: flex;
       align-items: center;
@@ -359,7 +313,6 @@
       animation: fade-in 0.8s 0.55s ease forwards;
       opacity: 0;
     }
-
     .hero-rule::before,
     .hero-rule::after {
       content: '';
@@ -367,16 +320,13 @@
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--gold-dim));
     }
-
     .hero-rule::after {
       background: linear-gradient(90deg, var(--gold-dim), transparent);
     }
-
     .hero-rule-icon {
       color: var(--gold);
       font-size: 0.6rem;
     }
-
     .hero-desc {
       font-family: var(--serif);
       font-size: 1.05rem;
@@ -388,8 +338,6 @@
       animation: fade-in 0.8s 0.6s ease forwards;
       opacity: 0;
     }
-
-    /* ── PROOF STRIP ── */
     .proof-strip {
       display: flex;
       justify-content: center;
@@ -401,7 +349,6 @@
       animation: fade-in 0.8s 0.75s ease forwards;
       opacity: 0;
     }
-
     .proof-item {
       flex: 1;
       min-width: 140px;
@@ -409,9 +356,7 @@
       border-right: 1px solid var(--border);
       text-align: center;
     }
-
     .proof-item:last-child { border-right: none; }
-
     .proof-value {
       font-family: var(--mono);
       font-size: 0.75rem;
@@ -419,15 +364,12 @@
       letter-spacing: 0.05em;
       margin-bottom: 0.2rem;
     }
-
     .proof-label {
       font-size: 0.48rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--text-dim);
     }
-
-    /* ── CTA BUTTONS ── */
     .hero-ctas {
       display: flex;
       align-items: center;
@@ -437,7 +379,6 @@
       animation: fade-in 0.8s 0.9s ease forwards;
       opacity: 0;
     }
-
     .btn {
       display: inline-flex;
       align-items: center;
@@ -452,13 +393,11 @@
       transition: all 0.2s ease;
       cursor: pointer;
     }
-
     .btn-primary {
       background: transparent;
       color: var(--gold);
       border: 1px solid var(--gold);
     }
-
     .btn-primary::before {
       content: '';
       position: absolute;
@@ -469,41 +408,32 @@
       transition: transform 0.25s ease;
       z-index: -1;
     }
-
     .btn-primary:hover {
       color: var(--obsidian);
     }
-
     .btn-primary:hover::before {
       transform: scaleX(1);
     }
-
     .btn-secondary {
       background: transparent;
       color: var(--text-secondary);
       border: 1px solid var(--border-hi);
     }
-
     .btn-secondary:hover {
       border-color: var(--text-secondary);
       color: var(--text-primary);
       background: rgba(255,255,255,0.03);
     }
-
     .btn-ghost {
       background: transparent;
       color: var(--text-dim);
       border: 1px solid var(--border);
     }
-
     .btn-ghost:hover {
       border-color: var(--border-hi);
       color: var(--text-secondary);
     }
-
     .btn-icon { font-size: 0.8rem; }
-
-    /* ── SECTION DIVIDER ── */
     .divider {
       display: flex;
       align-items: center;
@@ -511,13 +441,11 @@
       padding: 0 3rem;
       margin: 0;
     }
-
     .divider-line {
       flex: 1;
       height: 1px;
       background: var(--border);
     }
-
     .divider-label {
       font-size: 0.5rem;
       letter-spacing: 0.3em;
@@ -525,19 +453,15 @@
       color: var(--text-dim);
       white-space: nowrap;
     }
-
-    /* ── CAPABILITY GRID ── */
     .capability-section {
       padding: 6rem 3rem;
     }
-
     .section-header {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
       margin-bottom: 3rem;
     }
-
     .section-number {
       font-size: 0.5rem;
       letter-spacing: 0.3em;
@@ -545,7 +469,6 @@
       color: var(--gold-dim);
       margin-bottom: 0.5rem;
     }
-
     .section-title {
       font-family: var(--serif);
       font-size: 2.2rem;
@@ -553,9 +476,7 @@
       letter-spacing: 0.05em;
       color: var(--text-primary);
     }
-
     .section-title em { color: var(--gold); font-style: italic; }
-
     .section-meta {
       font-size: 0.55rem;
       letter-spacing: 0.2em;
@@ -563,7 +484,6 @@
       color: var(--text-dim);
       text-align: right;
     }
-
     .cap-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -571,7 +491,6 @@
       background: var(--border);
       border: 1px solid var(--border);
     }
-
     .cap-card {
       background: var(--vault);
       padding: 2rem 1.8rem;
@@ -579,7 +498,6 @@
       transition: background 0.25s;
       overflow: hidden;
     }
-
     .cap-card::before {
       content: '';
       position: absolute;
@@ -590,15 +508,12 @@
       transform-origin: left;
       transition: transform 0.4s ease;
     }
-
     .cap-card:hover {
       background: var(--plate);
     }
-
     .cap-card:hover::before {
       transform: scaleX(1);
     }
-
     .cap-id {
       font-size: 0.48rem;
       letter-spacing: 0.25em;
@@ -606,14 +521,12 @@
       color: var(--gold-dim);
       margin-bottom: 1rem;
     }
-
     .cap-icon {
       font-size: 1.4rem;
       margin-bottom: 0.8rem;
       display: block;
       filter: grayscale(0.3);
     }
-
     .cap-name {
       font-family: var(--cond);
       font-size: 0.95rem;
@@ -623,13 +536,11 @@
       color: var(--text-primary);
       margin-bottom: 0.6rem;
     }
-
     .cap-desc {
       font-size: 0.62rem;
       line-height: 1.75;
       color: var(--text-secondary);
     }
-
     .cap-standard {
       margin-top: 1rem;
       font-size: 0.48rem;
@@ -637,13 +548,10 @@
       color: var(--text-dim);
       text-transform: uppercase;
     }
-
-    /* ── THEOREM STRIP ── */
     .theorem-strip {
       padding: 0 3rem;
       margin: 2rem 0;
     }
-
     .theorem-inner {
       border: 1px solid var(--border);
       background: var(--vault);
@@ -653,7 +561,6 @@
       align-items: center;
       gap: 3rem;
     }
-
     .theorem-label {
       font-size: 0.5rem;
       letter-spacing: 0.3em;
@@ -661,7 +568,6 @@
       color: var(--gold-dim);
       margin-bottom: 0.8rem;
     }
-
     .theorem-text {
       font-family: var(--serif);
       font-size: 1.3rem;
@@ -670,14 +576,12 @@
       color: var(--text-primary);
       line-height: 1.6;
     }
-
     .theorem-proof {
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
       text-align: right;
     }
-
     .proof-tag {
       display: inline-flex;
       align-items: center;
@@ -688,14 +592,11 @@
       text-transform: uppercase;
       color: var(--text-dim);
     }
-
     .proof-dot {
       width: 4px; height: 4px;
       border-radius: 50%;
       background: var(--gold-dim);
     }
-
-    /* ── STANDARDS TICKER ── */
     .ticker-section {
       padding: 1.5rem 0;
       border-top: 1px solid var(--border);
@@ -703,7 +604,6 @@
       overflow: hidden;
       position: relative;
     }
-
     .ticker-label {
       position: absolute;
       left: 3rem;
@@ -717,19 +617,16 @@
       padding: 0.2rem 0.6rem;
       z-index: 2;
     }
-
     .ticker-track {
       display: flex;
       gap: 0;
       animation: ticker 30s linear infinite;
       width: max-content;
     }
-
     @keyframes ticker {
       from { transform: translateX(0); }
       to { transform: translateX(-50%); }
     }
-
     .ticker-item {
       display: inline-flex;
       align-items: center;
@@ -742,16 +639,12 @@
       white-space: nowrap;
       border-right: 1px solid var(--border);
     }
-
     .ticker-item .tick-sep {
       color: var(--gold-dim);
     }
-
-    /* ── METRICS ROW ── */
     .metrics-section {
       padding: 5rem 3rem;
     }
-
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -759,14 +652,12 @@
       background: var(--border);
       border: 1px solid var(--border);
     }
-
     .metric-card {
       background: var(--vault);
       padding: 2.5rem 2rem;
       position: relative;
       overflow: hidden;
     }
-
     .metric-card::after {
       content: '';
       position: absolute;
@@ -774,7 +665,6 @@
       height: 1px;
       background: linear-gradient(90deg, var(--gold-dim), transparent);
     }
-
     .metric-value {
       font-family: var(--serif);
       font-size: 3rem;
@@ -783,14 +673,12 @@
       line-height: 1;
       margin-bottom: 0.4rem;
     }
-
     .metric-unit {
       font-family: var(--mono);
       font-size: 0.7rem;
       color: var(--gold-dim);
       vertical-align: super;
     }
-
     .metric-desc {
       font-size: 0.58rem;
       letter-spacing: 0.15em;
@@ -799,18 +687,14 @@
       line-height: 1.6;
       margin-bottom: 0.8rem;
     }
-
     .metric-source {
       font-size: 0.45rem;
       letter-spacing: 0.1em;
       color: var(--text-dim);
     }
-
-    /* ── ARCHITECTURE STRIP ── */
     .arch-section {
       padding: 4rem 3rem;
     }
-
     .arch-row {
       display: grid;
       grid-template-columns: 220px 1fr;
@@ -819,9 +703,7 @@
       border: 1px solid var(--border);
       margin-bottom: 1px;
     }
-
     .arch-row:last-child { margin-bottom: 0; }
-
     .arch-label-cell {
       background: var(--plate);
       padding: 1.2rem 1.5rem;
@@ -829,7 +711,6 @@
       flex-direction: column;
       justify-content: center;
     }
-
     .arch-layer {
       font-size: 0.48rem;
       letter-spacing: 0.25em;
@@ -837,7 +718,6 @@
       color: var(--gold-dim);
       margin-bottom: 0.3rem;
     }
-
     .arch-name {
       font-family: var(--cond);
       font-size: 0.8rem;
@@ -846,7 +726,6 @@
       text-transform: uppercase;
       color: var(--text-primary);
     }
-
     .arch-content-cell {
       background: var(--vault);
       padding: 1.2rem 1.5rem;
@@ -855,7 +734,6 @@
       gap: 0.5rem;
       flex-wrap: wrap;
     }
-
     .arch-tag {
       display: inline-flex;
       padding: 0.2rem 0.6rem;
@@ -866,20 +744,16 @@
       color: var(--text-dim);
       white-space: nowrap;
     }
-
     .arch-tag.highlight {
       border-color: var(--gold-dim);
       color: var(--gold);
     }
-
-    /* ── FINAL CTA SECTION ── */
     .final-cta {
       padding: 6rem 3rem 8rem;
       text-align: center;
       position: relative;
       overflow: hidden;
     }
-
     .final-cta-glow {
       position: absolute;
       bottom: 0; left: 50%;
@@ -891,7 +765,6 @@
       );
       pointer-events: none;
     }
-
     .final-pre {
       font-size: 0.55rem;
       letter-spacing: 0.35em;
@@ -899,7 +772,6 @@
       color: var(--gold-dim);
       margin-bottom: 1.5rem;
     }
-
     .final-title {
       font-family: var(--serif);
       font-size: clamp(2.2rem, 5vw, 4rem);
@@ -908,7 +780,6 @@
       margin-bottom: 1rem;
       line-height: 1.1;
     }
-
     .final-sub {
       font-family: var(--serif);
       font-style: italic;
@@ -916,15 +787,12 @@
       color: var(--text-secondary);
       margin-bottom: 3.5rem;
     }
-
     .final-buttons {
       display: flex;
       justify-content: center;
       gap: 1rem;
       flex-wrap: wrap;
     }
-
-    /* ── FOOTER ── */
     footer {
       padding: 2rem 3rem;
       border-top: 1px solid var(--border);
@@ -932,13 +800,11 @@
       align-items: center;
       justify-content: space-between;
     }
-
     .footer-left {
       display: flex;
       flex-direction: column;
       gap: 0.3rem;
     }
-
     .footer-brand {
       font-family: var(--serif);
       font-size: 0.9rem;
@@ -946,16 +812,13 @@
       letter-spacing: 0.2em;
       color: var(--text-secondary);
     }
-
     .footer-brand span { color: var(--gold); }
-
     .footer-tagline {
       font-size: 0.48rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--text-dim);
     }
-
     .footer-right {
       font-size: 0.5rem;
       letter-spacing: 0.15em;
@@ -963,12 +826,8 @@
       text-align: right;
       line-height: 1.8;
     }
-
-    /* ── UTILITIES ── */
     .gold { color: var(--gold); }
     .dim  { color: var(--text-dim); }
-
-    /* ── RESPONSIVE ── */
     @media (max-width: 900px) {
       nav { padding: 0 1.5rem; }
       .hero { padding: 140px 1.5rem 5rem; }
@@ -983,7 +842,6 @@
       .footer { flex-direction: column; gap: 1.5rem; text-align: center; }
       .footer-right { text-align: center; }
     }
-
     @media (max-width: 600px) {
       .cap-grid { grid-template-columns: 1fr; }
       .metrics-grid { grid-template-columns: 1fr 1fr; }
@@ -1025,21 +883,27 @@
     </div>
     <ul class="nav-links">
       <li>
-        <a href="/download" class="primary-link">
+        <a href="download.html" class="primary-link">
           <span class="nav-icon">↓</span>
           Download
         </a>
       </li>
       <li>
-        <a href="/user-manual">
+        <a href="docs/user.html">
           <span class="nav-icon">◈</span>
           User Manual
         </a>
       </li>
       <li>
-        <a href="/implementation-manual">
+        <a href="docs/install.html">
           <span class="nav-icon">⊞</span>
           Implementation Manual
+        </a>
+      </li>
+      <li>
+        <a href="docs/features.html">
+          <span class="nav-icon">◉</span>
+          Features
         </a>
       </li>
     </ul>
@@ -1108,15 +972,15 @@
       </div>
 
       <div class="hero-ctas">
-        <a href="/download" class="btn btn-primary">
+        <a href="download.html" class="btn btn-primary">
           <span class="btn-icon">↓</span>
           Download Verity
         </a>
-        <a href="/user-manual" class="btn btn-secondary">
+        <a href="docs/user.html" class="btn btn-secondary">
           <span class="btn-icon">◈</span>
           User Manual
         </a>
-        <a href="/implementation-manual" class="btn btn-ghost">
+        <a href="docs/install.html" class="btn btn-ghost">
           <span class="btn-icon">⊞</span>
           Implementation Manual
         </a>
@@ -1415,15 +1279,15 @@
       Mathematical proof of safety. No cloud required. No compromise.
     </div>
     <div class="final-buttons">
-      <a href="/download" class="btn btn-primary">
+      <a href="download.html" class="btn btn-primary">
         <span class="btn-icon">↓</span>
         Download the Binary
       </a>
-      <a href="/user-manual" class="btn btn-secondary">
+      <a href="docs/user.html" class="btn btn-secondary">
         <span class="btn-icon">◈</span>
         User Manual
       </a>
-      <a href="/implementation-manual" class="btn btn-ghost">
+      <a href="docs/install.html" class="btn btn-ghost">
         <span class="btn-icon">⊞</span>
         Implementation Manual
       </a>

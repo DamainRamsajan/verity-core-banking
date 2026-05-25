@@ -1,156 +1,1008 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verity Installation Manual</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verity Core Banking — Implementation Manual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&family=Barlow+Condensed:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Core Design System (identical to index.html) ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --obsidian:    #08090b;
+      --vault:       #0d0f12;
+      --plate:       #111318;
+      --border:      #1e2128;
+      --border-hi:   #2e3240;
+      --gold:        #c9a84c;
+      --gold-bright: #e8c96a;
+      --gold-dim:    #7a6330;
+      --gold-glow:   rgba(201,168,76,0.12);
+      --amber:       #d4853a;
+      --text-primary: #e8e4da;
+      --text-secondary: #8a8680;
+      --text-dim:    #4a4845;
+      --mono: 'JetBrains Mono', monospace;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --cond: 'Barlow Condensed', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--obsidian);
+      color: var(--text-primary);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.6;
+    }
+
+    /* Scanline */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.08) 3px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 998;
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 36px;
+      background: rgba(8,9,11,0.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .status-indicator .dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #2d6a2d;
+      box-shadow: 0 0 6px #2d6a2d;
+      animation: pulse-green 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .status-right {
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    .status-divider {
+      width: 1px;
+      height: 14px;
+      background: var(--border);
+    }
+
+    /* ── Main Navigation ── */
+    nav {
+      position: fixed;
+      top: 36px; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 3rem;
+      height: 64px;
+      background: rgba(8,9,11,0.88);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .nav-logo-mark {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      color: var(--text-primary);
+      line-height: 1;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-logo-mark:hover { opacity: 0.8; }
+
+    .nav-logo-mark span { color: var(--gold); }
+
+    .nav-logo-sub {
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      list-style: none;
+    }
+
+    .nav-links a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0 1.4rem;
+      height: 64px;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-left: 1px solid var(--border);
+      transition: color 0.2s, background 0.2s;
+      font-family: var(--mono);
+      position: relative;
+    }
+
+    .nav-links a:last-child { border-right: 1px solid var(--border); }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold);
+      background: var(--gold-glow);
+    }
+
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    .nav-links .nav-icon { font-size: 0.7rem; opacity: 0.6; }
+
+    .nav-links a.primary-link {
+      color: var(--gold);
+      border-color: var(--gold-dim);
+      background: rgba(201,168,76,0.06);
+    }
+
+    .nav-links a.primary-link:hover { background: rgba(201,168,76,0.14); }
+
+    .nav-links a.active {
+      color: var(--gold);
+      background: var(--gold-glow);
+      cursor: default;
+      pointer-events: none;
+    }
+    .nav-links a.active::after { transform: scaleX(1); }
+
+    /* ── Content Container ── */
+    .content-wrapper {
+      padding: 140px 3rem 6rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── Typography ── */
+    .section-label {
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-heading {
+      font-family: var(--serif);
+      font-size: 2.2rem;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-heading em { color: var(--gold); font-style: italic; }
+
+    .sub-heading {
+      font-family: var(--cond);
+      font-size: 1.1rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .body-text {
+      font-size: 0.62rem;
+      line-height: 1.85;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .gold { color: var(--gold); }
+    .dim  { color: var(--text-dim); }
+
+    /* ── Code Blocks ── */
+    .code-block {
+      background: var(--vault);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      line-height: 1.8;
+      color: var(--text-primary);
+    }
+
+    .code-block code {
+      background: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    /* ── Inline Code ── */
+    code {
+      background: var(--plate);
+      padding: 0.2em 0.4em;
+      font-size: 0.58rem;
+      color: var(--gold);
+      border: 1px solid var(--border-hi);
+      font-family: var(--mono);
+    }
+
+    /* ── Lists ── */
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.7;
+      font-size: 0.62rem;
+      color: var(--text-secondary);
+    }
+
+    li { margin-bottom: 0.4rem; }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.62rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.5rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.6rem 0.8rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    /* ── Divider (as used in index.html) ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin: 3rem 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-label {
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .footer-brand {
+      font-family: var(--serif);
+      font-size: 0.9rem;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      color: var(--text-secondary);
+    }
+
+    .footer-brand span { color: var(--gold); }
+
+    .footer-tagline {
+      font-size: 0.48rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .footer-right {
+      font-size: 0.5rem;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+      text-align: right;
+      line-height: 1.8;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 1.5rem; }
+      .content-wrapper { padding: 140px 1.5rem 4rem; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .footer-right { text-align: center; }
+    }
+
+    @media (max-width: 600px) {
+      .status-bar { display: none; }
+      nav { top: 0; }
+      .content-wrapper { padding-top: 100px; }
+    }
+  </style>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen">
-  <div class="max-w-4xl mx-auto px-6 py-12">
-    
+<body>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="status-indicator">
+        <span class="dot"></span>
+        <span>All systems nominal</span>
+      </div>
+      <div class="status-divider"></div>
+      <div class="status-indicator">
+        <span>TEE Attestation Active</span>
+      </div>
+      <div class="status-divider"></div>
+      <div class="status-indicator">
+        <span>Conservation of Value: Verified</span>
+      </div>
+    </div>
+    <div class="status-right">ARC42 v15.0+ · BIAN v14.0 · DORA · ISO 20022</div>
+  </div>
+
+  <!-- Navigation -->
+    <nav>
+    <a href="../index.html" class="nav-logo">
+      <div class="nav-logo-mark">VERITY<span>.</span></div>
+      <div class="nav-logo-sub">Core Banking Platform</div>
+    </a>
+    <ul class="nav-links">
+      <li>
+        <a href="../download.html" class="primary-link">
+          <span class="nav-icon">↓</span>
+          Download
+        </a>
+      </li>
+      <li>
+        <a href="user.html">
+          <span class="nav-icon">◈</span>
+          User Manual
+        </a>
+      </li>
+      <li>
+        <a href="install.html" class="active">
+          <span class="nav-icon">⊞</span>
+          Implementation Manual
+        </a>
+      </li>
+      <li>
+        <a href="features.html">
+          <span class="nav-icon">◉</span>
+          Features
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+
     <!-- Header -->
-    <div class="mb-12">
-      <h1 class="text-4xl font-bold mb-2">Verity Core Banking Platform</h1>
-      <p class="text-xl text-gray-400">Installation Manual for Implementation Engineers</p>
-      <p class="text-sm text-gray-500 mt-2">Version 0.1.0 — May 2026</p>
+    <div style="margin-bottom: 3rem;">
+      <div class="section-label">Version 0.1.0 · May 2026 · for Implementation Engineers</div>
+      <h1 class="section-heading">Implementation <em>Manual</em></h1>
+      <p class="body-text">
+        Verity is a sovereign, formally‑verified, AI‑agent‑native core banking platform. It compiles to a single Rust binary with no cloud dependency. This manual guides infrastructure teams through installation, configuration, and operation.
+      </p>
     </div>
 
-    <!-- Prerequisites -->
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">Prerequisites</h2>
-      <ul class="list-disc list-inside space-y-2 text-gray-300">
-        <li>A Linux server running a recent kernel (5.15+). Bare‑metal is required for production; a VM may be used for evaluation with reduced security guarantees.</li>
-        <li>For production: Intel Xeon with TDX support, or AMD EPYC with SEV‑SNP support.</li>
-        <li>The server must have at least 8 CPU cores, 32 GB RAM, and 512 GB SSD storage.</li>
-        <li>A static IP address and a valid TLS certificate (self‑signed is acceptable for initial setup).</li>
-        <li>A valid Verity licence key, provided by Intellectica AI LLC.</li>
-        <li><code>systemd</code> (default on most distributions) or the ability to run a long‑lived process.</li>
-      </ul>
-    </section>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">01 — System Overview</div>
+      <div class="divider-line"></div>
+    </div>
 
-    <!-- Obtaining the binary -->
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">1. Obtain the Verity Binary</h2>
-      <ol class="list-decimal list-inside space-y-3 text-gray-300">
-        <li>Open a web browser and navigate to <a href="/download" class="text-blue-400 underline">verity.io/download</a> (or the URL provided in your licence email).</li>
-        <li>Enter your licence key exactly as provided. The download will begin automatically.</li>
-        <li>Save the file <code class="bg-gray-800 px-2 py-0.5 rounded text-sm">verity-&lt;version&gt;.bin</code> to your local machine.</li>
-      </ol>
-    </section>
+    <h2 class="sub-heading">1. System Overview</h2>
+    <p class="body-text">
+      Verity replaces traditional mutable‑balance databases with a Merkle‑proofed, TLA+‑verified double‑entry ledger and replaces role‑based access control with compile‑time capability security. The platform runs on bare‑metal Linux servers with hardware‑enforced Trusted Execution Environments (Intel TDX or AMD SEV‑SNP) for production. Evaluation deployments may use simulation mode with reduced security guarantees.
+    </p>
+    <p class="body-text">
+      <strong>Key architectural properties:</strong>
+    </p>
+    <ul>
+      <li>The binary is <strong>statically linked</strong> — no system libraries beyond Linux kernel 5.15+ required.</li>
+      <li>The licence is <strong>hardware‑bound</strong> on first install. Moving the binary to different hardware requires a new licence key.</li>
+      <li>All data is stored in a <strong>Merkle‑proofed, append‑only ledger</strong>. No transaction can be modified or deleted after commit.</li>
+      <li>AI agents run inside the same binary, governed by <strong>capability tokens</strong> enforced at the VM level.</li>
+    </ul>
 
-    <!-- Verify integrity -->
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">2. Verify Binary Integrity</h2>
-      <p class="text-gray-300 mb-3">A SHA‑256 checksum file is available next to the download. Verify the binary before executing it:</p>
-      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">sha256sum -c verity-&lt;version&gt;.bin.sha256</pre>
-      <p class="text-gray-400 text-sm mt-2">Expected output: <code class="bg-gray-800 px-2 py-0.5 rounded">verity-&lt;version&gt;.bin: OK</code></p>
-    </section>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">02 — Prerequisites</div>
+      <div class="divider-line"></div>
+    </div>
 
-    <!-- Installation -->
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">3. Install Verity</h2>
-      <p class="text-gray-300 mb-3">Copy the binary to a system directory, make it executable, and run the installer:</p>
-      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
-# Copy binary
-sudo cp verity-&lt;version&gt;.bin /usr/local/bin/verity
-sudo chmod +x /usr/local/bin/verity
+    <h2 class="sub-heading">2. Prerequisites</h2>
 
-# Run the installer (replaces &lt;licence-key&gt; with your actual key)
-sudo verity install --license-key "VERITY-..."
-      </pre>
-      <p class="text-gray-400 text-sm mt-2">The installer will:</p>
-      <ul class="list-disc list-inside text-gray-400 text-sm space-y-1 mt-2">
-        <li>Validate the licence key cryptographically.</li>
-        <li>Bind the licence to the server’s hardware.</li>
-        <li>Generate a configuration file at <code class="bg-gray-800 px-2 py-0.5 rounded">/etc/verity/config.toml</code>.</li>
-        <li>Initialise the Merkle ledger.</li>
-        <li>Print “Verity installed successfully” upon completion.</li>
-      </ul>
-    </section>
+    <h3 class="sub-heading" style="font-size:0.85rem;">2.1 Hardware Requirements</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Environment</th>
+          <th>CPU</th>
+          <th>RAM</th>
+          <th>Storage</th>
+          <th>TEE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Production</td>
+          <td>16 cores (Intel Xeon Scalable or AMD EPYC 9005)</td>
+          <td>64 GB ECC</td>
+          <td>1 TB NVMe SSD (RAID‑1 recommended)</td>
+          <td>Intel TDX or AMD SEV‑SNP required</td>
+        </tr>
+        <tr>
+          <td>Evaluation / Pilot</td>
+          <td>8 cores</td>
+          <td>32 GB</td>
+          <td>512 GB SSD</td>
+          <td>Optional (simulation mode)</td>
+        </tr>
+        <tr>
+          <td>Edge (branch / ATM)</td>
+          <td>4 cores (Intel Atom or ARM Cortex‑A78AE)</td>
+          <td>4 GB</td>
+          <td>32 GB eMMC</td>
+          <td>Optional</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <!-- Start -->
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">4. Start the Platform</h2>
-      <p class="text-gray-300 mb-3">The recommended way is to use <code class="bg-gray-800 px-2 py-0.5 rounded">systemd</code>:</p>
-      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
-# Create a systemd service file
-sudo tee /etc/systemd/system/verity.service &lt;&lt; 'EOF'
+    <h3 class="sub-heading" style="font-size:0.85rem;">2.2 Software Requirements</h3>
+    <table>
+      <thead>
+        <tr><th>Component</th><th>Version / Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Operating System</td><td>Linux kernel 5.15 or later. Ubuntu 22.04/24.04 LTS, RHEL 9, or Debian 12 recommended.</td></tr>
+        <tr><td>Database</td><td>PostgreSQL 17+ (production) or SQLite 3 (single‑node evaluation only).</td></tr>
+        <tr><td>TLS Certificate</td><td>A valid X.509 certificate for the Mission Control dashboard. Self‑signed acceptable for initial setup.</td></tr>
+        <tr><td>NTP</td><td>Accurate time synchronisation mandatory. The platform refuses to start if the clock is wrong.</td></tr>
+        <tr><td>Network</td><td>Outbound access to payment rails (FedNow, SWIFT) as required. Inbound access on port 8080 (configurable) for dashboard and API.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">2.3 Licence Key</h3>
+    <p class="body-text">
+      A licence key must be obtained from Intellectica AI LLC before installation. The key is a long string beginning with <code>VERITY-</code> and contains a cryptographically‑signed payload. It is bound to the first server it is installed on.
+    </p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">03 — Installation</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">3. Installation</h2>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.1 Obtain the Binary</h3>
+    <ol>
+      <li>Navigate to the download URL provided with your licence key (e.g. <code>https://aac62545.verity-core-banking.pages.dev/download</code>).</li>
+      <li>Enter your licence key. The download will begin automatically.</li>
+      <li>Save the file <code>verity-&lt;version&gt;.bin</code> to your server.</li>
+    </ol>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.2 Verify Integrity</h3>
+    <p class="body-text">A SHA‑256 checksum file is available alongside the download. Verify the binary before execution:</p>
+    <pre class="code-block"><code>sha256sum -c verity-&lt;version&gt;.bin.sha256</code></pre>
+    <p class="body-text dim">Expected output: <code>verity-&lt;version&gt;.bin: OK</code></p>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.3 Install the Binary</h3>
+    <pre class="code-block"><code>sudo cp verity-&lt;version&gt;.bin /usr/local/bin/verity
+sudo chmod +x /usr/local/bin/verity</code></pre>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.4 Run the Installer</h3>
+    <pre class="code-block"><code>sudo verity install --license-key "VERITY-..."</code></pre>
+    <p class="body-text">The installer performs the following steps automatically:</p>
+    <ul>
+      <li><strong>Licence validation</strong> — cryptographically verifies the licence key signature against the vendor’s public key (embedded in the binary).</li>
+      <li><strong>Hardware binding</strong> — captures a hardware fingerprint (CPU serial, motherboard UUID, disk serial, MAC address) and stores it in an encrypted licence file at <code>/etc/verity/license.lic</code>.</li>
+      <li><strong>Environment detection</strong> — checks for TEE support (Intel TDX / AMD SEV‑SNP). If no TEE is found, the platform runs in simulation mode with a warning.</li>
+      <li><strong>Configuration generation</strong> — writes <code>/etc/verity/config.toml</code> with default settings.</li>
+      <li><strong>Ledger initialisation</strong> — creates the Merkle ledger directory at <code>/var/verity/ledger</code>.</li>
+    </ul>
+    <p class="body-text">Expected output:</p>
+    <pre class="code-block"><code>✅ Verity installed successfully.
+   Organisation: First Interstate Bank
+   Licence expires: 2027-06-01T00:00:00Z
+
+Start the platform with: verity serve</code></pre>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.5 Create a systemd Service</h3>
+    <p class="body-text">The recommended way to run Verity in production is via <code>systemd</code>:</p>
+    <pre class="code-block"><code>sudo tee /etc/systemd/system/verity.service &lt;&lt; 'EOF'
 [Unit]
 Description=Verity Core Banking Platform
-After=network.target
+After=network.target postgresql.service
 
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/verity serve
 Restart=on-failure
 RestartSec=5
+LimitNOFILE=65536
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-# Enable and start
 sudo systemctl daemon-reload
 sudo systemctl enable verity
-sudo systemctl start verity
-      </pre>
-      <p class="text-gray-300 mt-3">Or run it directly in the foreground:</p>
-      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">verity serve</pre>
-    </section>
+sudo systemctl start verity</code></pre>
 
-    <!-- Access -->
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">5. Access the Mission Control Dashboard</h2>
-      <p class="text-gray-300 mb-3">Open a web browser and navigate to:</p>
-      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">https://&lt;your-server-address&gt;:8080</pre>
-      <p class="text-gray-400 text-sm mt-2">The dashboard is served directly by the Verity binary — no separate web server is required.</p>
-    </section>
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.6 Verify the Installation</h3>
+    <pre class="code-block"><code># Check service status
+sudo systemctl status verity
 
-    <!-- License management -->
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">6. Licence Management</h2>
-      <p class="text-gray-300 mb-3">Check the status of your licence at any time:</p>
-      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">verity license status</pre>
-      <p class="text-gray-300 mt-3">Output example:</p>
-      <pre class="bg-gray-800 p-4 rounded-lg text-sm overflow-x-auto">
-Organisation: First Interstate Bank
+# Check licence status
+verity license status
+
+# Check the dashboard is responding
+curl -k https://localhost:8080/health</code></pre>
+    <p class="body-text">Expected licence status output:</p>
+    <pre class="code-block"><code>Organisation: First Interstate Bank
 Expiry:       2027-06-01T00:00:00Z
 Hardware match: 100%
-Signature:     ✅ valid
-      </pre>
-      <p class="text-gray-400 text-sm mt-2">If the licence is due to expire, contact Intellectica AI LLC for a renewal key. The new key can be applied without reinstalling.</p>
-    </section>
+Signature:    ✅ valid</code></pre>
 
-    <!-- Troubleshooting -->
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">7. Troubleshooting</h2>
-      <div class="space-y-4 text-gray-300">
-        <div>
-          <h3 class="font-semibold text-white">“Licence is bound to different hardware”</h3>
-          <p>The server’s hardware fingerprint has changed. This can happen after major hardware upgrades. Contact support for a re‑issued licence.</p>
-        </div>
-        <div>
-          <h3 class="font-semibold text-white">“System clock appears to have been rolled back”</h3>
-          <p>Ensure NTP is enabled and the system clock is correct. The licence enforcement detects clock manipulation.</p>
-        </div>
-        <div>
-          <h3 class="font-semibold text-white">“Virtualised/container environment detected”</h3>
-          <p>Verity is running in a VM or container. This is acceptable for evaluation; a warning is printed but the platform will start. Production deployments should use bare‑metal with TEE support.</p>
-        </div>
-      </div>
-    </section>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">04 — Configuration</div>
+      <div class="divider-line"></div>
+    </div>
 
-    <!-- Support -->
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-4 border-b border-gray-800 pb-2">8. Support</h2>
-      <p class="text-gray-300">
-        For assistance, contact <strong>Intellectica AI LLC</strong> at
-        <a href="mailto:support@verity.io" class="text-blue-400 underline">support@verity.io</a>
-        or call your designated implementation contact.
-      </p>
-    </section>
+    <h2 class="sub-heading">4. Configuration</h2>
 
-  </div>
+    <h3 class="sub-heading" style="font-size:0.85rem;">4.1 Configuration File</h3>
+    <p class="body-text">The main configuration file is <code>/etc/verity/config.toml</code>. It is generated by the installer and may be edited manually.</p>
+    <pre class="code-block"><code>[platform]
+org = "First Interstate Bank"
+
+[ledger]
+path = "/var/verity/ledger"
+
+[api]
+bind = "0.0.0.0:8080"</code></pre>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">4.2 Key Configuration Options</h3>
+    <table>
+      <thead>
+        <tr><th>Setting</th><th>Default</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>ledger.path</code></td><td><code>/var/verity/ledger</code></td><td>Path to the Merkle ledger event store. Must be on persistent, high‑performance storage.</td></tr>
+        <tr><td><code>api.bind</code></td><td><code>0.0.0.0:8080</code></td><td>IP address and port for the Mission Control dashboard and API.</td></tr>
+        <tr><td><code>api.tls_cert</code></td><td>(none)</td><td>Path to TLS certificate file. Required for production.</td></tr>
+        <tr><td><code>api.tls_key</code></td><td>(none)</td><td>Path to TLS private key file. Required for production.</td></tr>
+        <tr><td><code>tee.mode</code></td><td><code>auto</code></td><td>One of <code>auto</code>, <code>production</code>, <code>simulation</code>. In production mode the binary refuses to start without valid TEE attestation.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">4.3 Environment Variables</h3>
+    <table>
+      <thead>
+        <tr><th>Variable</th><th>Purpose</th><th>Default</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>DATABASE_URL</code></td><td>PostgreSQL connection string</td><td><code>postgresql://verity:verity@localhost:5432/verity</code></td></tr>
+        <tr><td><code>VERITY_VENDOR_PUBKEY</code></td><td>Embedded at build time</td><td>(compiled in)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">05 — Operations</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">5. Operations</h2>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">5.1 Daily Operations</h3>
+    <pre class="code-block"><code># Start the platform
+sudo systemctl start verity
+
+# Stop the platform
+sudo systemctl stop verity
+
+# Restart the platform
+sudo systemctl restart verity
+
+# View logs
+sudo journalctl -u verity -f</code></pre>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">5.2 Licence Management</h3>
+    <pre class="code-block"><code># Check licence status
+verity license status
+
+# Check version
+verity version</code></pre>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">5.3 Backup and Recovery</h3>
+    <p class="body-text">The Merkle ledger is an append‑only event store. Backups must include:</p>
+    <ul>
+      <li>The ledger directory (<code>/var/verity/ledger</code> by default).</li>
+      <li>The configuration file (<code>/etc/verity/config.toml</code>).</li>
+      <li>The licence file (<code>/etc/verity/license.lic</code>). This file is encrypted and hardware‑bound; it cannot be used on different hardware.</li>
+    </ul>
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Frequency</th><th>Retention</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Ledger</td><td>Continuous (PostgreSQL WAL archiving)</td><td>7 years (regulatory minimum)</td></tr>
+        <tr><td>Configuration</td><td>After every change</td><td>Indefinite</td></tr>
+        <tr><td>Licence file</td><td>After initial install</td><td>Indefinite</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">5.4 Monitoring</h3>
+    <p class="body-text">Verity emits OpenTelemetry traces, metrics, and structured logs. Point the OTLP exporter to your observability backend:</p>
+    <pre class="code-block"><code>[observability]
+otlp_endpoint = "http://otel-collector:4317"</code></pre>
+    <p class="body-text">Key metrics to monitor:</p>
+    <table>
+      <thead>
+        <tr><th>Metric</th><th>Description</th><th>Alert Threshold</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>ledger.append_latency_ms</code></td><td>P99 latency of ledger appends</td><td>&gt; 50 ms</td></tr>
+        <tr><td><code>capability.validation_count</code></td><td>Capability token validations per second</td><td>Sudden drop may indicate attack</td></tr>
+        <tr><td><code>fraud.alerts_generated</code></td><td>Fraud alerts per hour</td><td>Spike warrants investigation</td></tr>
+        <tr><td><code>license.hardware_match</code></td><td>Hardware fingerprint match percentage</td><td>&lt; 100% = possible tampering</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">5.5 Log Levels</h3>
+    <table>
+      <thead>
+        <tr><th>Level</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>error</code></td><td>Licence validation failures, ledger corruption, TEE attestation failures</td></tr>
+        <tr><td><code>warn</code></td><td>VM/container detection, clock anomalies, circuit breaker trips</td></tr>
+        <tr><td><code>info</code></td><td>Normal operations: transaction commits, agent actions, payment processing</td></tr>
+        <tr><td><code>debug</code></td><td>Detailed tracing for support investigations</td></tr>
+        <tr><td><code>trace</code></td><td>Full execution traces (high volume, not recommended for production)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">06 — Troubleshooting</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">6. Troubleshooting</h2>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">6.1 Common Issues</h3>
+    <table>
+      <thead>
+        <tr><th>Symptom</th><th>Likely Cause</th><th>Resolution</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>“Licence signature invalid”</td>
+          <td>The licence key was generated with a different vendor key, or the key has been corrupted.</td>
+          <td>Obtain a new licence key from Intellectica AI LLC.</td>
+        </tr>
+        <tr>
+          <td>“Licence is bound to different hardware”</td>
+          <td>The binary was moved to a different server, or the server underwent major hardware changes.</td>
+          <td>Request a licence re‑issue from Intellectica AI LLC.</td>
+        </tr>
+        <tr>
+          <td>“System clock appears to have been rolled back”</td>
+          <td>NTP is not running or the system clock is incorrect.</td>
+          <td>Enable NTP (<code>sudo timedatectl set-ntp true</code>). Ensure the clock is synchronised before restarting Verity.</td>
+        </tr>
+        <tr>
+          <td>“Virtualised/container environment detected”</td>
+          <td>The platform is running inside a VM or container without TEE support.</td>
+          <td>This is a warning only. The platform will start in simulation mode. For production, deploy on bare‑metal with TEE.</td>
+        </tr>
+        <tr>
+          <td>Dashboard returns 502</td>
+          <td>Verity is not running or the port is blocked by a firewall.</td>
+          <td>Check <code>systemctl status verity</code>. Verify the firewall allows port 8080.</td>
+        </tr>
+        <tr>
+          <td>Ledger append latency is high</td>
+          <td>Storage I/O is saturated, or the database connection pool is exhausted.</td>
+          <td>Check disk I/O (<code>iostat</code>). Increase the database connection pool size.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">6.2 Diagnostic Commands</h3>
+    <pre class="code-block"><code># Check Verity service status
+sudo systemctl status verity
+
+# View the last 100 log lines
+sudo journalctl -u verity -n 100 --no-pager
+
+# Check licence validity
+verity license status
+
+# Test the health endpoint
+curl -k https://localhost:8080/health
+
+# Check disk space on the ledger volume
+df -h /var/verity/ledger
+
+# Check NTP synchronisation
+timedatectl show-timesync</code></pre>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">6.3 Emergency Shutdown</h3>
+    <p class="body-text">In the event of a security incident, Verity can be immediately halted:</p>
+    <pre class="code-block"><code>sudo systemctl stop verity</code></pre>
+    <p class="body-text">For hardware‑grade termination, the platform supports a Non‑Maskable Interrupt (NMI) on TEE‑enabled hardware. This is triggered via the IPMI/BMC interface and is specific to your server hardware. Consult your server documentation for NMI invocation.</p>
+    <p class="body-text">After an emergency shutdown, the ledger remains consistent because all writes are append‑only. No data corruption occurs from a hard stop.</p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">07 — Security</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">7. Security</h2>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">7.1 Licence Enforcement</h3>
+    <p class="body-text">The licence is cryptographically bound to the server’s hardware fingerprint. The binary will not start if:</p>
+    <ul>
+      <li>The licence file is missing or tampered with.</li>
+      <li>The hardware fingerprint has changed (different CPU, motherboard, or disk).</li>
+      <li>The system clock has been rolled back.</li>
+      <li>The licence has expired.</li>
+    </ul>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">7.2 TEE Attestation</h3>
+    <p class="body-text">In production mode, the binary performs remote attestation on every startup. The TEE (Intel TDX or AMD SEV‑SNP) proves to the binary that it is running on genuine, untampered hardware. If attestation fails, the binary refuses to start.</p>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">7.3 Capability‑Based Security</h3>
+    <p class="body-text">All operations—including those initiated by human operators—are governed by capability tokens. No ambient authority exists. The four‑eyes principle is enforced at the virtual‑machine level for high‑value operations (wire transfers above $10,000, loan approvals, general‑ledger postings).</p>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">7.4 Audit Trail</h3>
+    <p class="body-text">Every transaction, agent action, and configuration change produces a cryptographically‑signed provenance record. These records are Merkle‑chained and may be anchored to a public transparency service (SCITT). Regulators can verify the integrity of the audit trail independently without access to the bank’s systems.</p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">08 — Maintenance</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">8. Maintenance</h2>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">8.1 Upgrading Verity</h3>
+    <ol>
+      <li>Download the new binary as described in §3.1.</li>
+      <li>Stop the running instance: <code>sudo systemctl stop verity</code></li>
+      <li>Replace the binary: <code>sudo cp verity-&lt;new-version&gt;.bin /usr/local/bin/verity</code></li>
+      <li>Restart: <code>sudo systemctl start verity</code></li>
+      <li>Verify: <code>verity version</code> and <code>verity license status</code></li>
+    </ol>
+    <p class="body-text">The licence file and ledger are compatible across versions. No data migration is required.</p>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">8.2 Licence Renewal</h3>
+    <p class="body-text">When a licence approaches expiry, contact Intellectica AI LLC for a renewal key. The new key can be applied without reinstalling:</p>
+    <pre class="code-block"><code>sudo verity install --license-key "VERITY-&lt;new-key&gt;"</code></pre>
+    <p class="body-text">This updates the licence file while preserving the existing ledger and configuration.</p>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">8.3 Database Maintenance</h3>
+    <p class="body-text">For PostgreSQL deployments, standard maintenance practices apply:</p>
+    <ul>
+      <li>Regular <code>VACUUM</code> operations</li>
+      <li>WAL archiving for point‑in‑time recovery</li>
+      <li>Connection pool monitoring</li>
+    </ul>
+    <p class="body-text">Verity uses SQLx for database access. The connection pool size defaults to 10 and may be tuned in the configuration file.</p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">09 — Network & Firewall</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">9. Network & Firewall Requirements</h2>
+    <table>
+      <thead>
+        <tr><th>Source</th><th>Destination</th><th>Port</th><th>Protocol</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Operator workstations</td><td>Verity server</td><td>8080</td><td>HTTPS</td><td>Mission Control dashboard</td></tr>
+        <tr><td>Verity server</td><td>FedNow endpoint</td><td>443</td><td>HTTPS</td><td>Instant payment processing</td></tr>
+        <tr><td>Verity server</td><td>SWIFT endpoint</td><td>443</td><td>HTTPS</td><td>Cross‑border payment processing</td></tr>
+        <tr><td>Verity server</td><td>PostgreSQL server</td><td>5432</td><td>TCP</td><td>Ledger database</td></tr>
+        <tr><td>Verity server</td><td>NTP server</td><td>123</td><td>UDP</td><td>Time synchronisation</td></tr>
+        <tr><td>Verity server</td><td>OTLP collector</td><td>4317</td><td>gRPC</td><td>Observability telemetry</td></tr>
+      </tbody>
+    </table>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">10 — Support</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">10. Support</h2>
+    <p class="body-text">
+      For technical support, contact Intellectica AI LLC:<br />
+      Email: <a href="mailto:support@verity.io" style="color:var(--gold);">support@verity.io</a><br />
+      Emergency: [phone number provided with licence]
+    </p>
+    <p class="body-text">When reporting an issue, please include:</p>
+    <ul>
+      <li>Verity version (<code>verity version</code>)</li>
+      <li>Licence status (<code>verity license status</code>)</li>
+      <li>The last 100 lines of the systemd journal (<code>sudo journalctl -u verity -n 100 --no-pager</code>)</li>
+      <li>The server’s hardware specifications and operating system version</li>
+      <li>A description of the expected behaviour and the observed behaviour</li>
+    </ul>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">Appendix A — Quick Reference</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <pre class="code-block"><code># Install
+sudo cp verity-*.bin /usr/local/bin/verity && sudo chmod +x /usr/local/bin/verity
+sudo verity install --license-key "VERITY-..."
+
+# Service management
+sudo systemctl start verity
+sudo systemctl stop verity
+sudo systemctl restart verity
+sudo systemctl status verity
+
+# Logs
+sudo journalctl -u verity -f
+
+# Licence
+verity license status
+verity version
+
+# Health check
+curl -k https://localhost:8080/health</code></pre>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">Appendix B — Directory Layout</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <pre class="code-block"><code>/etc/verity/
+├── config.toml          # Platform configuration
+└── license.lic          # Encrypted, hardware‑bound licence
+
+/var/verity/
+└── ledger/              # Merkle event store (append‑only)
+
+/usr/local/bin/
+└── verity               # Static binary</code></pre>
+
+  </div> <!-- /content-wrapper -->
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">
+      <div class="footer-brand">VERITY<span>.</span> Core Banking</div>
+      <div class="footer-tagline">Sovereign · Formally Verified · Agent-Native · Quantum-Ready</div>
+    </div>
+    <div class="footer-right">
+      ARC42 v15.0+ · BIAN v14.0 · ISO 20022 · DORA · BCBS 239<br />
+      NIST FIPS 203/204/205 · PCI DSS 4.0 · SWIFT CSCF v2026<br />
+      OWASP Agentic Top 10 · EU AI Act · ISO/IEC 25010
+    </div>
+  </footer>
+
 </body>
 </html>

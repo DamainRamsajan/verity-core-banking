@@ -852,55 +852,6 @@
       .proof-strip { display: grid; grid-template-columns: 1fr 1fr; }
       .proof-item { border-bottom: 1px solid var(--border); }
     }
-        /* ── World Firsts Grid (new) ── */
-    .world-firsts-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-    }
-    .world-first-card {
-      background: var(--vault);
-      padding: 1.8rem;
-      transition: background 0.25s;
-    }
-    .world-first-card:hover {
-      background: var(--plate);
-    }
-    .world-first-number {
-      font-family: var(--serif);
-      font-size: 3rem;
-      font-weight: 300;
-      color: var(--gold);
-      opacity: 0.25;
-      line-height: 1;
-      margin-bottom: 0.8rem;
-    }
-    .world-first-card h4 {
-      font-family: var(--cond);
-      font-size: 0.9rem;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-primary);
-      margin-bottom: 0.8rem;
-    }
-    .world-first-card p {
-      font-size: 0.6rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin-bottom: 0.8rem;
-    }
-    .proof-tag {
-      display: inline-block;
-      font-size: 0.45rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--gold-dim);
-      border: 1px solid var(--border-hi);
-      padding: 0.2rem 0.6rem;
-    }
   </style>
 </head>
 <body>
@@ -1044,83 +995,6 @@
     </div>
   </section>
 
-    <!-- COMPETITIVE LANDSCAPE & WORLD FIRSTS -->
-  <section class="capability-section" style="padding-top: 0;">
-    <div class="section-header">
-      <div>
-        <div class="section-number">Global Market Positioning</div>
-        <div class="section-title">The First Banking Operating System Designed for the <em>Agentic Era</em></div>
-      </div>
-    </div>
-    <p class="hero-desc" style="font-family: var(--mono); font-size: 0.65rem; max-width: 780px; margin-top: 1rem;">
-      Verity is not a digital transformation wrapper around a legacy core. It is a mathematically verified sovereign banking operating system engineered from first principles for AI‑native finance, post‑quantum security, agent identity, confidential computing, formal verification, and real‑time regulatory proof generation.
-    </p>
-
-    <!-- Competitor cards -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 3rem;">
-      <div style="background: var(--vault); padding: 2rem;">
-        <div class="feature-id">Fiserv agentOS</div>
-        <p class="feature-desc">AI‑enhanced legacy platform. AWS Bedrock AgentCore integration. No formal verification, no sovereign single‑binary deployment, no capability‑based microkernel.</p>
-      </div>
-      <div style="background: var(--vault); padding: 2rem;">
-        <div class="feature-id">Thought Machine Vault Core</div>
-        <p class="feature-desc">Smart‑contract banking core. Strong composability. No TLA+ verification, no agent‑native identity, no concurrent multi‑TEE trust layer.</p>
-      </div>
-      <div style="background: var(--vault); padding: 2rem;">
-        <div class="feature-id">Oracle Financial Services</div>
-        <p class="feature-desc">Enterprise AI banking suite. Embedded AI workflow. Cloud‑dependent, no formal methods, no air‑gap deployment.</p>
-      </div>
-      <div style="background: var(--vault); padding: 2rem;">
-        <div class="feature-id">IBM Sovereign Core</div>
-        <p class="feature-desc">Sovereign infrastructure platform. Air‑gapped support. Not a banking platform; no banking domain logic, no BIAN decomposition.</p>
-      </div>
-    </div>
-
-    <!-- World Firsts Grid -->
-    <div style="margin-top: 4rem;">
-      <div class="section-number" style="margin-bottom: 0.5rem;">15 Verified Architectural World Firsts</div>
-      <div class="section-title" style="font-size: 2rem;">Fifteen Independent Breakthroughs in a <em>Single Platform</em></div>
-      <div class="world-firsts-grid" style="margin-top: 2rem;">
-        <div class="world-first-card">
-          <div class="world-first-number">01</div>
-          <h4>Formally Verified Banking Ledger</h4>
-          <p>TLA+ verified, Merkle‑proofed, append‑only double‑entry ledger with runtime model checking.</p>
-          <div class="proof-tag">TLA+ VERIFIED</div>
-        </div>
-        <div class="world-first-card">
-          <div class="world-first-number">02</div>
-          <h4>Compile‑Time Regulatory Enforcement</h4>
-          <p>Banking products that violate Reg DD/Reg Z/Reg E cannot compile.</p>
-          <div class="proof-tag">ASL VERIFIED</div>
-        </div>
-        <div class="world-first-card">
-          <div class="world-first-number">03</div>
-          <h4>Capability‑Based Banking Microkernel</h4>
-          <p>Zero ambient authority; every operation requires an unforgeable PASETO v4 token.</p>
-          <div class="proof-tag">KERNEL‑ENFORCED</div>
-        </div>
-        <div class="world-first-card">
-          <div class="world-first-number">04</div>
-          <h4>AI Agents as Native Banking Customers</h4>
-          <p>One Agent One Account; capability‑governed smart accounts for autonomous economic actors.</p>
-          <div class="proof-tag">1A1A FRAMEWORK</div>
-        </div>
-        <div class="world-first-card">
-          <div class="world-first-number">05</div>
-          <h4>Concurrent Multi‑TEE Banking Runtime</h4>
-          <p>Intel TDX and AMD SEV‑SNP operating simultaneously with automated CVE failover.</p>
-          <div class="proof-tag">CONFIDENTIAL COMPUTING</div>
-        </div>
-        <div class="world-first-card">
-          <div class="world-first-number">06</div>
-          <h4>Fully Homomorphic Ledger Computation</h4>
-          <p>Balance updates without decrypting account state; hardware acceleration ready.</p>
-          <div class="proof-tag">FHE ENABLED</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- STANDARDS TICKER -->
   <div class="divider">
     <div class="divider-line"></div>
@@ -1255,199 +1129,6 @@
       </div>
     </div>
   </div>
-
-    <!-- ACADEMIC VALIDATION -->
-  <div class="divider" style="margin-top: 4rem;">
-    <div class="divider-line"></div>
-    <div class="divider-label">Research Foundation</div>
-    <div class="divider-line"></div>
-  </div>
-
-  <section style="padding: 0 3rem; max-width: 1000px; margin: 0 auto 2rem;">
-    <h2 class="section-title" style="font-size: 2rem; margin-bottom: 1.5rem;">Built on the <em>State of the Art</em></h2>
-    <p class="hero-desc" style="font-family: var(--mono); font-size: 0.62rem; max-width: 780px;">
-      Verity is grounded in active academic literature across formal verification, confidential computing, federated learning defense, capability systems, post‑quantum cryptography, zero‑knowledge proofs, cognitive psychology, agent identity, and quantum optimisation.
-    </p>
-
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 2rem;">
-      <div style="background: var(--vault); padding: 1.8rem;">
-        <div style="font-size: 1.5rem; margin-bottom: 0.8rem;">∎</div>
-        <h4 style="font-family: var(--cond); font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 0.8rem;">Formal Methods</h4>
-        <p style="font-size: 0.58rem; color: var(--text-dim); line-height: 1.7;">Lean 4 verification, TLA+ theorem validation, replay‑verification systems, session‑typed safety, machine‑checkable regulatory evidence.</p>
-      </div>
-      <div style="background: var(--vault); padding: 1.8rem;">
-        <div style="font-size: 1.5rem; margin-bottom: 0.8rem;">⬡</div>
-        <h4 style="font-family: var(--cond); font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 0.8rem;">Confidential Computing</h4>
-        <p style="font-size: 0.58rem; color: var(--text-dim); line-height: 1.7;">Multi‑TEE orchestration, confidential Kubernetes, hardware attestation, cross‑vendor trust continuity, sovereign runtime isolation.</p>
-      </div>
-      <div style="background: var(--vault); padding: 1.8rem;">
-        <div style="font-size: 1.5rem; margin-bottom: 0.8rem;">◈</div>
-        <h4 style="font-family: var(--cond); font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 0.8rem;">Agentic Security</h4>
-        <p style="font-size: 0.58rem; color: var(--text-dim); line-height: 1.7;">OWASP Agentic Top 10 alignment, capability‑governed execution, session‑scoped identity, theorem‑backed delegation safety, compositional trust boundaries.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- QUOTE BLOCK -->
-  <div style="text-align: center; padding: 3rem 1rem; max-width: 700px; margin: 0 auto;">
-    <div style="width: 60px; height: 1px; background: var(--gold-dim); margin: 0 auto 2rem;"></div>
-    <blockquote style="font-family: var(--serif); font-size: 1.4rem; font-style: italic; color: var(--text-primary); line-height: 1.5;">
-      “Safety and speed are not in tension in Verity's architecture. They are the same thing.”
-    </blockquote>
-    <div style="margin-top: 1.5rem; font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim);">
-      Verity ARC42 Architectural Blueprint
-    </div>
-  </div>
-
-    <!-- COMPETITOR COMPARISON TABLE -->
-  <div class="divider" style="margin-top: 4rem;">
-    <div class="divider-line"></div>
-    <div class="divider-label">Capability Comparison</div>
-    <div class="divider-line"></div>
-  </div>
-
-  <section style="padding: 0 3rem; max-width: 1000px; margin: 0 auto 2rem;">
-    <p class="hero-desc" style="font-family: var(--mono); font-size: 0.62rem; max-width: 780px; margin-bottom: 2rem;">
-      Based on faithful reading of public product announcements, technical documentation, and sovereign infrastructure literature — April/May 2026.
-    </p>
-    <div style="overflow-x: auto; border: 1px solid var(--border); background: var(--vault);">
-      <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
-        <thead>
-          <tr style="border-bottom: 1px solid var(--border);">
-            <th style="text-align: left; padding: 1rem; font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim);">Capability</th>
-            <th style="text-align: center; padding: 1rem; font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-dim);">Verity</th>
-            <th style="text-align: center; padding: 1rem; font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim);">Fiserv agentOS</th>
-            <th style="text-align: center; padding: 1rem; font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim);">Thought Machine</th>
-            <th style="text-align: center; padding: 1rem; font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim);">Oracle</th>
-            <th style="text-align: center; padding: 1rem; font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim);">IBM Sov. Core</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.8rem 1rem; font-size:0.6rem; color:var(--text-secondary);">Formal Ledger Verification</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--gold); font-size:0.6rem;">✓</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-          </tr>
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding:0.8rem 1rem; font-size:0.6rem; color:var(--text-secondary);">Compile‑Time Regulatory Enforcement</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--gold);">✓</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-          </tr>
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding:0.8rem 1rem; font-size:0.6rem; color:var(--text-secondary);">Capability‑Based Microkernel</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--gold);">✓</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-          </tr>
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding:0.8rem 1rem; font-size:0.6rem; color:var(--text-secondary);">Concurrent Multi‑TEE Runtime</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--gold);">✓</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--warning);">Partial</td>
-          </tr>
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding:0.8rem 1rem; font-size:0.6rem; color:var(--text-secondary);">Air‑Gapped Banking Runtime</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--gold);">✓</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--warning);">Partial</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--gold);">✓</td>
-          </tr>
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding:0.8rem 1rem; font-size:0.6rem; color:var(--text-secondary);">AI Agent Banking Accounts</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--gold);">✓</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-          </tr>
-          <tr>
-            <td style="padding:0.8rem 1rem; font-size:0.6rem; color:var(--text-secondary);">Runtime Theorem Validation</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--gold);">✓</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-            <td style="text-align:center; padding:0.8rem 1rem; color:var(--text-dim);">—</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-    <!-- THEOREM VALIDATION PIPELINE -->
-  <div class="divider" style="margin-top: 4rem;">
-    <div class="divider-line"></div>
-    <div class="divider-label">Continuous Theorem Validation</div>
-    <div class="divider-line"></div>
-  </div>
-
-  <section style="padding: 0 3rem; max-width: 1000px; margin: 0 auto 4rem;">
-    <div class="section-number">VTVP · Six‑Stage Pipeline</div>
-    <h2 class="section-title" style="font-size: 2rem; margin-top: 0.5rem;">A Banking Platform That <em>Proves Itself Continuously</em></h2>
-    <p class="hero-desc" style="font-family: var(--mono); font-size: 0.62rem; max-width: 780px;">
-      Traditional banking systems generate logs. Verity generates machine‑checkable mathematical evidence. The Verity Theorem Validation Pipeline continuously extracts live telemetry, validates architectural invariants, exports Lean 4 proof certificates, and produces publication‑ready regulatory evidence — directly from production infrastructure.
-    </p>
-
-    <!-- Pipeline stages -->
-    <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 2rem;">
-      <div style="background: var(--vault); padding: 1.2rem;">
-        <div class="feature-id">01 · Extract</div>
-        <p style="font-size:0.55rem; color:var(--text-dim);">Live telemetry, ledger events, agent traces streamed into the validation fabric.</p>
-      </div>
-      <div style="background: var(--vault); padding: 1.2rem;">
-        <div class="feature-id">02 · Route</div>
-        <p style="font-size:0.55rem; color:var(--text-dim);">Events dispatched to theorem‑specific validators (capital safety, DP, delegation).</p>
-      </div>
-      <div style="background: var(--vault); padding: 1.2rem;">
-        <div class="feature-id">03 · Verify</div>
-        <p style="font-size:0.55rem; color:var(--text-dim);">TLA+, Lean 4, Isabelle/HOL, Datalog engines verify behavioral correctness.</p>
-      </div>
-      <div style="background: var(--vault); padding: 1.2rem;">
-        <div class="feature-id">04 · Synthesise</div>
-        <p style="font-size:0.55rem; color:var(--text-dim);">Machine‑checkable proof artifacts, ZK evidence, provenance records.</p>
-      </div>
-      <div style="background: var(--vault); padding: 1.2rem;">
-        <div class="feature-id">05 · Export</div>
-        <p style="font-size:0.55rem; color:var(--text-dim);">Lean 4 certificates, TLA+ traces, auto‑generated regulatory packages.</p>
-      </div>
-      <div style="background: var(--vault); padding: 1.2rem;">
-        <div class="feature-id">06 · Publish</div>
-        <p style="font-size:0.55rem; color:var(--text-dim);">LaTeX tables, charts, proof appendices, academic paper sections auto‑generated.</p>
-      </div>
-    </div>
-
-    <!-- Verified invariants -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 1px;">
-      <div style="background: var(--vault); padding: 1.5rem;">
-        <div class="feature-id">Live Production Theorems</div>
-        <ul style="font-size:0.6rem; color:var(--text-secondary); margin-top:0.5rem;">
-          <li>Capital Conservation (Σ entries = 0)</li>
-          <li>Delegation Closure Safety</li>
-          <li>Session‑Typed Deadlock Freedom</li>
-          <li>Differential Privacy Correctness</li>
-        </ul>
-      </div>
-      <div style="background: var(--vault); padding: 1.5rem;">
-        <div class="feature-id">Regulatory Implications</div>
-        <ul style="font-size:0.6rem; color:var(--text-secondary); margin-top:0.5rem;">
-          <li>Audits become verification, not trust</li>
-          <li>Compliance generated in real time</li>
-          <li>Adverse actions linked to proof traces</li>
-          <li>Runtime drift triggers immediate containment</li>
-        </ul>
-      </div>
-    </div>
-  </section>
 
   <!-- CAPABILITY GRID -->
   <section class="capability-section">
@@ -1666,107 +1347,29 @@
 
   </section>
 
-    <!-- SOVEREIGN DEPLOYMENT & POST‑QUANTUM -->
-  <div class="divider" style="margin-top: 4rem;">
-    <div class="divider-line"></div>
-    <div class="divider-label">Sovereign Infrastructure & Post‑Quantum Migration</div>
-    <div class="divider-line"></div>
-  </div>
-
-  <section style="padding: 0 3rem; max-width: 1000px; margin: 0 auto 4rem;">
-    <!-- Sovereign -->
-    <div style="margin-bottom: 3rem;">
-      <div class="section-number">Deployable Anywhere. Dependent on Nothing.</div>
-      <h2 class="section-title" style="font-size: 2rem; margin-top: 0.5rem;">Sovereign Single‑Binary <em>Infrastructure</em></h2>
-      <p class="hero-desc" style="font-family: var(--mono); font-size: 0.62rem; max-width: 780px;">
-        Verity compiles into a single Rust binary. It runs air‑gapped on bare metal without hyperscalers, managed Kubernetes, or cloud identity. This is strategically critical for central banks, defence, sovereign wealth funds, and disconnected environments.
-      </p>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 1.5rem;">
-        <div style="background: var(--vault); padding: 1.5rem;">
-          <div class="feature-id">Bare Metal</div>
-          <p style="font-size:0.58rem; color:var(--text-dim);">USB‑installable, deterministic provisioning, offline bootstrap.</p>
-        </div>
-        <div style="background: var(--vault); padding: 1.5rem;">
-          <div class="feature-id">Zero Cloud Dependency</div>
-          <p style="font-size:0.58rem; color:var(--text-dim);">No hyperscaler identity, no SaaS control plane, no remote orchestration.</p>
-        </div>
-        <div style="background: var(--vault); padding: 1.5rem;">
-          <div class="feature-id">Air‑Gapped Operations</div>
-          <p style="font-size:0.58rem; color:var(--text-dim);">Full operation in disconnected environments, offline theorem validation, offline compliance export.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Post‑Quantum -->
-    <div>
-      <div class="section-number">Banking Beyond Classical Cryptography</div>
-      <h2 class="section-title" style="font-size: 2rem; margin-top: 0.5rem;">Post‑Quantum <em>Migration</em> Ready</h2>
-      <p class="hero-desc" style="font-family: var(--mono); font-size: 0.62rem; max-width: 780px;">
-        Financial institutions face an unavoidable transition: quantum‑capable adversaries will compromise classical asymmetric cryptography. Verity operationalises the migration structurally with hybrid dual‑signature tokens, a PQC dependency scanner, long‑lived data re‑encryption, and dynamic liveness enforcement during transition.
-      </p>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 1.5rem;">
-        <div style="background: var(--vault); padding: 1.5rem;">
-          <div class="feature-id">Hybrid Dual‑Signature</div>
-          <p style="font-size:0.58rem; color:var(--text-dim);">Tokens carry both classical Ed25519 and ML‑DSA‑44 signatures during migration.</p>
-        </div>
-        <div style="background: var(--vault); padding: 1.5rem;">
-          <div class="feature-id">Dynamic Liveness Condition</div>
-          <p style="font-size:0.58rem; color:var(--text-dim);">Δ<sub>eff</sub> ≥ ⌈4(1‑ϵ)f⌉ enforced automatically; migration pauses if safety cannot be guaranteed.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-    <!-- ARCHITECTURAL THESIS -->
-  <div class="divider" style="margin-top: 4rem;">
-    <div class="divider-line"></div>
-    <div class="divider-label">The Core Insight</div>
-    <div class="divider-line"></div>
-  </div>
-
-  <section style="padding: 0 3rem; max-width: 800px; margin: 0 auto 4rem; text-align: center;">
-    <div style="background: var(--vault); border: 1px solid var(--border); padding: 3rem 2rem;">
-      <div class="section-number" style="color: var(--gold-dim);">Architectural Thesis</div>
-      <h2 class="section-heading" style="font-size: 2rem; margin: 1rem 0 1.5rem;">
-        In Verity's Architecture,<br /><em>Safety and Speed Become the Same Property.</em>
-      </h2>
-      <p style="font-family: var(--mono); font-size: 0.62rem; color: var(--text-secondary); line-height: 1.8; max-width: 600px; margin: 0 auto 1.5rem;">
-        Traditional banking systems treat security, compliance, sovereignty, and scalability as competing tradeoffs.
-      </p>
-      <p style="font-family: var(--mono); font-size: 0.62rem; color: var(--text-secondary); line-height: 1.8; max-width: 600px; margin: 0 auto 1.5rem;">
-        Verity collapses those tradeoffs. Formal verification eliminates reconciliation overhead. Capability tokens eliminate runtime ambiguity. Single‑binary deployment removes orchestration complexity. Event‑sourced Merkle proofs eliminate audit latency. Runtime theorem validation removes retrospective compliance.
-      </p>
-      <p style="font-family: var(--serif); font-size: 1.2rem; font-style: italic; color: var(--gold); margin-top: 2rem;">
-        The result is a banking platform where correctness accelerates execution.
-      </p>
-    </div>
-  </section>
-
-    <!-- FINAL CTA -->
+  <!-- FINAL CTA -->
   <section class="final-cta">
     <div class="final-cta-glow"></div>
-    <div class="final-pre" style="color:var(--gold-dim);">The Next Era of Financial Infrastructure</div>
-    <div class="final-title" style="font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.1; margin-bottom: 1.5rem;">
-      Banking Systems Were Designed<br />For Humans Using Software.
+    <div class="final-pre">Deploy Verity</div>
+    <div class="final-title">
+      Your infrastructure.<br />
+      Your keys. Your data.
     </div>
-    <div class="final-title" style="font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.1; margin-bottom: 2.5rem;">
-      <em>Verity Is Designed</em><br />For Intelligent Systems Running Economies.
+    <div class="final-sub">
+      Mathematical proof of safety. No cloud required. No compromise.
     </div>
-    <p class="hero-desc" style="font-family: var(--mono); font-size: 0.65rem; max-width: 680px; margin: 0 auto 2rem; color: var(--text-secondary);">
-      Formal verification. Capability security. Confidential computing. Sovereign deployment. Agent‑native identity. Real‑time theorem validation. Post‑quantum migration. Machine‑verifiable regulation.
-    </p>
     <div class="final-buttons">
       <a href="download.html" class="btn btn-primary">
         <span class="btn-icon">↓</span>
         Download the Binary
       </a>
-      <a href="docs/features.html" class="btn btn-secondary">
-        <span class="btn-icon">◉</span>
-        Explore 68 Features
+      <a href="docs/user.html" class="btn btn-secondary">
+        <span class="btn-icon">◈</span>
+        User Manual
       </a>
-      <a href="docs/agent-integrity-engine.html" class="btn btn-ghost">
-        <span class="btn-icon">🛡</span>
-        Agent Integrity Engine
+      <a href="docs/install.html" class="btn btn-ghost">
+        <span class="btn-icon">⊞</span>
+        Implementation Manual
       </a>
     </div>
   </section>

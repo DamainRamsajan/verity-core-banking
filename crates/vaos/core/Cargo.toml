@@ -20,4 +20,4 @@ async-trait.workspace = true
 opentelemetry.workspace = true
 rust_decimal.workspace = true
 pasetors = "0.7.8"
-tla-checker = "0.1.0"
+tla-checker = "0.3.11"

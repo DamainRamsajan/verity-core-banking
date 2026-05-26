@@ -16,4 +16,4 @@ async-trait.workspace = true
 
 # TLA+ model-based testing framework
 # TLA+ model checker
-tla-checker = "0.1.0"
+tla-checker = "0.3.11"

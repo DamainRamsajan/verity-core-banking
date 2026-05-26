@@ -20,7 +20,7 @@ tfhe = "1.5"
 
 # OpenDP — differential privacy library with epsilon tracking
 # Rust core with Python/R bindings, vetted implementation
-opendp = "0.14"
+opendp = "0.15"
 
 # Shamir secret sharing + threshold Schnorr (FROST) over BLS12-381
 shamir-secret = "0.1"

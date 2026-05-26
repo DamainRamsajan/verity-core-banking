@@ -1,5 +1,8 @@
 [workspace]
 members = [
+    "crates/vaos/evidence",
+    "crates/vaos/ehv",
+    "crates/vaos/evolution",
     "crates/verity-gateway",
     "crates/verity-core-api",
     "crates/verity",
@@ -56,6 +59,8 @@ members = [
 resolver = "2"
 
 [workspace.dependencies]
+z3 = "0.12"
+crdts = "7.3"
 axum = { version = "0.8", features = ["json", "tokio"] }
 tower-http = { version = "0.6", features = ["cors", "compression-full", "trace", "limit"] }
 tower = { version = "0.5", features = ["util", "limit", "load-shed"] }

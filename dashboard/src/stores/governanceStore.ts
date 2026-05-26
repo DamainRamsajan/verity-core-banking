@@ -12,7 +12,7 @@ export const useGovernanceStore = create<GovernanceState>((set) => ({
   boundaries: new Map(),
   selectedAgent: null,
   setBoundary: (agentId, boundary) =>
-    set(s => {
+    set((s) => {
       const next = new Map(s.boundaries);
       next.set(agentId, boundary);
       return { boundaries: next };

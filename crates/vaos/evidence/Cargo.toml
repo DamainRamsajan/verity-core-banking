@@ -1,0 +1,19 @@
+[package]
+name = "vaos-evidence"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Agent Integrity Engine – EVE‑Agent Evidence‑Verifiable Learning Audit"
+
+[dependencies]
+vaos-core = { path = "../core" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+blake3.workspace = true
+ed25519-dalek.workspace = true
+async-trait.workspace = true

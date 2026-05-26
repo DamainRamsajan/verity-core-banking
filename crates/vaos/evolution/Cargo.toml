@@ -1,0 +1,20 @@
+[package]
+name = "vaos-evolution"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity Agent Integrity Engine – SEVerA‑Verified Self‑Evolving Agents"
+
+[dependencies]
+vaos-core = { path = "../core" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+blake3.workspace = true
+ed25519-dalek.workspace = true
+async-trait.workspace = true
+z3.workspace = true

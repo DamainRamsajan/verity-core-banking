@@ -3,6 +3,7 @@ use uuid::Uuid;
 
 use super::types::PolicyUpdate;
 use super::errors::EhvError;
+use crdts::CmRDT;
 
 /// A CRDT‑synchronised policy network using an OR‑Set (Observed‑Remove Set).
 /// Policies are eventually consistent across all Verity instances.
@@ -29,7 +30,10 @@ impl PolicyNetwork {
         let published_at = update.published_at;
 
         let mut policies = self.policies.write().await;
-        policies.add(update.update_id, update);
+        let read_ctx = policies.read_ctx();
+        let add_ctx = read_ctx.derive_add_ctx(update.update_id);
+        let op = policies.add(update, add_ctx);
+        policies.apply(op);
 
         let mut version = self.version.write().await;
         *version += 1;
@@ -53,7 +57,7 @@ impl PolicyNetwork {
 
     /// Get all active policies.
     pub async fn active_policies(&self) -> Vec<PolicyUpdate> {
-        self.policies.read().await.values().cloned().collect()
+        self.policies.read().await.iter().map(|ctx| ctx.val.clone()).collect()
     }
 
     pub async fn version(&self) -> u64 {

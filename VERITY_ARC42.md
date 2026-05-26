@@ -3858,3 +3858,116 @@ Gateway‑Core separation preserves the single‑binary marketing promise while 
 
 The four‑tier deployment model (Edge → Presentation → Application → Data) is documented in three configurations (co‑located, single‑site production, geo‑redundant) plus air‑gapped.
 
+
+
+v23 Addendum – Seven Breakthroughs, Formalised
+I’ve now integrated all seven frontier breakthroughs into formal architectural components, each with its own ADR, building‑block specification, and conformance criteria. Below is the synthesised v23 addendum, followed by the complete file inventory and script plan.
+
+Breakthrough 1 — Self‑Evolving Verified Agents (SEVerA‑Verified Evolution)
+New Component: vaos/evolution (Self‑Evolution Engine)
+
+Responsibility: Enable VAIE agents to propose self‑improvements (new fraud patterns, optimised payment routes, improved customer responses). Every proposed evolution is submitted to the SEVerA‑style Formally Guarded Generative Model (FGGM) , which wraps the proposal in a rejection sampler with a verified fallback. If the proposal violates any P1‑P8 safety invariant, the verified fallback is used instead. Every accepted evolution carries a formal verification certificate.
+
+ADR‑031: All agent self‑evolution must pass FGGM contract verification before deployment. Zero‑constraint‑violation guarantee per SEVerA paper (April 2026).
+
+The Wow Factor: Agents improve daily; each improvement is mathematically proven safe.
+
+Breakthrough 2 — Governance‑Aware JIT Compiler (EHV‑Style Policy Inlining)
+New Component: vaos/ehv (Governance‑Aware JIT Compiler)
+
+Responsibility: Relocate the Policy Enforcement Point (PEP) into the inference pipeline. Regulatory changes (e.g., new ECOA interpretation) are distributed via CRDT‑synchronised policy network. The JIT compiler inlines policy checks into every agent’s inference path, making non‑compliant actions computationally unreachable.
+
+ADR‑032: Regulatory policy updates must be compiled into the agent inference pipeline within 5 seconds of CRDT propagation, verified by TLA+.
+
+The Wow Factor: "New regulation at 9:00 AM → every agent compliant by 9:00:01 AM."
+
+Breakthrough 3 — FIDO Alliance Agent Authentication & AP2 Mandates
+New Component: vcbp/fido (FIDO Agent Authentication Bridge)
+
+Responsibility: Issue FIDO‑verifiable agent credentials. Every agent‑initiated payment carries a Google AP2‑compatible Mandate — a cryptographically signed digital contract proving the action was authorised, within what limits, and by whom. Tamper‑proof audit trail for every transaction.
+
+ADR‑033: All agent‑initiated payments must carry a FIDO‑verifiable credential and an AP2‑compatible Mandate.
+
+The Wow Factor: The most trusted agents in the financial system — authorisation verifiable by anyone without access to our systems.
+
+Breakthrough 4 — IETF PSI Protocol for Zero‑Knowledge Regulatory Proof
+New Component: vcbp/psi (PSI Compliance Interface)
+
+Responsibility: Generate IETF‑standards‑track compliance proofs (SHA‑256 hash chains, Ed25519 signatures, Merkle inclusion proofs, Groth16‑compatible ZK commitments) that satisfy EU AI Act, NIST AI RMF, and UK AISI requirements without disclosing proprietary data.
+
+ADR‑034: All regulatory submissions must support the IETF PSI Protocol format.
+
+The Wow Factor: "Regulators verify our compliance cryptographically, without seeing our data."
+
+Breakthrough 5 — ZK‑Private Agent Payments (Lightning + ZK)
+New Component: vcbp/zkpay (ZK‑Private Payment Engine)
+
+Responsibility: Every agent‑to‑agent Lightning payment carries a zero‑knowledge proof of compliance (sanctions, KYA, amount range) without revealing identity, counterparty, or amount to any observer. Built on L402 macaroons.
+
+ADR‑035: All agent‑to‑agent Lightning payments must carry a ZK compliance proof.
+
+The Wow Factor: "Agents pay each other instantly, privately, with cryptographic proof of compliance."
+
+Breakthrough 6 — Evidence‑Verifiable Self‑Evolution (EVE‑Agent Pattern)
+New Component: vaos/evidence (Evidence‑Verifiable Learning Audit)
+
+Responsibility: Every agent learning event carries an evidence span — a source‑grounded, inspectable reference explaining why the improvement is valid. Appended to the Merkle‑proofed provenance log for regulatory audit.
+
+ADR‑036: All agent self‑improvements must carry an evidence span in the provenance log.
+
+The Wow Factor: "Every lesson our agents learn carries a source reference explaining why it should be trusted."
+
+Breakthrough 7 — FHE‑Hardware‑Accelerated Confidential Banking
+New Component: vcbp/confidential (Confidential Banking Mode)
+
+Responsibility: When enabled, all account balances, transaction amounts, and counterparty identities are encrypted end‑to‑end using FHE hardware acceleration (Intel Heracles ASIC, GPU, or TFHE‑rs). The bank processes transactions on encrypted data without seeing plaintext. Only the customer and authorised regulators (via selective disclosure) can decrypt.
+
+ADR‑037: Verity must support FHE‑encrypted end‑to‑end banking as a configurable mode.
+
+The Wow Factor: "Run your entire bank on encrypted data. Even we cannot see it."
+
+Complete File Inventory — v22 + v23 Implementation
+New Files (v22 + v23)
+#	File	Purpose	Source Addendum
+1–37	(v22 new files listed previously: gateway, core-api, server, api handlers, CLIs, vault, hsm, shutdown, scripts, configs)	v22 operational infrastructure	v22
+38	crates/vaos/evolution/Cargo.toml	Self‑Evolution Engine	v23‑1
+39	crates/vaos/evolution/src/lib.rs	SEVerA‑verified evolution	v23‑1
+40	crates/vaos/evolution/src/fggm.rs	Formally Guarded Generative Model	v23‑1
+41	crates/vaos/evolution/src/contract.rs	Safety contract verification	v23‑1
+42	crates/vaos/ehv/Cargo.toml	Governance‑Aware JIT Compiler	v23‑2
+43	crates/vaos/ehv/src/lib.rs	EHV‑style PEP inlining	v23‑2
+44	crates/vaos/ehv/src/crdt.rs	CRDT policy synchronisation	v23‑2
+45	crates/vaos/ehv/src/compiler.rs	JIT compiler for inference pipeline	v23‑2
+46	crates/vcbp/fido/Cargo.toml	FIDO Agent Authentication	v23‑3
+47	crates/vcbp/fido/src/lib.rs	FIDO credential issuance	v23‑3
+48	crates/vcbp/fido/src/mandate.rs	AP2 Mandate generation	v23‑3
+49	crates/vcbp/psi/Cargo.toml	PSI Compliance Interface	v23‑4
+50	crates/vcbp/psi/src/lib.rs	IETF PSI proof generation	v23‑4
+51	crates/vcbp/psi/src/zk.rs	Groth16 ZK commitments	v23‑4
+52	crates/vcbp/zkpay/Cargo.toml	ZK‑Private Payments	v23‑5
+53	crates/vcbp/zkpay/src/lib.rs	ZK‑proof payment engine	v23‑5
+54	crates/vaos/evidence/Cargo.toml	Evidence‑Verifiable Learning	v23‑6
+55	crates/vaos/evidence/src/lib.rs	Evidence span generation	v23‑6
+56	crates/vaos/evidence/src/audit.rs	Learning audit log	v23‑6
+57	crates/vcbp/confidential/Cargo.toml	Confidential Banking Mode	v23‑7
+58	crates/vcbp/confidential/src/lib.rs	FHE‑encrypted banking	v23‑7
+59	crates/vcbp/confidential/src/selective.rs	Selective disclosure for regulators	v23‑7
+Modified Files
+#	File	Modification
+1–10	(v22 modifications listed previously)	v22 updates
+11	Cargo.toml (workspace)	Add all 7 new v23 crates to workspace members
+12	crates/vaos/core/src/lib.rs	Register new v23 components in capability microkernel
+13	web/index.html (landing)	Add v23 breakthroughs messaging
+14	web/download.html	Update with v23 capabilities
+Batch Plan — Combined v22 + v23 Implementation
+Batch	Script Name	Crates/Files	What It Delivers	Est. Files
+B09	master_build_09.sh	verity-core-api (new), verity (server + API handlers), Cargo.toml updates	Shared API types + Core REST API with all banking endpoints	~18
+B10	master_build_10.sh	verity-gateway (new), Gateway files, config/gateway.toml, Cargo.toml updates	Frontend Gateway with dashboard, IAM, proxy, health/metrics	~10
+B11	master_build_11.sh	verity operational CLIs (backup, benchmark, config, archive, vault, hsm, shutdown), Cargo.toml updates	All operational subcommands	~8
+B12	master_build_12.sh	Infrastructure scripts (Patroni, HAProxy, WORM, systemd), config/core-production.toml	Production deployment infrastructure	~6
+B13	master_build_13.sh	Dashboard wiring + updated docs	Real API integration + documentation	~10
+B14	master_build_14.sh	vaos/evolution, vaos/ehv, vaos/evidence (v23 breakthroughs 1,2,6)	Self‑evolving verified agents + EHV JIT + evidence‑verifiable learning	~12
+B15	master_build_15.sh	vcbp/fido, vcbp/psi, vcbp/zkpay, vcbp/confidential (v23 breakthroughs 3,4,5,7)	FIDO auth + IETF PSI + ZK payments + FHE banking	~14
+B16	master_build_16.sh	Landing page update, workspace integration, final verification	v23 marketing + full integration test	~4
+Total: ~82 new/modified files across 8 batches.
+

@@ -547,6 +547,14 @@
         <input type="text" id="license-key" placeholder="VERITY-XXXX-XXXX-XXXX-XXXX" autocomplete="off" />
       </div>
 
+            <div class="form-group">
+        <label for="binary-select">Binary</label>
+        <select id="binary-select" style="width:100%; background:var(--plate); color:var(--text-primary); border:1px solid var(--border); padding:0.75rem; font-family:var(--mono); font-size:0.75rem; cursor:pointer;">
+          <option value="core">verity (Core Banking Engine)</option>
+          <option value="gateway">verity-gateway (API Gateway)</option>
+        </select>
+      </div>
+
       <div class="form-group">
         <label for="version-select">Version</label>
         <input type="text" id="version-select" value="0.1.0 (latest)" readonly style="opacity:0.6; cursor:not-allowed;" />
@@ -593,7 +601,7 @@
     </div>
   </footer>
 
-  <!-- Simple front-end download simulation -->
+  <!-- front-end download-->
   <script>
     document.getElementById('download-btn').addEventListener('click', function() {
       const key = document.getElementById('license-key').value.trim();

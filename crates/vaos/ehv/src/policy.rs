@@ -32,7 +32,7 @@ impl PolicyNetwork {
         let mut policies = self.policies.write().await;
         let read_ctx = policies.read_ctx();
         let add_ctx = read_ctx.derive_add_ctx(update.update_id);
-        let op = policies.add(update, add_ctx);
+        let op = policies.add(update.clone(), add_ctx);
         policies.apply(op);
 
         let mut version = self.version.write().await;

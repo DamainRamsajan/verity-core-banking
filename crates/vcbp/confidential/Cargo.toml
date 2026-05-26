@@ -1,0 +1,23 @@
+[package]
+name = "vcbp-confidential"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = []
+confidential-mode = ["dep:tfhe"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+blake3.workspace = true
+tracing.workspace = true
+rand.workspace = true
+hex.workspace = true
+tfhe = { version = "1.6", optional = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }

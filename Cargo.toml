@@ -55,10 +55,16 @@ members = [
     "crates/common/validation",
     "crates/common/telemetry",
     "crates/common/crypto",
+    "crates/vcbp/fido",
+    "crates/vcbp/psi",
+    "crates/vcbp/zkpay",
+    "crates/vcbp/confidential",
 ]
 resolver = "2"
 
 [workspace.dependencies]
+hex = "0.4"
+rand = "0.8"
 z3 = "0.12"
 crdts = "7.3"
 axum = { version = "0.8", features = ["json", "tokio"] }
@@ -96,6 +102,11 @@ prometheus = "0.14"
 thiserror = "2.0"
 tokio-test = "0.4"
 async-trait = "0.1"
+ark-groth16 = "0.5"
+ark-bn254 = "0.5"
+ark-ff = "0.5"
+ark-relations = "0.5"
+ark-serialize = "0.5"
 
 [workspace.package]
 version = "0.1.0"

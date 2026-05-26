@@ -11,4 +11,7 @@ pub enum EvolutionError {
 
     #[error("Proposal not found: {0}")]
     ProposalNotFound(uuid::Uuid),
+
+    #[error("Z3 solver error: {0}")]
+    SolverError(String),
 }

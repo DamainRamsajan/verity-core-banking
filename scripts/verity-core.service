@@ -1,0 +1,25 @@
+[Unit]
+Description=Verity Core Banking Platform
+After=network.target postgresql.service patroni.service
+Wants=patroni.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/verity serve --bind 0.0.0.0:8081
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/etc/verity /var/verity
+PrivateTmp=yes
+
+# Graceful shutdown
+TimeoutStopSec=30
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

@@ -4,6 +4,7 @@
 use tokio::sync::watch;
 
 /// Create a shutdown channel and spawn the signal handler.
+#[allow(dead_code)]
 pub fn create_shutdown_channel() -> (watch::Sender<bool>, watch::Receiver<bool>) {
     let (tx, rx) = watch::channel(false);
 

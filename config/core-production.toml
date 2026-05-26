@@ -1,0 +1,39 @@
+# Verity Core Banking Platform – Production Configuration
+# Source: ARC42 v22
+
+[platform]
+org = "REPLACE_WITH_ORG_NAME"
+tee_mode = "production"
+
+[ledger]
+path = "/var/verity/ledger"
+
+[api]
+bind = "0.0.0.0:8081"
+
+[database]
+url = "postgresql://verity:REPLACE_WITH_PASSWORD@localhost:5432/verity"
+pool_size = 50
+idle_timeout_secs = 300
+
+[observability]
+otlp_endpoint = "http://otel-collector.internal:4317"
+log_level = "info"
+metrics_port = 9090
+
+[security]
+hsm_enabled = true
+vault_enabled = true
+tee_required = true
+iam_type = "ldaps"
+iam_ldap_url = "ldaps://ldap.internal:636"
+
+[gateway]
+core_url = "http://127.0.0.1:8081"
+gateway_port = 443
+
+[backup]
+schedule = "0 2 * * *"
+retention_days = 90
+archive_days = 2555
+archive_path = "/var/verity/archive"

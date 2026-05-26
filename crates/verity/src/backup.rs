@@ -2,7 +2,6 @@
 //! Source: ARC42 v22 G27
 
 use std::path::PathBuf;
-use anyhow::Context;
 
 /// Run the backup command.
 pub async fn run(

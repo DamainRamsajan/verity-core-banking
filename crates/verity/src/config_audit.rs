@@ -2,6 +2,7 @@
 //! Source: ARC42 v22 ADR‑028
 
 use std::path::PathBuf;
+use std::io::Write;
 
 /// Set a configuration value and log it to the audit trail.
 pub async fn config_set(

@@ -103,9 +103,6 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
         .with_target(true)
         .with_thread_ids(true)
-        .with_env_filter(
-            std::env::var("RUST_LOG").unwrap_or("info".into())
-        )
         .init();
 
     let cli = Cli::parse();
@@ -145,67 +142,123 @@ async fn main() -> anyhow::Result<()> {
     }
 }
 
+// --------------------------------------------------------------------
+// Helper – decode the licence key and extract the organisation name
+// --------------------------------------------------------------------
+fn decode_license_org(key: &str) -> anyhow::Result<String> {
+    // Key format: VERITY-<base64_payload>-<base64_sig>
+    let parts: Vec<&str> = key.split('-').collect();
+    if parts.len() < 3 {
+        anyhow::bail!("Invalid licence key format");
+    }
+    let payload_b64 = parts[1];
+    let payload_bytes = base64::Engine::decode(
+        &base64::engine::general_purpose::STANDARD,
+        payload_b64,
+    )?;
+    let payload: serde_json::Value = serde_json::from_slice(&payload_bytes)?;
+    Ok(payload["org"]
+        .as_str()
+        .unwrap_or("Unknown")
+        .to_string())
+}
+
+// --------------------------------------------------------------------
+// Install – matches licenz-core 0.2.0 API
+// --------------------------------------------------------------------
 fn install(key: &str, config_dir: &PathBuf) -> anyhow::Result<()> {
     let vendor_pubkey = std::env!("VERITY_VENDOR_PUBKEY");
-    let config = licenz_core::SecurityConfig::default()
-        .with_public_key(vendor_pubkey.as_bytes())
-        .with_hardware_binding(true)
-        .with_environment_check(true);
 
-    let witness = licenz_core::SecurityWitness::new(config)?;
-    let license_path = config_dir.join("license.lic");
+    let witness = licenz_core::SecurityWitness::new(vendor_pubkey)?;
+    let config = licenz_core::WitnessConfig::default();
 
-    let attestation = witness.attest(key, &license_path)?;
+    let attestation = witness.attest(key, &config)?;
 
+    // Signature check
     if !attestation.signature_valid {
-        anyhow::bail!("Invalid licence signature. Contact Intellectica AI LLC.");
+        anyhow::bail!("Invalid licence signature.");
     }
-    if attestation.expired {
+
+    // Expiration – field is a bare `DateTime<Utc>`, not an Option
+    let exp = attestation.expiration.valid_until;
+    if chrono::Utc::now() > exp {
         anyhow::bail!("Licence has expired.");
     }
-    if attestation.hardware_mismatch {
+
+    // Hardware match – field is `Option<f32>`
+    let match_pct = attestation.hardware.match_percentage.unwrap_or(100.0);
+    if match_pct < 100.0 {
         anyhow::bail!(
-            "Licence is bound to different hardware (match: {}%). \
-             Contact Intellectica AI LLC for a new licence.",
-            attestation.hardware_match_percent
+            "Licence bound to different hardware (match: {:.0}%). Contact Intellectica AI LLC.",
+            match_pct
         );
     }
-    if attestation.environment_suspicious {
+
+    // Environment – field is `is_virtualized`
+    if attestation.environment.is_virtualized {
         eprintln!("⚠️  Warning: virtualised/container environment detected.");
     }
-    if attestation.clock_rollback_detected {
-        anyhow::bail!("System clock appears to have been rolled back.");
+
+    // Clock drift – rollback is inferred from excessive drift
+    let drift = attestation.clock.drift_seconds.unwrap_or(0);
+    if drift > 10 {
+        anyhow::bail!(
+            "System clock appears to have drifted significantly ({drift}s)."
+        );
     }
 
+    // Decode the organisation from the licence key itself
+    let org = decode_license_org(key)?;
+
+    // Write config and ledger
     std::fs::create_dir_all(config_dir)?;
     let config_path = config_dir.join("config.toml");
-    std::fs::write(&config_path, format!(
-        "[platform]\norg = \"{}\"\n\n[ledger]\npath = \"/var/verity/ledger\"\n\n[api]\nbind = \"0.0.0.0:8080\"\n",
-        attestation.license_data.get("org").and_then(|v| v.as_str()).unwrap_or("Unknown")
-    ))?;
+    std::fs::write(
+        &config_path,
+        format!(
+            "[platform]\norg = \"{}\"\n\n[ledger]\npath = \"/var/verity/ledger\"\n\n[api]\nbind = \"0.0.0.0:8080\"\n",
+            org
+        ),
+    )?;
 
     let ledger_path = config_dir.join("ledger");
     std::fs::create_dir_all(&ledger_path)?;
 
     println!("✅ Verity installed successfully.");
-    println!("   Organisation: {}", attestation.license_data.get("org").and_then(|v| v.as_str()).unwrap_or("Unknown"));
-    println!("   Licence expires: {}", attestation.expiry_date.unwrap_or_default());
+    println!("   Organisation: {}", org);
+    println!("   Licence expires: {}", exp);
     println!("\nStart the platform with: verity serve");
     Ok(())
 }
 
+// --------------------------------------------------------------------
+// Licence Status
+// --------------------------------------------------------------------
 fn license_status() -> anyhow::Result<()> {
     let vendor_pubkey = std::env!("VERITY_VENDOR_PUBKEY");
-    let config = licenz_core::SecurityConfig::default()
-        .with_public_key(vendor_pubkey.as_bytes())
-        .with_hardware_binding(true);
-    let witness = licenz_core::SecurityWitness::new(config)?;
-    let license_path = PathBuf::from("/etc/verity/license.lic");
-    let attestation = witness.attest("", &license_path)?;
+    let witness = licenz_core::SecurityWitness::new(vendor_pubkey)?;
+    let config = licenz_core::WitnessConfig::default();
 
-    println!("Organisation: {}", attestation.license_data.get("org").and_then(|v| v.as_str()).unwrap_or("Unknown"));
-    println!("Expiry:       {}", attestation.expiry_date.unwrap_or_default());
-    println!("Hardware match: {}%", attestation.hardware_match_percent);
-    println!("Signature:    {}", if attestation.signature_valid { "✅ valid" } else { "❌ invalid" });
+    // Read the stored licence file (the key was saved during install)
+    let license_path = PathBuf::from("/etc/verity/license.lic");
+    let stored_key = std::fs::read_to_string(&license_path)
+        .unwrap_or_default();
+
+    let attestation = witness.attest(&stored_key, &config)?;
+
+    let org = decode_license_org(&stored_key).unwrap_or_else(|_| "Unknown".into());
+    let match_pct = attestation.hardware.match_percentage.unwrap_or(100.0);
+
+    println!("Organisation: {}", org);
+    println!("Expiry:       {}", attestation.expiration.valid_until);
+    println!("Hardware match: {:.0}%", match_pct);
+    println!(
+        "Signature:    {}",
+        if attestation.signature_valid {
+            "✅ valid"
+        } else {
+            "❌ invalid"
+        }
+    );
     Ok(())
 }

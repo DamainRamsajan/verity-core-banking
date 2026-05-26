@@ -1,0 +1,21 @@
+[Unit]
+Description=Verity Frontend Gateway
+After=network.target
+Wants=verity-core.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/verity-gateway --config /etc/verity/gateway.toml
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/etc/verity /var/log/verity
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

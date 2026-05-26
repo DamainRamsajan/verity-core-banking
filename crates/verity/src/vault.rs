@@ -3,7 +3,8 @@
 //! Feature‑gated: `verity --features production`
 
 /// Retrieve a secret from Vault.
-#[cfg(feature = "vault-client")]
+#[cfg(feature = "vault_client")]
+#[allow(dead_code)]
 pub async fn get_secret(key: &str) -> anyhow::Result<String> {
     let vault_addr = std::env::var("VAULT_ADDR")
         .context("VAULT_ADDR not set")?;
@@ -22,7 +23,8 @@ pub async fn get_secret(key: &str) -> anyhow::Result<String> {
 }
 
 /// Stub for non‑production builds.
-#[cfg(not(feature = "vault-client"))]
+#[cfg(not(feature = "vault_client"))]
+#[allow(dead_code)]
 pub async fn get_secret(key: &str) -> anyhow::Result<String> {
     // In pilot mode, read from environment variable
     std::env::var(key)

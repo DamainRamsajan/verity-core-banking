@@ -4,6 +4,7 @@
 
 /// Initialise the HSM connection.
 #[cfg(feature = "pkcs11")]
+#[allow(dead_code)]
 pub fn init_hsm() -> anyhow::Result<()> {
     let lib_path = std::env::var("HSM_PKCS11_LIBRARY_PATH")
         .context("HSM_PKCS11_LIBRARY_PATH not set")?;
@@ -24,9 +25,8 @@ pub fn init_hsm() -> anyhow::Result<()> {
 
 /// Stub for non‑production builds.
 #[cfg(not(feature = "pkcs11"))]
+#[allow(dead_code)]
 pub fn init_hsm() -> anyhow::Result<()> {
     tracing::warn!("HSM not available – running without hardware key protection");
     Ok(())
 }
-
-use anyhow::Context;

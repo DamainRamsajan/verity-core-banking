@@ -14,5 +14,5 @@ uuid.workspace = true
 chrono.workspace = true
 rand = "0.8"
 dcrypt = "1.2"
-constant_time_eq = "0.3"
+constant_time_eq = "0.4"
 hex = "0.4"

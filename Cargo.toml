@@ -64,7 +64,7 @@ resolver = "2"
 
 [workspace.dependencies]
 hex = "0.4"
-rand = "0.8"
+rand = "0.10"
 z3 = "0.12"
 crdts = "7.3"
 axum = { version = "0.8", features = ["json", "tokio"] }

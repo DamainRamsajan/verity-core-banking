@@ -492,10 +492,10 @@
 
     <!-- Header -->
     <div style="margin-bottom: 3rem;">
-      <div class="section-label">Version 0.1.0 · May 2026 · for Implementation Engineers</div>
+      <div class="section-label">Version 0.1.0 · May 2026 · for Implementation & Deployment Engineers</div>
       <h1 class="section-heading">Implementation <em>Manual</em></h1>
       <p class="body-text">
-        Verity is a sovereign, formally‑verified, AI‑agent‑native core banking platform. It compiles to a single Rust binary with no cloud dependency. This manual guides infrastructure teams through installation, configuration, and operation.
+        Verity is a sovereign, formally‑verified, AI‑agent‑native core banking platform. It compiles to <strong>two statically‑linked Rust binaries</strong>—the core banking engine and the API gateway—with no cloud dependency. This manual guides infrastructure teams through installation, configuration, and operation of both components.
       </p>
     </div>
 
@@ -510,13 +510,36 @@
       Verity replaces traditional mutable‑balance databases with a Merkle‑proofed, TLA+‑verified double‑entry ledger and replaces role‑based access control with compile‑time capability security. The platform runs on bare‑metal Linux servers with hardware‑enforced Trusted Execution Environments (Intel TDX or AMD SEV‑SNP) for production. Evaluation deployments may use simulation mode with reduced security guarantees.
     </p>
     <p class="body-text">
+      <strong>Deployment architecture — two binaries, one system:</strong>
+    </p>
+    <table>
+      <thead>
+        <tr><th>Binary</th><th>Role</th><th>Network Binding</th><th>Licence Check</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>verity</code></td>
+          <td>Core banking engine (ledger, BIAN domains, AI agents, Merkle proofs, TLA+ model checking)</td>
+          <td><code>127.0.0.1:9000</code> (localhost only — never exposed to the internet)</td>
+          <td>Offline Ed25519 signature verification against embedded vendor public key</td>
+        </tr>
+        <tr>
+          <td><code>verity-gateway</code></td>
+          <td>API gateway, TLS termination, rate limiting, capability token routing, CORS</td>
+          <td><code>0.0.0.0:443</code> (public interface)</td>
+          <td>Offline Ed25519 signature verification against embedded vendor public key</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="body-text">
       <strong>Key architectural properties:</strong>
     </p>
     <ul>
-      <li>The binary is <strong>statically linked</strong> — no system libraries beyond Linux kernel 5.15+ required.</li>
-      <li>The licence is <strong>hardware‑bound</strong> on first install. Moving the binary to different hardware requires a new licence key.</li>
+      <li>Both binaries are <strong>statically linked</strong> — no system libraries beyond Linux kernel 5.15+ required.</li>
+      <li>The licence is <strong>hardware‑bound</strong> on first install. Moving the binaries to different hardware requires a new licence key.</li>
       <li>All data is stored in a <strong>Merkle‑proofed, append‑only ledger</strong>. No transaction can be modified or deleted after commit.</li>
-      <li>AI agents run inside the same binary, governed by <strong>capability tokens</strong> enforced at the VM level.</li>
+      <li>The gateway handles all external traffic; the core engine never faces the public internet.</li>
+      <li>AI agents run inside the core engine, governed by <strong>capability tokens</strong> enforced at the VM level.</li>
     </ul>
 
     <div class="divider">
@@ -571,15 +594,15 @@
       <tbody>
         <tr><td>Operating System</td><td>Linux kernel 5.15 or later. Ubuntu 22.04/24.04 LTS, RHEL 9, or Debian 12 recommended.</td></tr>
         <tr><td>Database</td><td>PostgreSQL 17+ (production) or SQLite 3 (single‑node evaluation only).</td></tr>
-        <tr><td>TLS Certificate</td><td>A valid X.509 certificate for the Mission Control dashboard. Self‑signed acceptable for initial setup.</td></tr>
+        <tr><td>TLS Certificate</td><td>A valid X.509 certificate for the API gateway. Self‑signed acceptable for initial setup.</td></tr>
         <tr><td>NTP</td><td>Accurate time synchronisation mandatory. The platform refuses to start if the clock is wrong.</td></tr>
-        <tr><td>Network</td><td>Outbound access to payment rails (FedNow, SWIFT) as required. Inbound access on port 8080 (configurable) for dashboard and API.</td></tr>
+        <tr><td>Network</td><td>Outbound access to payment rails (FedNow, SWIFT) as required. Inbound access on port <strong>443</strong> (gateway). Port <strong>9000</strong> (core) must be blocked from all external access.</td></tr>
       </tbody>
     </table>
 
     <h3 class="sub-heading" style="font-size:0.85rem;">2.3 Licence Key</h3>
     <p class="body-text">
-      A licence key must be obtained from Intellectica AI LLC before installation. The key is a long string beginning with <code>VERITY-</code> and contains a cryptographically‑signed payload. It is bound to the first server it is installed on.
+      A licence key must be obtained from Intellectica AI LLC before installation. The key is a long string beginning with <code>VERITY-</code> and contains a cryptographically‑signed payload. It is bound to the first server it is installed on. A single licence key covers both the core engine and the API gateway.
     </p>
 
     <div class="divider">
@@ -590,44 +613,66 @@
 
     <h2 class="sub-heading">3. Installation</h2>
 
-    <h3 class="sub-heading" style="font-size:0.85rem;">3.1 Obtain the Binary</h3>
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.1 Obtain the Binaries</h3>
     <ol>
-      <li>Navigate to the download URL provided with your licence key (e.g. <code>https://aac62545.verity-core-banking.pages.dev/download</code>).</li>
-      <li>Enter your licence key. The download will begin automatically.</li>
-      <li>Save the file <code>verity-&lt;version&gt;.bin</code> to your server.</li>
+      <li>Navigate to the download portal: <a href="https://verity-core-banking.pages.dev/download" style="color:var(--gold);">https://verity-core-banking.pages.dev/download</a>.</li>
+      <li>Paste your licence key into the input field.</li>
+      <li>Select the binary from the dropdown:<br>
+        <strong>verity (Core Banking Engine)</strong> — download first.<br>
+        <strong>verity-gateway (API Gateway)</strong> — download second.
+      </li>
+      <li>Click <strong>Download</strong>. The portal validates your licence against the Supabase Edge Function and returns a signed, time‑limited download URL.</li>
+      <li>Repeat for the second binary.</li>
+      <li>Save both files to your server (e.g. <code>verity-0.1.0.bin</code> and <code>verity-gateway-0.1.0.bin</code>).</li>
     </ol>
 
     <h3 class="sub-heading" style="font-size:0.85rem;">3.2 Verify Integrity</h3>
-    <p class="body-text">A SHA‑256 checksum file is available alongside the download. Verify the binary before execution:</p>
-    <pre class="code-block"><code>sha256sum -c verity-&lt;version&gt;.bin.sha256</code></pre>
-    <p class="body-text dim">Expected output: <code>verity-&lt;version&gt;.bin: OK</code></p>
+    <p class="body-text">SHA‑256 checksums are displayed on the download page after successful licence validation. Verify each binary before execution:</p>
+    <pre class="code-block"><code>sha256sum verity-*.bin
+# Compare the output with the checksums shown on the download page</code></pre>
 
-    <h3 class="sub-heading" style="font-size:0.85rem;">3.3 Install the Binary</h3>
-    <pre class="code-block"><code>sudo cp verity-&lt;version&gt;.bin /usr/local/bin/verity
-sudo chmod +x /usr/local/bin/verity</code></pre>
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.3 Create a Dedicated System User</h3>
+    <pre class="code-block"><code>sudo useradd -r -s /bin/false -d /var/lib/verity verity
+sudo mkdir -p /var/lib/verity/data
+sudo chown -R verity:verity /var/lib/verity /etc/verity 2&gt;/dev/null || true</code></pre>
 
-    <h3 class="sub-heading" style="font-size:0.85rem;">3.4 Run the Installer</h3>
-    <pre class="code-block"><code>sudo verity install --license-key "VERITY-..."</code></pre>
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.4 Install the Binaries</h3>
+    <pre class="code-block"><code>sudo cp verity-*.bin /usr/local/bin/verity
+sudo cp verity-gateway-*.bin /usr/local/bin/verity-gateway
+sudo chmod 755 /usr/local/bin/verity /usr/local/bin/verity-gateway</code></pre>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.5 Run the Installer</h3>
+    <p class="body-text">Run the built‑in licence validator on <strong>each binary</strong>. The validator performs offline Ed25519 signature verification, expiration check, and hardware‑fingerprint binding.</p>
+    <pre class="code-block"><code>sudo verity install --license "VERITY-..."
+sudo verity-gateway install --license "VERITY-..."</code></pre>
     <p class="body-text">The installer performs the following steps automatically:</p>
     <ul>
-      <li><strong>Licence validation</strong> — cryptographically verifies the licence key signature against the vendor’s public key (embedded in the binary).</li>
-      <li><strong>Hardware binding</strong> — captures a hardware fingerprint (CPU serial, motherboard UUID, disk serial, MAC address) and stores it in an encrypted licence file at <code>/etc/verity/license.lic</code>.</li>
+      <li><strong>Licence validation</strong> — cryptographically verifies the licence key signature against the vendor's public key (embedded in each binary).</li>
+      <li><strong>Hardware binding</strong> — captures a hardware fingerprint (CPU serial, motherboard UUID, disk serial, MAC address) and stores it in <code>/etc/verity/machine_id</code>.</li>
       <li><strong>Environment detection</strong> — checks for TEE support (Intel TDX / AMD SEV‑SNP). If no TEE is found, the platform runs in simulation mode with a warning.</li>
-      <li><strong>Configuration generation</strong> — writes <code>/etc/verity/config.toml</code> with default settings.</li>
-      <li><strong>Ledger initialisation</strong> — creates the Merkle ledger directory at <code>/var/verity/ledger</code>.</li>
+      <li><strong>Configuration generation</strong> — writes <code>/etc/verity/config.toml</code> (core) and <code>/etc/verity/gateway.toml</code> (gateway) with default settings.</li>
+      <li><strong>Ledger initialisation</strong> — creates the Merkle ledger directory at <code>/var/lib/verity/data</code>.</li>
     </ul>
     <p class="body-text">Expected output:</p>
     <pre class="code-block"><code>✅ Verity installed successfully.
    Organisation: First Interstate Bank
    Licence expires: 2027-06-01T00:00:00Z
 
-Start the platform with: verity serve</code></pre>
+Start the core engine with:   verity serve
+Start the gateway with:       verity-gateway serve</code></pre>
+    <p class="body-text">If the licence check fails, the installer prints a specific error:</p>
+    <ul>
+      <li><code>Licence signature invalid</code> — the key was tampered with or generated with a different vendor key.</li>
+      <li><code>Licence expired</code> — request a renewal from your account manager.</li>
+      <li><code>Licence is bound to different hardware</code> — the key was already activated on another machine. Request a new licence.</li>
+    </ul>
 
-    <h3 class="sub-heading" style="font-size:0.85rem;">3.5 Create a systemd Service</h3>
-    <p class="body-text">The recommended way to run Verity in production is via <code>systemd</code>:</p>
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.6 Create systemd Services</h3>
+    <p class="body-text">The recommended way to run Verity in production is via <code>systemd</code>. Create <strong>two</strong> unit files.</p>
+    <p class="body-text"><strong>Core engine unit</strong> — <code>/etc/systemd/system/verity.service</code>:</p>
     <pre class="code-block"><code>sudo tee /etc/systemd/system/verity.service &lt;&lt; 'EOF'
 [Unit]
-Description=Verity Core Banking Platform
+Description=Verity Core Banking Engine
 After=network.target postgresql.service
 
 [Service]
@@ -635,6 +680,28 @@ Type=simple
 ExecStart=/usr/local/bin/verity serve
 Restart=on-failure
 RestartSec=5
+User=verity
+Group=verity
+Environment="RUST_LOG=info"
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF</code></pre>
+    <p class="body-text"><strong>Gateway unit</strong> — <code>/etc/systemd/system/verity-gateway.service</code>:</p>
+    <pre class="code-block"><code>sudo tee /etc/systemd/system/verity-gateway.service &lt;&lt; 'EOF'
+[Unit]
+Description=Verity API Gateway
+After=verity.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/verity-gateway serve
+Restart=on-failure
+RestartSec=5
+User=verity
+Group=verity
+Environment="RUST_LOG=info"
 LimitNOFILE=65536
 
 [Install]
@@ -642,23 +709,47 @@ WantedBy=multi-user.target
 EOF
 
 sudo systemctl daemon-reload
-sudo systemctl enable verity
-sudo systemctl start verity</code></pre>
+sudo systemctl enable verity verity-gateway
+sudo systemctl start verity verity-gateway</code></pre>
 
-    <h3 class="sub-heading" style="font-size:0.85rem;">3.6 Verify the Installation</h3>
-    <pre class="code-block"><code># Check service status
-sudo systemctl status verity
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.7 Verify the Installation</h3>
+    <pre class="code-block"><code># Check service status for both
+sudo systemctl status verity verity-gateway
 
 # Check licence status
 verity license status
 
-# Check the dashboard is responding
-curl -k https://localhost:8080/health</code></pre>
+# Check the gateway health endpoint
+curl -k https://localhost/health</code></pre>
     <p class="body-text">Expected licence status output:</p>
     <pre class="code-block"><code>Organisation: First Interstate Bank
 Expiry:       2027-06-01T00:00:00Z
 Hardware match: 100%
 Signature:    ✅ valid</code></pre>
+    <p class="body-text">Expected health endpoint response:</p>
+    <pre class="code-block"><code>{"status":"ok","version":"0.1.0","core":"connected"}</code></pre>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">3.8 Smoke Tests</h3>
+    <p class="body-text">Verify the full pipeline by creating a test account and posting a transaction:</p>
+    <pre class="code-block"><code># Create a test account
+curl -k -X POST https://localhost/api/accounts \
+  -H "Content-Type: application/json" \
+  -d '{"account_id":"test-001","currency":"USD"}'
+
+# Post a balanced transaction
+curl -k -X POST https://localhost/api/ledger/transaction \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transaction_id":"tx-001",
+    "entries":[
+      {"account_id":"test-001","amount":"100.00","type":"credit"},
+      {"account_id":"test-002","amount":"-100.00","type":"debit"}
+    ]
+  }'
+
+# Verify the conservation invariant (Σ = 0)
+curl -k https://localhost/api/ledger/health
+# Expected: {"conservation":"Σ=0.00","merkle_root":"def456...","entry_count":2}</code></pre>
 
     <div class="divider">
       <div class="divider-line"></div>
@@ -668,43 +759,85 @@ Signature:    ✅ valid</code></pre>
 
     <h2 class="sub-heading">4. Configuration</h2>
 
-    <h3 class="sub-heading" style="font-size:0.85rem;">4.1 Configuration File</h3>
-    <p class="body-text">The main configuration file is <code>/etc/verity/config.toml</code>. It is generated by the installer and may be edited manually.</p>
+    <h3 class="sub-heading" style="font-size:0.85rem;">4.1 Core Engine Configuration (<code>/etc/verity/config.toml</code>)</h3>
+    <p class="body-text">The main configuration file for the core banking engine is generated by the installer and may be edited manually.</p>
     <pre class="code-block"><code>[platform]
 org = "First Interstate Bank"
 
 [ledger]
-path = "/var/verity/ledger"
+# Use "sqlite" for single-node, "postgres" for HA
+storage = "sqlite"
+path = "/var/lib/verity/data/ledger.db"
 
 [api]
-bind = "0.0.0.0:8080"</code></pre>
+bind = "127.0.0.1:9000"    # NEVER expose this port publicly
 
-    <h3 class="sub-heading" style="font-size:0.85rem;">4.2 Key Configuration Options</h3>
+[tee]
+enabled = true
+mode = "auto"               # "auto", "production", or "simulation"
+
+[telemetry]
+prometheus_port = 9090
+log_level = "info"
+
+[agents]
+max_concurrent = 10</code></pre>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">4.2 Gateway Configuration (<code>/etc/verity/gateway.toml</code>)</h3>
+    <p class="body-text">The gateway configuration file controls TLS termination, rate limiting, and proxy forwarding to the core engine.</p>
+    <pre class="code-block"><code>[server]
+bind = "0.0.0.0:443"
+tls_cert = "/etc/verity/certs/fullchain.pem"
+tls_key = "/etc/verity/certs/privkey.pem"
+
+[proxy]
+core_url = "http://127.0.0.1:9000"
+timeout_seconds = 30
+
+[rate_limit]
+requests_per_second = 1000
+burst = 2000</code></pre>
+    <p class="body-text">If you do not yet have a TLS certificate, you can start in plain‑HTTP mode for testing by setting <code>bind = "0.0.0.0:8080"</code> and commenting out the <code>tls_*</code> lines.</p>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">4.3 Key Configuration Options (Core)</h3>
     <table>
       <thead>
         <tr><th>Setting</th><th>Default</th><th>Description</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>ledger.path</code></td><td><code>/var/verity/ledger</code></td><td>Path to the Merkle ledger event store. Must be on persistent, high‑performance storage.</td></tr>
-        <tr><td><code>api.bind</code></td><td><code>0.0.0.0:8080</code></td><td>IP address and port for the Mission Control dashboard and API.</td></tr>
-        <tr><td><code>api.tls_cert</code></td><td>(none)</td><td>Path to TLS certificate file. Required for production.</td></tr>
-        <tr><td><code>api.tls_key</code></td><td>(none)</td><td>Path to TLS private key file. Required for production.</td></tr>
+        <tr><td><code>ledger.path</code></td><td><code>/var/lib/verity/data/ledger.db</code></td><td>Path to the Merkle ledger event store. Must be on persistent, high‑performance storage.</td></tr>
+        <tr><td><code>ledger.storage</code></td><td><code>sqlite</code></td><td><code>sqlite</code> for single‑node or <code>postgres</code> for high‑availability.</td></tr>
+        <tr><td><code>api.bind</code></td><td><code>127.0.0.1:9000</code></td><td>Internal bind address. Must remain localhost; the gateway is the only client.</td></tr>
         <tr><td><code>tee.mode</code></td><td><code>auto</code></td><td>One of <code>auto</code>, <code>production</code>, <code>simulation</code>. In production mode the binary refuses to start without valid TEE attestation.</td></tr>
+        <tr><td><code>telemetry.prometheus_port</code></td><td><code>9090</code></td><td>Prometheus metrics endpoint (restrict to monitoring subnet).</td></tr>
       </tbody>
     </table>
 
-    <h3 class="sub-heading" style="font-size:0.85rem;">4.3 Environment Variables</h3>
+    <h3 class="sub-heading" style="font-size:0.85rem;">4.4 Key Configuration Options (Gateway)</h3>
+    <table>
+      <thead>
+        <tr><th>Setting</th><th>Default</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>server.bind</code></td><td><code>0.0.0.0:443</code></td><td>Public HTTPS bind address.</td></tr>
+        <tr><td><code>server.tls_cert</code></td><td>(none)</td><td>Path to TLS certificate file. Required for production.</td></tr>
+        <tr><td><code>server.tls_key</code></td><td>(none)</td><td>Path to TLS private key file. Required for production.</td></tr>
+        <tr><td><code>proxy.core_url</code></td><td><code>http://127.0.0.1:9000</code></td><td>URL of the core engine (must be localhost).</td></tr>
+        <tr><td><code>rate_limit.requests_per_second</code></td><td><code>1000</code></td><td>Maximum sustained requests per second.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">4.5 Environment Variables</h3>
     <table>
       <thead>
         <tr><th>Variable</th><th>Purpose</th><th>Default</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>DATABASE_URL</code></td><td>PostgreSQL connection string</td><td><code>postgresql://verity:verity@localhost:5432/verity</code></td></tr>
+        <tr><td><code>DATABASE_URL</code></td><td>PostgreSQL connection string (when using <code>storage = "postgres"</code>)</td><td><code>postgresql://verity:verity@localhost:5432/verity</code></td></tr>
         <tr><td><code>VERITY_VENDOR_PUBKEY</code></td><td>Embedded at build time</td><td>(compiled in)</td></tr>
       </tbody>
     </table>
-
-    <div class="divider">
+      <div class="divider">
       <div class="divider-line"></div>
       <div class="divider-label">05 — Operations</div>
       <div class="divider-line"></div>
@@ -713,32 +846,42 @@ bind = "0.0.0.0:8080"</code></pre>
     <h2 class="sub-heading">5. Operations</h2>
 
     <h3 class="sub-heading" style="font-size:0.85rem;">5.1 Daily Operations</h3>
-    <pre class="code-block"><code># Start the platform
-sudo systemctl start verity
+    <pre class="code-block"><code># Start both services
+sudo systemctl start verity verity-gateway
 
-# Stop the platform
-sudo systemctl stop verity
+# Stop both services
+sudo systemctl stop verity verity-gateway
 
-# Restart the platform
+# Restart both services (gateway restarts gracefully, core unaffected)
+sudo systemctl restart verity-gateway
 sudo systemctl restart verity
 
-# View logs
-sudo journalctl -u verity -f</code></pre>
+# View core engine logs
+sudo journalctl -u verity -f
+
+# View gateway logs
+sudo journalctl -u verity-gateway -f</code></pre>
 
     <h3 class="sub-heading" style="font-size:0.85rem;">5.2 Licence Management</h3>
+    <p class="body-text">Both binaries share the same licence. Check status with either:</p>
     <pre class="code-block"><code># Check licence status
 verity license status
 
-# Check version
-verity version</code></pre>
+# Check version of each binary
+verity version
+verity-gateway version</code></pre>
 
     <h3 class="sub-heading" style="font-size:0.85rem;">5.3 Backup and Recovery</h3>
     <p class="body-text">The Merkle ledger is an append‑only event store. Backups must include:</p>
     <ul>
-      <li>The ledger directory (<code>/var/verity/ledger</code> by default).</li>
-      <li>The configuration file (<code>/etc/verity/config.toml</code>).</li>
-      <li>The licence file (<code>/etc/verity/license.lic</code>). This file is encrypted and hardware‑bound; it cannot be used on different hardware.</li>
+      <li>The ledger directory (<code>/var/lib/verity/data</code> by default).</li>
+      <li>The configuration files (<code>/etc/verity/config.toml</code> and <code>/etc/verity/gateway.toml</code>).</li>
+      <li>The licence file (<code>/etc/verity/license</code>). This file is plain text and hardware‑bound; it cannot be used on different hardware.</li>
+      <li>TLS certificate and key (<code>/etc/verity/certs/</code>).</li>
     </ul>
+    <p class="body-text">Example daily cron job:</p>
+    <pre class="code-block"><code>#!/bin/bash
+tar -czf /backup/verity-$(date +%Y%m%d).tgz /etc/verity /var/lib/verity/data</code></pre>
     <table>
       <thead>
         <tr><th>Data</th><th>Frequency</th><th>Retention</th></tr>
@@ -764,6 +907,8 @@ otlp_endpoint = "http://otel-collector:4317"</code></pre>
         <tr><td><code>capability.validation_count</code></td><td>Capability token validations per second</td><td>Sudden drop may indicate attack</td></tr>
         <tr><td><code>fraud.alerts_generated</code></td><td>Fraud alerts per hour</td><td>Spike warrants investigation</td></tr>
         <tr><td><code>license.hardware_match</code></td><td>Hardware fingerprint match percentage</td><td>&lt; 100% = possible tampering</td></tr>
+        <tr><td><code>gateway.requests_per_second</code></td><td>Inbound requests handled by the gateway</td><td>Approaching configured rate limit</td></tr>
+        <tr><td><code>gateway.core_latency_ms</code></td><td>Latency from gateway to core</td><td>&gt; 10 ms on loopback</td></tr>
       </tbody>
     </table>
 
@@ -773,9 +918,9 @@ otlp_endpoint = "http://otel-collector:4317"</code></pre>
         <tr><th>Level</th><th>Purpose</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>error</code></td><td>Licence validation failures, ledger corruption, TEE attestation failures</td></tr>
-        <tr><td><code>warn</code></td><td>VM/container detection, clock anomalies, circuit breaker trips</td></tr>
-        <tr><td><code>info</code></td><td>Normal operations: transaction commits, agent actions, payment processing</td></tr>
+        <tr><td><code>error</code></td><td>Licence validation failures, ledger corruption, TEE attestation failures, gateway-core disconnection</td></tr>
+        <tr><td><code>warn</code></td><td>VM/container detection, clock anomalies, circuit breaker trips, rate limit warnings</td></tr>
+        <tr><td><code>info</code></td><td>Normal operations: transaction commits, agent actions, payment processing, request routing</td></tr>
         <tr><td><code>debug</code></td><td>Detailed tracing for support investigations</td></tr>
         <tr><td><code>trace</code></td><td>Full execution traces (high volume, not recommended for production)</td></tr>
       </tbody>
@@ -796,60 +941,73 @@ otlp_endpoint = "http://otel-collector:4317"</code></pre>
       </thead>
       <tbody>
         <tr>
-          <td>“Licence signature invalid”</td>
+          <td>"Licence signature invalid"</td>
           <td>The licence key was generated with a different vendor key, or the key has been corrupted.</td>
           <td>Obtain a new licence key from Intellectica AI LLC.</td>
         </tr>
         <tr>
-          <td>“Licence is bound to different hardware”</td>
-          <td>The binary was moved to a different server, or the server underwent major hardware changes.</td>
+          <td>"Licence is bound to different hardware"</td>
+          <td>The binaries were moved to a different server, or the server underwent major hardware changes.</td>
           <td>Request a licence re‑issue from Intellectica AI LLC.</td>
         </tr>
         <tr>
-          <td>“System clock appears to have been rolled back”</td>
+          <td>"System clock appears to have been rolled back"</td>
           <td>NTP is not running or the system clock is incorrect.</td>
           <td>Enable NTP (<code>sudo timedatectl set-ntp true</code>). Ensure the clock is synchronised before restarting Verity.</td>
         </tr>
         <tr>
-          <td>“Virtualised/container environment detected”</td>
+          <td>"Virtualised/container environment detected"</td>
           <td>The platform is running inside a VM or container without TEE support.</td>
           <td>This is a warning only. The platform will start in simulation mode. For production, deploy on bare‑metal with TEE.</td>
         </tr>
         <tr>
-          <td>Dashboard returns 502</td>
-          <td>Verity is not running or the port is blocked by a firewall.</td>
-          <td>Check <code>systemctl status verity</code>. Verify the firewall allows port 8080.</td>
+          <td>Gateway returns 502 Bad Gateway</td>
+          <td>Core engine is not running or not listening on <code>127.0.0.1:9000</code>.</td>
+          <td>Check <code>sudo systemctl status verity</code>. Verify the core API bind address in <code>/etc/verity/config.toml</code>.</td>
+        </tr>
+        <tr>
+          <td>Gateway returns "Service Unavailable"</td>
+          <td>Core engine is starting up or experiencing high load.</td>
+          <td>Wait a few seconds; check core logs for errors.</td>
+        </tr>
+        <tr>
+          <td>Health endpoint unreachable</td>
+          <td>Gateway is not running, or firewall blocks port 443.</td>
+          <td><code>sudo systemctl status verity-gateway</code>. Verify firewall allows inbound 443/tcp.</td>
         </tr>
         <tr>
           <td>Ledger append latency is high</td>
           <td>Storage I/O is saturated, or the database connection pool is exhausted.</td>
-          <td>Check disk I/O (<code>iostat</code>). Increase the database connection pool size.</td>
+          <td>Check disk I/O (<code>iostat</code>). Increase the database connection pool size in core config.</td>
         </tr>
       </tbody>
     </table>
 
     <h3 class="sub-heading" style="font-size:0.85rem;">6.2 Diagnostic Commands</h3>
-    <pre class="code-block"><code># Check Verity service status
-sudo systemctl status verity
+    <pre class="code-block"><code># Check both service statuses
+sudo systemctl status verity verity-gateway
 
-# View the last 100 log lines
+# View the last 100 log lines (core)
 sudo journalctl -u verity -n 100 --no-pager
+
+# View the last 100 log lines (gateway)
+sudo journalctl -u verity-gateway -n 100 --no-pager
 
 # Check licence validity
 verity license status
 
-# Test the health endpoint
-curl -k https://localhost:8080/health
+# Test the gateway health endpoint
+curl -k https://localhost/health
 
 # Check disk space on the ledger volume
-df -h /var/verity/ledger
+df -h /var/lib/verity/data
 
 # Check NTP synchronisation
 timedatectl show-timesync</code></pre>
 
     <h3 class="sub-heading" style="font-size:0.85rem;">6.3 Emergency Shutdown</h3>
-    <p class="body-text">In the event of a security incident, Verity can be immediately halted:</p>
-    <pre class="code-block"><code>sudo systemctl stop verity</code></pre>
+    <p class="body-text">In the event of a security incident, both services can be immediately halted:</p>
+    <pre class="code-block"><code>sudo systemctl stop verity verity-gateway</code></pre>
     <p class="body-text">For hardware‑grade termination, the platform supports a Non‑Maskable Interrupt (NMI) on TEE‑enabled hardware. This is triggered via the IPMI/BMC interface and is specific to your server hardware. Consult your server documentation for NMI invocation.</p>
     <p class="body-text">After an emergency shutdown, the ledger remains consistent because all writes are append‑only. No data corruption occurs from a hard stop.</p>
 
@@ -862,7 +1020,7 @@ timedatectl show-timesync</code></pre>
     <h2 class="sub-heading">7. Security</h2>
 
     <h3 class="sub-heading" style="font-size:0.85rem;">7.1 Licence Enforcement</h3>
-    <p class="body-text">The licence is cryptographically bound to the server’s hardware fingerprint. The binary will not start if:</p>
+    <p class="body-text">The licence is cryptographically bound to the server's hardware fingerprint. The binaries will not start if:</p>
     <ul>
       <li>The licence file is missing or tampered with.</li>
       <li>The hardware fingerprint has changed (different CPU, motherboard, or disk).</li>
@@ -870,14 +1028,23 @@ timedatectl show-timesync</code></pre>
       <li>The licence has expired.</li>
     </ul>
 
-    <h3 class="sub-heading" style="font-size:0.85rem;">7.2 TEE Attestation</h3>
-    <p class="body-text">In production mode, the binary performs remote attestation on every startup. The TEE (Intel TDX or AMD SEV‑SNP) proves to the binary that it is running on genuine, untampered hardware. If attestation fails, the binary refuses to start.</p>
+    <h3 class="sub-heading" style="font-size:0.85rem;">7.2 Network Security Architecture</h3>
+    <p class="body-text">The core engine (<code>verity</code>) binds exclusively to <code>127.0.0.1:9000</code>. It has no exposure to the public network. All external traffic is handled by the gateway (<code>verity-gateway</code>), which provides:</p>
+    <ul>
+      <li><strong>TLS termination</strong> — certificates configured in <code>/etc/verity/gateway.toml</code>.</li>
+      <li><strong>Capability‑based access control</strong> — every request must carry a valid capability token; ambient authority is denied.</li>
+      <li><strong>Rate limiting</strong> — protects the core from excessive requests.</li>
+      <li><strong>Request routing</strong> — proxies valid requests to the core over the loopback interface.</li>
+    </ul>
 
-    <h3 class="sub-heading" style="font-size:0.85rem;">7.3 Capability‑Based Security</h3>
+    <h3 class="sub-heading" style="font-size:0.85rem;">7.3 TEE Attestation</h3>
+    <p class="body-text">In production mode, the core binary performs remote attestation on every startup. The TEE (Intel TDX or AMD SEV‑SNP) proves to the binary that it is running on genuine, untampered hardware. If attestation fails, the core refuses to start, and the gateway will report the core as unavailable.</p>
+
+    <h3 class="sub-heading" style="font-size:0.85rem;">7.4 Capability‑Based Security</h3>
     <p class="body-text">All operations—including those initiated by human operators—are governed by capability tokens. No ambient authority exists. The four‑eyes principle is enforced at the virtual‑machine level for high‑value operations (wire transfers above $10,000, loan approvals, general‑ledger postings).</p>
 
-    <h3 class="sub-heading" style="font-size:0.85rem;">7.4 Audit Trail</h3>
-    <p class="body-text">Every transaction, agent action, and configuration change produces a cryptographically‑signed provenance record. These records are Merkle‑chained and may be anchored to a public transparency service (SCITT). Regulators can verify the integrity of the audit trail independently without access to the bank’s systems.</p>
+    <h3 class="sub-heading" style="font-size:0.85rem;">7.5 Audit Trail</h3>
+    <p class="body-text">Every transaction, agent action, and configuration change produces a cryptographically‑signed provenance record. These records are Merkle‑chained and may be anchored to a public transparency service (SCITT). Regulators can verify the integrity of the audit trail independently without access to the bank's systems.</p>
 
     <div class="divider">
       <div class="divider-line"></div>
@@ -889,18 +1056,22 @@ timedatectl show-timesync</code></pre>
 
     <h3 class="sub-heading" style="font-size:0.85rem;">8.1 Upgrading Verity</h3>
     <ol>
-      <li>Download the new binary as described in §3.1.</li>
-      <li>Stop the running instance: <code>sudo systemctl stop verity</code></li>
-      <li>Replace the binary: <code>sudo cp verity-&lt;new-version&gt;.bin /usr/local/bin/verity</code></li>
-      <li>Restart: <code>sudo systemctl start verity</code></li>
-      <li>Verify: <code>verity version</code> and <code>verity license status</code></li>
+      <li>Download the new binaries from the download portal (same licence key).</li>
+      <li>Stop both services: <code>sudo systemctl stop verity-gateway verity</code></li>
+      <li>Replace the core binary: <code>sudo cp verity-&lt;new-version&gt;.bin /usr/local/bin/verity</code></li>
+      <li>Replace the gateway binary: <code>sudo cp verity-gateway-&lt;new-version&gt;.bin /usr/local/bin/verity-gateway</code></li>
+      <li>Re‑validate the licence (on the new core binary): <code>sudo verity install --license "$(cat /etc/verity/license)"</code></li>
+      <li>Re‑validate the licence (on the new gateway binary): <code>sudo verity-gateway install --license "$(cat /etc/verity/license)"</code></li>
+      <li>Start both services: <code>sudo systemctl start verity verity-gateway</code></li>
+      <li>Verify: <code>verity version</code>, <code>verity-gateway version</code>, and <code>curl -k https://localhost/health</code></li>
     </ol>
     <p class="body-text">The licence file and ledger are compatible across versions. No data migration is required.</p>
 
     <h3 class="sub-heading" style="font-size:0.85rem;">8.2 Licence Renewal</h3>
-    <p class="body-text">When a licence approaches expiry, contact Intellectica AI LLC for a renewal key. The new key can be applied without reinstalling:</p>
-    <pre class="code-block"><code>sudo verity install --license-key "VERITY-&lt;new-key&gt;"</code></pre>
-    <p class="body-text">This updates the licence file while preserving the existing ledger and configuration.</p>
+    <p class="body-text">When a licence approaches expiry, contact Intellectica AI LLC for a renewal key. Apply the new key to both binaries:</p>
+    <pre class="code-block"><code>sudo verity install --license "VERITY-&lt;new-key&gt;"
+sudo verity-gateway install --license "VERITY-&lt;new-key&gt;"</code></pre>
+    <p class="body-text">This updates the licence file while preserving the existing ledger and configuration. No service restart is required; the new licence takes effect immediately.</p>
 
     <h3 class="sub-heading" style="font-size:0.85rem;">8.3 Database Maintenance</h3>
     <p class="body-text">For PostgreSQL deployments, standard maintenance practices apply:</p>
@@ -909,7 +1080,7 @@ timedatectl show-timesync</code></pre>
       <li>WAL archiving for point‑in‑time recovery</li>
       <li>Connection pool monitoring</li>
     </ul>
-    <p class="body-text">Verity uses SQLx for database access. The connection pool size defaults to 10 and may be tuned in the configuration file.</p>
+    <p class="body-text">Verity uses SQLx for database access. The connection pool size defaults to 10 and may be tuned in the core configuration file.</p>
 
     <div class="divider">
       <div class="divider-line"></div>
@@ -923,14 +1094,16 @@ timedatectl show-timesync</code></pre>
         <tr><th>Source</th><th>Destination</th><th>Port</th><th>Protocol</th><th>Purpose</th></tr>
       </thead>
       <tbody>
-        <tr><td>Operator workstations</td><td>Verity server</td><td>8080</td><td>HTTPS</td><td>Mission Control dashboard</td></tr>
-        <tr><td>Verity server</td><td>FedNow endpoint</td><td>443</td><td>HTTPS</td><td>Instant payment processing</td></tr>
-        <tr><td>Verity server</td><td>SWIFT endpoint</td><td>443</td><td>HTTPS</td><td>Cross‑border payment processing</td></tr>
-        <tr><td>Verity server</td><td>PostgreSQL server</td><td>5432</td><td>TCP</td><td>Ledger database</td></tr>
-        <tr><td>Verity server</td><td>NTP server</td><td>123</td><td>UDP</td><td>Time synchronisation</td></tr>
-        <tr><td>Verity server</td><td>OTLP collector</td><td>4317</td><td>gRPC</td><td>Observability telemetry</td></tr>
+        <tr><td>External clients (operator workstations, agents)</td><td>Verity gateway server</td><td>443</td><td>HTTPS</td><td>All API and dashboard access</td></tr>
+        <tr><td>Verity gateway server</td><td>Verity core server (same machine)</td><td>9000</td><td>HTTP (loopback)</td><td>Internal proxy to core engine</td></tr>
+        <tr><td>Verity core server</td><td>FedNow endpoint</td><td>443</td><td>HTTPS</td><td>Instant payment processing</td></tr>
+        <tr><td>Verity core server</td><td>SWIFT endpoint</td><td>443</td><td>HTTPS</td><td>Cross‑border payment processing</td></tr>
+        <tr><td>Verity core server</td><td>PostgreSQL server</td><td>5432</td><td>TCP</td><td>Ledger database (if not localhost)</td></tr>
+        <tr><td>Verity core server</td><td>NTP server</td><td>123</td><td>UDP</td><td>Time synchronisation</td></tr>
+        <tr><td>Verity core server</td><td>OTLP collector</td><td>4317</td><td>gRPC</td><td>Observability telemetry</td></tr>
       </tbody>
     </table>
+    <p class="body-text"><strong>Critical:</strong> Port <code>9000</code> (core engine) must <em>never</em> be exposed to any network except the local loopback interface. Use a host‑based firewall (e.g., <code>iptables</code> or <code>nftables</code>) to enforce this.</p>
 
     <div class="divider">
       <div class="divider-line"></div>
@@ -946,10 +1119,10 @@ timedatectl show-timesync</code></pre>
     </p>
     <p class="body-text">When reporting an issue, please include:</p>
     <ul>
-      <li>Verity version (<code>verity version</code>)</li>
+      <li>Verity version from both binaries (<code>verity version</code> and <code>verity-gateway version</code>)</li>
       <li>Licence status (<code>verity license status</code>)</li>
-      <li>The last 100 lines of the systemd journal (<code>sudo journalctl -u verity -n 100 --no-pager</code>)</li>
-      <li>The server’s hardware specifications and operating system version</li>
+      <li>The last 100 lines of the systemd journal for both services</li>
+      <li>The server's hardware specifications and operating system version</li>
       <li>A description of the expected behaviour and the observed behaviour</li>
     </ul>
 
@@ -959,25 +1132,36 @@ timedatectl show-timesync</code></pre>
       <div class="divider-line"></div>
     </div>
 
-    <pre class="code-block"><code># Install
-sudo cp verity-*.bin /usr/local/bin/verity && sudo chmod +x /usr/local/bin/verity
-sudo verity install --license-key "VERITY-..."
+    <pre class="code-block"><code># Install both binaries
+sudo cp verity-*.bin /usr/local/bin/verity
+sudo cp verity-gateway-*.bin /usr/local/bin/verity-gateway
+sudo chmod 755 /usr/local/bin/verity /usr/local/bin/verity-gateway
+
+# Activate licence
+sudo verity install --license "VERITY-..."
+sudo verity-gateway install --license "VERITY-..."
 
 # Service management
-sudo systemctl start verity
-sudo systemctl stop verity
-sudo systemctl restart verity
-sudo systemctl status verity
+sudo systemctl start verity verity-gateway
+sudo systemctl stop verity verity-gateway
+sudo systemctl restart verity-gateway
+sudo systemctl status verity verity-gateway
 
 # Logs
 sudo journalctl -u verity -f
+sudo journalctl -u verity-gateway -f
 
-# Licence
+# Licence & version
 verity license status
 verity version
+verity-gateway version
 
 # Health check
-curl -k https://localhost:8080/health</code></pre>
+curl -k https://localhost/health
+
+# Smoke test
+curl -k -X POST https://localhost/api/accounts -H "Content-Type: application/json" -d '{"account_id":"test","currency":"USD"}'
+curl -k https://localhost/api/ledger/health</code></pre>
 
     <div class="divider">
       <div class="divider-line"></div>
@@ -986,14 +1170,20 @@ curl -k https://localhost:8080/health</code></pre>
     </div>
 
     <pre class="code-block"><code>/etc/verity/
-├── config.toml          # Platform configuration
-└── license.lic          # Encrypted, hardware‑bound licence
+├── config.toml          # Core engine configuration
+├── gateway.toml         # Gateway configuration
+├── license              # Plain‑text licence key
+├── machine_id           # Hardware fingerprint
+└── certs/
+    ├── fullchain.pem    # TLS certificate
+    └── privkey.pem      # TLS private key
 
-/var/verity/
-└── ledger/              # Merkle event store (append‑only)
+/var/lib/verity/data/
+└── ledger.db            # SQLite event store (default; may be PostgreSQL)
 
 /usr/local/bin/
-└── verity               # Static binary</code></pre>
+├── verity               # Core banking engine (static binary)
+└── verity-gateway       # API gateway (static binary)</code></pre>
 
   </div> <!-- /content-wrapper -->
 

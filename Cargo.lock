@@ -1156,10 +1156,10 @@ name = "common-telemetry"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "opentelemetry",
+ "opentelemetry 0.25.0",
  "opentelemetry-otlp",
  "opentelemetry-semantic-conventions",
- "opentelemetry_sdk",
+ "opentelemetry_sdk 0.32.1",
  "serde 1.0.228",
  "serde_json 1.0.150",
  "thiserror 2.0.18",
@@ -4066,6 +4066,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "opentelemetry"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0142c63252a9e054e68a4c61a5778f7b14f576274d593f8ce883d191a099682"
+dependencies = [
+ "futures-core",
+ "futures-sink",
+ "js-sys",
+ "pin-project-lite",
+ "thiserror 2.0.18",
+ "tracing",
+]
+
+[[package]]
 name = "opentelemetry-otlp"
 version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4074,9 +4088,9 @@ dependencies = [
  "async-trait",
  "futures-core",
  "http",
- "opentelemetry",
+ "opentelemetry 0.25.0",
  "opentelemetry-proto",
- "opentelemetry_sdk",
+ "opentelemetry_sdk 0.25.0",
  "prost",
  "thiserror 1.0.69",
  "tokio 1.38.2",
@@ -4089,8 +4103,8 @@ version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2c43620e8f93359eb7e627a3b16ee92d8585774986f24f2ab010817426c5ce61"
 dependencies = [
- "opentelemetry",
- "opentelemetry_sdk",
+ "opentelemetry 0.25.0",
+ "opentelemetry_sdk 0.25.0",
  "prost",
  "tonic",
 ]
@@ -4113,11 +4127,27 @@ dependencies = [
  "futures-util",
  "glob",
  "once_cell",
- "opentelemetry",
+ "opentelemetry 0.25.0",
  "percent-encoding 2.3.2",
  "rand 0.8.6",
  "serde_json 1.0.150",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "opentelemetry_sdk"
+version = "0.32.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b59f80e1ac4d5ff7a2db8fb6c80badb7f0f3f858211fba08dd9aaec750894f9"
+dependencies = [
+ "futures-channel",
+ "futures-executor",
+ "futures-util",
+ "opentelemetry 0.32.0",
+ "percent-encoding 2.3.2",
+ "portable-atomic",
+ "rand 0.9.4",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
@@ -7195,7 +7225,7 @@ dependencies = [
  "blake3",
  "chrono",
  "ed25519-dalek",
- "opentelemetry",
+ "opentelemetry 0.25.0",
  "pasetors",
  "rust_decimal",
  "serde 1.0.228",

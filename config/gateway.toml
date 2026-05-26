@@ -1,0 +1,6 @@
+bind = "0.0.0.0:443"
+core_url = "http://127.0.0.1:8081"
+
+[iam]
+iam_type = "ldaps"
+ldap_url = "ldaps://ldap.internal:636"

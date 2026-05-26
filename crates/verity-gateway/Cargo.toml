@@ -1,0 +1,35 @@
+[package]
+name = "verity-gateway"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verity – Frontend Gateway (dashboard, IAM, API proxy)"
+
+[[bin]]
+name = "verity-gateway"
+path = "src/main.rs"
+
+[dependencies]
+verity-core-api = { path = "../verity-core-api" }
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+axum.workspace = true
+tower-http = { workspace = true, features = ["fs"] }
+tower.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+anyhow = "1"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+rust-embed = "8"
+toml = "0.8"
+clap = { version = "4", features = ["derive"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+opt-level = "z"

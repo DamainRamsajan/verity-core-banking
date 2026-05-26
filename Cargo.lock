@@ -8032,6 +8032,7 @@ dependencies = [
  "ark-groth16",
  "ark-relations",
  "ark-serialize",
+ "ark-snark",
  "blake3",
  "chrono",
  "hex",

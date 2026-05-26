@@ -13,7 +13,6 @@ use super::errors::PsiError;
 
 /// A dummy circuit for demonstration – replaced with real regulatory logic later.
 mod dummy_circuit {
-    use ark_ff::PrimeField;
     use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystemRef, SynthesisError};
     use ark_bn254::Fr;
 
@@ -47,7 +46,7 @@ impl Default for PsiEngineConfig {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct PsiEngineStats {
     pub proofs_generated: u64,
     pub proofs_verified: u64,
@@ -128,7 +127,7 @@ impl PsiEngine {
 
         let pvk = ark_groth16::prepare_verifying_key(&self.vk);
         let public_inputs: Vec<ark_bn254::Fr> = vec![];
-        let result = ark_groth16::verify_proof(&pvk, &deserialized_proof, &public_inputs)
+        let result = ark_groth16::Groth16::<Bn254>::verify_proof(&pvk, &deserialized_proof, &public_inputs)
             .map_err(|e| PsiError::ProofVerificationError(e.to_string()))?;
 
         // Stats update is async; we use block_on to keep this function sync.
@@ -140,6 +139,6 @@ impl PsiEngine {
     }
 
     pub async fn get_stats(&self) -> PsiEngineStats {
-        self.stats.read().await.clone()
+    (*self.stats.read().await).clone()
     }
 }

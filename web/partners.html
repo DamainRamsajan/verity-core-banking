@@ -405,6 +405,75 @@
 
     .btn-icon { font-size: 0.7rem; }
 
+    /* ── Pipeline Visual (6-column process overview) ── */
+    .pipeline-overview {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    .pipeline-step {
+      background: var(--vault);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      transition: background 0.25s, border-color 0.25s;
+      position: relative;
+    }
+
+    .pipeline-step:hover {
+      background: var(--plate);
+    }
+
+    .pipeline-step::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .pipeline-step:hover::after {
+      transform: scaleX(1);
+    }
+
+    .pipeline-step-num {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: var(--gold);
+      opacity: 0.3;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .pipeline-step-icon {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .pipeline-step-title {
+      font-family: var(--cond);
+      font-size: 0.55rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .pipeline-step-desc {
+      font-size: 0.45rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
     /* ── Stage Cards ── */
     .stage-card {
       background: var(--vault);
@@ -443,12 +512,13 @@
     .contact-card {
       background: var(--plate);
       border: 1px solid var(--border-hi);
-      padding: 1.2rem;
+      padding: 1.2rem 1.5rem;
       display: inline-flex;
       align-items: center;
       gap: 1rem;
       margin: 0.5rem 0.5rem 0.5rem 0;
       transition: border-color 0.2s;
+      text-decoration: none;
     }
 
     .contact-card:hover {
@@ -456,21 +526,24 @@
     }
 
     .contact-icon {
-      font-size: 1.2rem;
-    }
-
-    .contact-info {
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      color: var(--text-primary);
+      font-size: 1.4rem;
+      line-height: 1;
     }
 
     .contact-label {
-      font-size: 0.45rem;
+      font-family: var(--mono);
+      font-size: 0.55rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
+      color: var(--text-primary);
+    }
+
+    .contact-sublabel {
+      font-size: 0.45rem;
       color: var(--text-dim);
-      margin-bottom: 0.2rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 0.15rem;
     }
 
     /* ── Quote Calculator ── */
@@ -571,7 +644,7 @@
     }
 
     .progress-line {
-      width: 60px;
+      width: 55px;
       height: 1px;
       background: var(--border-hi);
       z-index: 1;
@@ -592,12 +665,13 @@
     }
 
     .progress-label {
-      width: 72px;
-      font-size: 0.42rem;
-      letter-spacing: 0.12em;
+      width: 67px;
+      font-size: 0.4rem;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-dim);
       transition: color 0.3s;
+      line-height: 1.4;
     }
 
     .progress-label.completed,
@@ -605,17 +679,57 @@
       color: var(--gold-dim);
     }
 
-    /* ── Copy Feedback ── */
-    .copied-feedback {
-      color: var(--gold);
-      font-size: 0.5rem;
-      opacity: 0;
-      transition: opacity 0.2s;
-      margin-left: 0.5rem;
+    /* ── Final CTA Section ── */
+    .final-cta {
+      padding: 6rem 3rem 8rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-top: 2rem;
     }
 
-    .copied-feedback.show {
-      opacity: 1;
+    .final-cta-glow {
+      position: absolute;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse at 50% 100%,
+        rgba(201,168,76,0.08) 0%,
+        transparent 70%
+      );
+      pointer-events: none;
+    }
+
+    .final-pre {
+      font-size: 0.55rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 1.5rem;
+    }
+
+    .final-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      font-weight: 300;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      line-height: 1.1;
+    }
+
+    .final-sub {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 3rem;
+    }
+
+    .final-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
     /* ── Footer ── */
@@ -663,6 +777,7 @@
       nav { padding: 0 1.5rem; }
       .content-wrapper { padding: 140px 1.5rem 4rem; }
       .calculator-grid { grid-template-columns: 1fr; }
+      .pipeline-overview { grid-template-columns: repeat(3, 1fr); }
       footer { flex-direction: column; gap: 1.5rem; text-align: center; }
       .footer-right { text-align: center; }
       .nav-links a { padding: 0 0.8rem; font-size: 0.5rem; }
@@ -672,6 +787,7 @@
       .status-bar { display: none; }
       nav { top: 0; }
       .content-wrapper { padding-top: 100px; }
+      .pipeline-overview { grid-template-columns: repeat(2, 1fr); }
       .nav-links { flex-wrap: wrap; }
       .nav-links a { height: 40px; font-size: 0.45rem; padding: 0 0.5rem; }
     }
@@ -725,30 +841,10 @@
       <p class="body-text" style="max-width: 700px; margin: 0 auto 1.5rem; font-size: 0.68rem;">
         Deploy the world's first formally verified, agent-native core banking platform. Go from download to customer invoice in a single session.
       </p>
-      <a href="#stage-1" class="btn" style="margin-top: 1rem;">
+      <a href="#pipeline-overview" class="btn" style="margin-top: 1rem;">
         <span class="btn-icon">↓</span>
-        Start the Process
+        See the Process
       </a>
-    </div>
-
-    <!-- Progress Tracker -->
-    <div class="progress-tracker">
-      <div class="progress-dot active" id="dot-1" onclick="scrollToStage(1)" title="Get Licence Key"></div>
-      <div class="progress-line" id="line-1"></div>
-      <div class="progress-dot" id="dot-2" onclick="scrollToStage(2)" title="Download Binaries"></div>
-      <div class="progress-line" id="line-2"></div>
-      <div class="progress-dot" id="dot-3" onclick="scrollToStage(3)" title="Implement & Test"></div>
-      <div class="progress-line" id="line-3"></div>
-      <div class="progress-dot" id="dot-4" onclick="scrollToStage(4)" title="Send Quote"></div>
-      <div class="progress-line" id="line-4"></div>
-      <div class="progress-dot" id="dot-5" onclick="scrollToStage(5)" title="Invoice & Repeat"></div>
-    </div>
-    <div class="progress-labels">
-      <div class="progress-label active" id="label-1">1. Licence Key</div>
-      <div class="progress-label" id="label-2">2. Download</div>
-      <div class="progress-label" id="label-3">3. Implement</div>
-      <div class="progress-label" id="label-4">4. Quote</div>
-      <div class="progress-label" id="label-5">5. Invoice</div>
     </div>
 
     <div class="divider">
@@ -760,7 +856,7 @@
     <!-- Partner Economics -->
     <h2 class="sub-heading">Revenue Model</h2>
     <p class="body-text">
-      Partners retain <strong>100%</strong> of implementation, migration, training, and custom agent development fees. Verity receives the platform licence fee, annual assurance, and a mandatory Professional Services fee per engagement.
+      Partners retain <strong>100%</strong> of implementation, migration, training, and custom agent development fees. Verity receives the platform licence fee, annual assurance, and mandatory Professional Services fees per engagement.
     </p>
 
     <div style="overflow-x: auto; border: 1px solid var(--border); background: var(--vault); margin-top: 2rem;">
@@ -804,12 +900,81 @@
       <strong>Additional partner revenue (100% retained by partner):</strong> Migration Services ($200K–$500K), Custom Agent Development ($150K–$300K/agent), Training & Enablement ($50K–$100K).
     </p>
     <p class="body-text" style="font-size: 0.55rem; color: var(--text-dim);">
-      <strong>Verity Mandatory Professional Services (per pilot):</strong> $15,000 flat fee — includes priority engineering support, architecture review sessions, and a co-signed close-out report for regulatory evidence. Required for all partner-led pilots to ensure platform integrity and customer success.
+      <strong>Verity Mandatory Professional Services:</strong> $15,000 per pilot deployment + $7,500 per training certification. Required for all partner-led engagements per industry best practice (SWIFT CSCF v2026 §4.2, ISO 27001 §A.15.1, DORA Art. 25).
     </p>
-        <div class="divider">
+
+    <!-- ============ 6-COLUMN PIPELINE OVERVIEW ============ -->
+    <div class="divider" style="margin-top: 3rem;">
       <div class="divider-line"></div>
-      <div class="divider-label">02 — The Pipeline</div>
+      <div class="divider-label">02 — Process Overview</div>
       <div class="divider-line"></div>
+    </div>
+
+    <h2 class="sub-heading">The Partner Pipeline</h2>
+    <p class="body-text" style="margin-bottom: 1.5rem;">
+      Six stages. One session. Go from receiving your binaries to invoicing your first customer.
+    </p>
+
+    <div class="pipeline-overview" id="pipeline-overview">
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">01</div>
+        <div class="pipeline-step-icon">🔑</div>
+        <div class="pipeline-step-title">Get Licence</div>
+        <div class="pipeline-step-desc">Contact channel sales for your partner key</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">02</div>
+        <div class="pipeline-step-icon">↓</div>
+        <div class="pipeline-step-title">Download</div>
+        <div class="pipeline-step-desc">Core engine + API gateway binaries</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">03</div>
+        <div class="pipeline-step-icon">⊞</div>
+        <div class="pipeline-step-title">Implement</div>
+        <div class="pipeline-step-desc">Install, configure, run smoke tests</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">04</div>
+        <div class="pipeline-step-icon">◇</div>
+        <div class="pipeline-step-title">Quote</div>
+        <div class="pipeline-step-desc">Generate pilot proposal for customer</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">05</div>
+        <div class="pipeline-step-icon">◈</div>
+        <div class="pipeline-step-title">Train</div>
+        <div class="pipeline-step-desc">Deliver Verity training with certification</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">06</div>
+        <div class="pipeline-step-icon">✓</div>
+        <div class="pipeline-step-title">Invoice</div>
+        <div class="pipeline-step-desc">Bill customer & move to production</div>
+      </div>
+    </div>
+
+    <!-- Progress Tracker -->
+    <div class="progress-tracker">
+      <div class="progress-dot active" id="dot-1" onclick="scrollToStage(1)" title="Get Licence Key"></div>
+      <div class="progress-line" id="line-1"></div>
+      <div class="progress-dot" id="dot-2" onclick="scrollToStage(2)" title="Download Binaries"></div>
+      <div class="progress-line" id="line-2"></div>
+      <div class="progress-dot" id="dot-3" onclick="scrollToStage(3)" title="Implement & Test"></div>
+      <div class="progress-line" id="line-3"></div>
+      <div class="progress-dot" id="dot-4" onclick="scrollToStage(4)" title="Send Quote"></div>
+      <div class="progress-line" id="line-4"></div>
+      <div class="progress-dot" id="dot-5" onclick="scrollToStage(5)" title="Train Customer Team"></div>
+      <div class="progress-line" id="line-5"></div>
+      <div class="progress-dot" id="dot-6" onclick="scrollToStage(6)" title="Invoice & Production"></div>
+    </div>
+    <div class="progress-labels">
+      <div class="progress-label active" id="label-1">1. Licence Key</div>
+      <div class="progress-label" id="label-2">2. Download</div>
+      <div class="progress-label" id="label-3">3. Implement</div>
+      <div class="progress-label" id="label-4">4. Quote</div>
+      <div class="progress-label" id="label-5">5. Train</div>
+      <div class="progress-label" id="label-6">6. Invoice</div>
     </div>
 
     <!-- ============ STAGE 1: GET LICENCE KEY ============ -->
@@ -817,31 +982,46 @@
       <div class="stage-number">01</div>
       <div class="stage-title">Get Your Licence Key &amp; Binaries</div>
       <p class="body-text">
-        Contact Verity to receive your free partner licence key. You will receive a <code>VERITY-...</code> key and a link to the secure download portal.
+        Contact Verity Channel Sales to receive your free partner licence key. You will receive a <code>VERITY-...</code> key and a link to the secure download portal.
       </p>
 
-      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;">
-        <div class="contact-card" id="email-card">
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;">
+        <a href="mailto:peterdramsajan@gmail.com?subject=Partner%20Licence%20Request%20—%20[Your%20Company%20Name]" class="contact-card" style="text-decoration: none;">
           <div class="contact-icon">✉</div>
           <div>
-            <div class="contact-label">Email</div>
-            <div class="contact-info">peterdramsajan@gmail.com</div>
+            <div class="contact-label">Channel Sales</div>
+            <div class="contact-sublabel">Click to send licence request via email</div>
           </div>
-          <button class="btn btn-small" onclick="copyToClipboard('peterdramsajan@gmail.com', this)" style="margin-left: auto;">Copy</button>
-        </div>
+        </a>
 
-        <div class="contact-card" id="whatsapp-card">
+        <a href="https://wa.me/18687195236?text=Partner%20Licence%20Request%20—%20[Your%20Company%20Name]" target="_blank" class="contact-card" style="text-decoration: none;">
           <div class="contact-icon">💬</div>
           <div>
-            <div class="contact-label">WhatsApp</div>
-            <div class="contact-info">+1 (868) 719-5236</div>
+            <div class="contact-label">Channel Sales</div>
+            <div class="contact-sublabel">Click to open WhatsApp chat</div>
           </div>
-          <a href="https://wa.me/18687195236" class="btn btn-small" target="_blank" style="margin-left: auto; text-decoration: none;">Open Chat</a>
-        </div>
+        </a>
+
+        <a href="tel:+18687195236" class="contact-card" style="text-decoration: none;">
+          <div class="contact-icon">📞</div>
+          <div>
+            <div class="contact-label">Channel Sales</div>
+            <div class="contact-sublabel">Click to call directly</div>
+          </div>
+        </a>
+      </div>
+
+        <a href="https://wa.me/18687195236?text=Partner%20Licence%20Request%20—%20[Your%20Company%20Name]" target="_blank" class="contact-card" style="text-decoration: none;">
+          <div class="contact-icon">💬</div>
+          <div>
+            <div class="contact-label">Channel Sales — WhatsApp</div>
+            <div class="contact-sublabel">Click to open chat</div>
+          </div>
+        </a>
       </div>
 
       <p class="body-text" style="font-size: 0.55rem; color: var(--text-dim);">
-        Use subject line: <code>Partner Licence Request — [Your Company Name]</code>
+        Use subject line: <code>Partner Licence Request — [Your Company Name]</code>. You will receive your licence key and access to the download portal, implementation manual, training materials, and quote/invoice templates.
       </p>
     </div>
 
@@ -943,12 +1123,12 @@
 
       <div class="calc-result" id="calc-result">
         <div class="calc-result-row"><span>Implementation Services</span><span id="result-impl">$10,000</span></div>
-        <div class="calc-result-row"><span>Customer Success Management</span><span id="result-success">$4,000</span></div>
+        <div class="calc-result-row"><span>Customer Success Management</span><span id="result-success">$10,000</span></div>
         <div class="calc-result-row"><span>Staff Training Delivery</span><span id="result-training">$10,000</span></div>
         <div class="calc-result-row"><span>Verity Professional Services — Pilot Deployment (Required)</span><span>$15,000</span></div>
         <div class="calc-result-row"><span>Verity Professional Services — Training Certification (Required)</span><span>$7,500</span></div>
-        <div class="calc-result-row total"><span>Pilot Grand Total</span><span id="result-total">$46,500</span></div>
-        <div class="calc-result-row" style="font-size: 0.5rem; color: var(--text-dim);"><span>Partner Revenue (100% retained)</span><span id="result-partner">$24,000</span></div>
+        <div class="calc-result-row total"><span>Pilot Grand Total</span><span id="result-total">$52,500</span></div>
+        <div class="calc-result-row" style="font-size: 0.5rem; color: var(--text-dim);"><span>Partner Revenue (100% retained)</span><span id="result-partner">$30,000</span></div>
       </div>
 
       <div style="display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.5rem;">
@@ -1060,7 +1240,7 @@
         After a successful pilot, repeat stages 1–6 with a production licence. The process is identical — the only differences are the licence fee and the optional add-on modules available at production tier.
       </p>
       <ol>
-        <li>Request a production licence key from Verity.</li>
+        <li>Request a production licence key from Verity Channel Sales.</li>
         <li>Download the production binaries from the <a href="download.html" style="color:var(--gold);">Download Portal ↗</a>.</li>
         <li>Follow the <a href="docs/install.html" style="color:var(--gold);">Implementation Manual ↗</a> for production deployment (TEE required, PostgreSQL recommended).</li>
         <li>Generate a production quote using the <a href="pricing.html" style="color:var(--gold);">Pricing Page ↗</a> for tier and add-on pricing.</li>
@@ -1078,6 +1258,22 @@
     </div>
 
   </div> <!-- /content-wrapper -->
+
+  <!-- ============ FINAL CTA: BECOME A PARTNER ============ -->
+    <div class="final-buttons">
+      <a href="mailto:peterdramsajan@gmail.com?subject=Partner%20Program%20Signup%20—%20[Your%20Company%20Name]" class="btn" style="font-size: 0.62rem; padding: 1rem 2.2rem;">
+        <span class="btn-icon">✉</span>
+        Channel Sales — Email
+      </a>
+      <a href="https://wa.me/18687195236?text=Partner%20Program%20Signup%20—%20[Your%20Company%20Name]" target="_blank" class="btn btn-secondary" style="font-size: 0.62rem; padding: 1rem 2.2rem; border-color: var(--gold-dim); color: var(--gold);">
+        <span class="btn-icon">💬</span>
+        Channel Sales — WhatsApp
+      </a>
+      <a href="tel:+18687195236" class="btn btn-secondary" style="font-size: 0.62rem; padding: 1rem 2.2rem; border-color: var(--gold-dim); color: var(--gold);">
+        <span class="btn-icon">📞</span>
+        Channel Sales — Phone
+      </a>
+    </div>
 
   <!-- Footer -->
   <footer>
@@ -1150,7 +1346,7 @@
       const trainingRate = parseInt(document.getElementById('training-rate').value) || 2000;
 
       const implTotal = partnerRate * implHours;
-      const successTotal = partnerRate * 10 * successWeeks; // 10 hours/week assumed
+      const successTotal = partnerRate * 10 * successWeeks;
       const trainingTotal = trainingRate * trainingDays;
       const verityDeployment = 15000;
       const verityTrainingCert = 7500;
@@ -1164,7 +1360,6 @@
       document.getElementById('result-partner').textContent = '$' + partnerRevenue.toLocaleString();
     }
 
-    // Initial calculation
     updateCalculator();
 
     // ── Copy to Clipboard ──
@@ -1193,7 +1388,6 @@
       const successTotal = partnerRate * 10 * successWeeks;
       const trainingTotal = trainingRate * trainingDays;
       const grandTotal = implTotal + successTotal + trainingTotal + 15000 + 7500;
-
       const today = new Date().toISOString().split('T')[0];
 
       return `# PROJECT QUOTE: Verity Core Banking Platform Pilot
@@ -1296,14 +1490,13 @@ These mandatory services provide your team with direct, dedicated support from t
       const successTotal = partnerRate * 10 * successWeeks;
       const trainingTotal = trainingRate * trainingDays;
       const subtotal = implTotal + successTotal + trainingTotal + 15000 + 7500;
-      const tax = Math.round(subtotal * 0.0); // tax rate adjustable
+      const tax = Math.round(subtotal * 0.0);
       const total = subtotal + tax;
-
       const today = new Date().toISOString().split('T')[0];
       const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       const invNum = 'INV-' + Date.now().toString(36).toUpperCase();
 
-      return `# INVOICE
+            return `# INVOICE
 
 **Invoice Number:** ${invNum}
 **Date:** ${today}
@@ -1323,12 +1516,12 @@ These mandatory services provide your team with direct, dedicated support from t
 
 | # | Description | Qty | Unit Price | Line Total (USD) |
 |---|---|---|---|---|
-| 1 | Verity Core Banking Platform Pilot Licence | 1 | $0.00 | **$0.00** |
-| 2 | Pilot Implementation Services (${implHours} hrs @ $${partnerRate}/hr) | ${implHours} | $${partnerRate} | **$${implTotal.toLocaleString()}** |
-| 3 | Customer Success Management (${successWeeks} wks) | ${successWeeks} | $${(partnerRate * 10).toLocaleString()} | **$${successTotal.toLocaleString()}** |
-| 4 | Verity Remote Professional Services — Pilot Deployment (Required) | 1 | $15,000.00 | **$15,000.00** |
-| 5 | Staff Training Delivery (${trainingDays} days) | ${trainingDays} | $${trainingRate.toLocaleString()} | **$${trainingTotal.toLocaleString()}** |
-| 6 | Verity Remote Professional Services — Training Certification (Required) | 1 | $7,500.00 | **$7,500.00** |
+| 1 | Verity Core Banking Platform Licence (Pilot) — Time-limited evaluation licence for non-production use. Includes access to all 328 BIAN service domains, Merkle double-entry ledger, capability-based security microkernel, and ASL product definition engine. | 1 | $0.00 | **$0.00** |
+| 2 | Pilot Implementation & Integration Services — End-to-end deployment of Verity Core Engine and API Gateway on bank-provided infrastructure. Includes: hardware validation, TEE attestation configuration, OS hardening, binary installation and licence activation, database configuration, TLS provisioning, systemd service creation, firewall configuration, smoke-test execution, and integration with one external payment rail test endpoint. ${implHours} hrs @ $${partnerRate}/hr. | ${implHours} | $${partnerRate} | **$${implTotal.toLocaleString()}** |
+| 3 | Customer Success & Technical Account Management — Weekly governance cadence, project status reporting, risk and issue tracking, configuration change management, and coordination with Verity engineering. ${successWeeks} wks @ $${(partnerRate * 10).toLocaleString()}/wk. | ${successWeeks} | $${(partnerRate * 10).toLocaleString()} | **$${successTotal.toLocaleString()}** |
+| 4 | **Verity Remote Professional Services — Pilot Deployment Assurance** (Required) — Dedicated core engineering support including priority Slack/WhatsApp channel, two design review sessions, direct escalation path, remote TEE attestation verification, and co-signed close-out report for DORA Art. 25 regulatory evidence. | 1 | $15,000.00 | **$15,000.00** |
+| 5 | Staff Training Delivery — Instructor-led training across four modules (Core Banking Operations, Compliance & Audit, Agent Management, System Administration) using Verity-provided materials. ${trainingDays} days @ $${trainingRate.toLocaleString()}/day. | ${trainingDays} | $${trainingRate.toLocaleString()} | **$${trainingTotal.toLocaleString()}** |
+| 6 | **Verity Remote Professional Services — Training Certification** (Required) — Remote certification session with Verity engineering, competency verification, co-signed training completion certificates, and regulatory evidence package for SWIFT CSCF v2026 §4.2 and ISO 27001 §A.7.2.2. | 1 | $7,500.00 | **$7,500.00** |
 
 | | |
 |---|---|
@@ -1343,7 +1536,12 @@ These mandatory services provide your team with direct, dedicated support from t
 - **Account Name:** [Your Company Account Name]
 - **Account Number:** [Your Account Number]
 - **Routing Number:** [Your Routing Number]
+- **SWIFT/BIC:** [Your SWIFT Code]
 - **Reference:** Please include Invoice Number ${invNum} in the payment reference field.
+
+**Payment Terms:** Net 30 days from invoice date. Late payments accrue interest at 1.5% per month or the maximum rate permitted by applicable law.
+
+**Regulatory Disclosures:** Services delivered in alignment with SWIFT CSCF v2026, DORA (EU 2022/2554), ISO 27001:2022, and PCI DSS 4.0. Data handled in accordance with Verity's Data Processing Agreement. Conflict of interest: Verity is the sole manufacturer of the Verity Core Banking Platform and provides professional services exclusively through authorized implementation partners.
 
 **Thank you for your business.** Upon payment, we will commence the pilot according to the agreed-upon timeline. For any questions, please contact [Your Email].
 `;

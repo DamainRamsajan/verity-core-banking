@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verity Core Banking — Implementation Partners</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&family=Barlow+Condensed:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Core Design System (identical to index.html) ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --obsidian:    #08090b;
+      --vault:       #0d0f12;
+      --plate:       #111318;
+      --border:      #1e2128;
+      --border-hi:   #2e3240;
+      --gold:        #c9a84c;
+      --gold-bright: #e8c96a;
+      --gold-dim:    #7a6330;
+      --gold-glow:   rgba(201,168,76,0.12);
+      --amber:       #d4853a;
+      --text-primary: #e8e4da;
+      --text-secondary: #8a8680;
+      --text-dim:    #4a4845;
+      --mono: 'JetBrains Mono', monospace;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --cond: 'Barlow Condensed', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--obsidian);
+      color: var(--text-primary);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.6;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.08) 3px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 998;
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 36px;
+      background: rgba(8,9,11,0.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .status-indicator .dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #2d6a2d;
+      box-shadow: 0 0 6px #2d6a2d;
+      animation: pulse-green 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .status-right {
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    .status-divider {
+      width: 1px;
+      height: 14px;
+      background: var(--border);
+    }
+
+    /* ── Navigation ── */
+    nav {
+      position: fixed;
+      top: 36px; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 3rem;
+      height: 64px;
+      background: rgba(8,9,11,0.88);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      text-decoration: none;
+    }
+
+    .nav-logo-mark {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      color: var(--text-primary);
+      line-height: 1;
+      transition: opacity 0.2s;
+    }
+
+    .nav-logo-mark:hover { opacity: 0.8; }
+
+    .nav-logo-mark span { color: var(--gold); }
+
+    .nav-logo-sub {
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      list-style: none;
+    }
+
+    .nav-links a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0 1.2rem;
+      height: 64px;
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-left: 1px solid var(--border);
+      transition: color 0.2s, background 0.2s;
+      font-family: var(--mono);
+      position: relative;
+    }
+
+    .nav-links a:last-child { border-right: 1px solid var(--border); }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold);
+      background: var(--gold-glow);
+    }
+
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    .nav-links .nav-icon { font-size: 0.65rem; opacity: 0.6; }
+
+    .nav-links a.primary-link {
+      color: var(--gold);
+      border-color: var(--gold-dim);
+      background: rgba(201,168,76,0.06);
+    }
+
+    .nav-links a.primary-link:hover { background: rgba(201,168,76,0.14); }
+
+    .nav-links a.active {
+      color: var(--gold);
+      background: var(--gold-glow);
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .nav-links a.active::after { transform: scaleX(1); }
+
+    /* ── Content Container ── */
+    .content-wrapper {
+      padding: 140px 3rem 6rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── Typography ── */
+    .section-label {
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-heading {
+      font-family: var(--serif);
+      font-size: 2.2rem;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-heading em { color: var(--gold); font-style: italic; }
+
+    .sub-heading {
+      font-family: var(--cond);
+      font-size: 1.1rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .body-text {
+      font-size: 0.62rem;
+      line-height: 1.85;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .gold { color: var(--gold); }
+    .dim  { color: var(--text-dim); }
+
+    code {
+      background: var(--plate);
+      padding: 0.2em 0.4em;
+      font-size: 0.58rem;
+      color: var(--gold);
+      border: 1px solid var(--border-hi);
+      font-family: var(--mono);
+    }
+
+    pre {
+      background: var(--vault);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      line-height: 1.8;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.7;
+      font-size: 0.62rem;
+      color: var(--text-secondary);
+    }
+
+    li { margin-bottom: 0.4rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.58rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.45rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.6rem 0.8rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin: 3rem 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-label {
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.8rem 1.8rem;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      position: relative;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+    }
+
+    .btn:hover {
+      color: var(--obsidian);
+      background: var(--gold);
+    }
+
+    .btn-secondary {
+      border-color: var(--border-hi);
+      color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--text-secondary);
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .btn-small {
+      padding: 0.4rem 1rem;
+      font-size: 0.5rem;
+      letter-spacing: 0.15em;
+    }
+
+    .btn-icon { font-size: 0.7rem; }
+
+    /* ── Stage Cards ── */
+    .stage-card {
+      background: var(--vault);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+
+    .stage-card:hover {
+      border-color: var(--border-hi);
+    }
+
+    .stage-number {
+      font-family: var(--serif);
+      font-size: 3rem;
+      font-weight: 300;
+      color: var(--gold);
+      opacity: 0.2;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stage-title {
+      font-family: var(--cond);
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Contact Cards ── */
+    .contact-card {
+      background: var(--plate);
+      border: 1px solid var(--border-hi);
+      padding: 1.2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0.5rem 0.5rem 0.5rem 0;
+      transition: border-color 0.2s;
+    }
+
+    .contact-card:hover {
+      border-color: var(--gold-dim);
+    }
+
+    .contact-icon {
+      font-size: 1.2rem;
+    }
+
+    .contact-info {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--text-primary);
+    }
+
+    .contact-label {
+      font-size: 0.45rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.2rem;
+    }
+
+    /* ── Quote Calculator ── */
+    .calculator-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .calc-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .calc-input-group label {
+      font-size: 0.48rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .calc-input-group input,
+    .calc-input-group select {
+      background: var(--plate);
+      border: 1px solid var(--border-hi);
+      padding: 0.6rem;
+      color: var(--text-primary);
+      font-family: var(--mono);
+      font-size: 0.6rem;
+    }
+
+    .calc-input-group input:focus,
+    .calc-input-group select:focus {
+      outline: none;
+      border-color: var(--gold-dim);
+    }
+
+    .calc-result {
+      background: var(--plate);
+      border: 1px solid var(--gold-dim);
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .calc-result-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      padding: 0.4rem 0;
+    }
+
+    .calc-result-row.total {
+      border-top: 1px solid var(--border);
+      margin-top: 0.5rem;
+      padding-top: 0.8rem;
+      font-size: 0.7rem;
+      color: var(--gold);
+    }
+
+    /* ── Progress Tracker ── */
+    .progress-tracker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin: 2rem 0 3rem;
+      position: relative;
+    }
+
+    .progress-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border-hi);
+      transition: background 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+    }
+
+    .progress-dot.completed {
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold-glow);
+    }
+
+    .progress-dot.active {
+      background: var(--gold-bright);
+      box-shadow: 0 0 12px var(--gold-glow);
+      animation: pulse-gold 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-gold {
+      0%, 100% { box-shadow: 0 0 8px var(--gold-glow); }
+      50% { box-shadow: 0 0 18px var(--gold-glow); }
+    }
+
+    .progress-line {
+      width: 60px;
+      height: 1px;
+      background: var(--border-hi);
+      z-index: 1;
+      transition: background 0.3s;
+    }
+
+    .progress-line.completed {
+      background: var(--gold-dim);
+    }
+
+    .progress-labels {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 0;
+      margin-top: 0.8rem;
+      text-align: center;
+    }
+
+    .progress-label {
+      width: 72px;
+      font-size: 0.42rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      transition: color 0.3s;
+    }
+
+    .progress-label.completed,
+    .progress-label.active {
+      color: var(--gold-dim);
+    }
+
+    /* ── Copy Feedback ── */
+    .copied-feedback {
+      color: var(--gold);
+      font-size: 0.5rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+      margin-left: 0.5rem;
+    }
+
+    .copied-feedback.show {
+      opacity: 1;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .footer-brand {
+      font-family: var(--serif);
+      font-size: 0.9rem;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      color: var(--text-secondary);
+    }
+
+    .footer-brand span { color: var(--gold); }
+
+    .footer-tagline {
+      font-size: 0.48rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .footer-right {
+      font-size: 0.5rem;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+      text-align: right;
+      line-height: 1.8;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 1.5rem; }
+      .content-wrapper { padding: 140px 1.5rem 4rem; }
+      .calculator-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .footer-right { text-align: center; }
+      .nav-links a { padding: 0 0.8rem; font-size: 0.5rem; }
+    }
+
+    @media (max-width: 600px) {
+      .status-bar { display: none; }
+      nav { top: 0; }
+      .content-wrapper { padding-top: 100px; }
+      .nav-links { flex-wrap: wrap; }
+      .nav-links a { height: 40px; font-size: 0.45rem; padding: 0 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="status-indicator">
+        <span class="dot"></span>
+        <span>All systems nominal</span>
+      </div>
+      <div class="status-divider"></div>
+      <div class="status-indicator">
+        <span>TEE Attestation Active</span>
+      </div>
+      <div class="status-divider"></div>
+      <div class="status-indicator">
+        <span>Conservation of Value: Verified</span>
+      </div>
+    </div>
+    <div class="status-right">ARC42 v15.0+ · BIAN v14.0 · DORA · ISO 20022</div>
+  </div>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-mark">VERITY<span>.</span></div>
+      <div class="nav-logo-sub">Core Banking Platform</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="download.html" class="primary-link"><span class="nav-icon">↓</span> Download</a></li>
+      <li><a href="docs/user.html"><span class="nav-icon">◈</span> User Manual</a></li>
+      <li><a href="docs/install.html"><span class="nav-icon">⊞</span> Implementation Manual</a></li>
+      <li><a href="docs/features.html"><span class="nav-icon">◉</span> Features</a></li>
+      <li><a href="docs/agent-integrity-engine.html"><span class="nav-icon">🛡</span> Agent Integrity Engine</a></li>
+      <li><a href="pricing.html"><span class="nav-icon">◇</span> Pricing</a></li>
+      <li><a href="partners.html" class="active"><span class="nav-icon">◆</span> Partners</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+
+    <!-- Hero -->
+    <div style="margin-bottom: 3rem; text-align: center;">
+      <div class="section-label">IMPLEMENTATION PARTNER PROGRAM</div>
+      <h1 class="section-heading" style="font-size: 2.8rem;">Verity <em>Partners</em></h1>
+      <p class="body-text" style="max-width: 700px; margin: 0 auto 1.5rem; font-size: 0.68rem;">
+        Deploy the world's first formally verified, agent-native core banking platform. Go from download to customer invoice in a single session.
+      </p>
+      <a href="#stage-1" class="btn" style="margin-top: 1rem;">
+        <span class="btn-icon">↓</span>
+        Start the Process
+      </a>
+    </div>
+
+    <!-- Progress Tracker -->
+    <div class="progress-tracker">
+      <div class="progress-dot active" id="dot-1" onclick="scrollToStage(1)" title="Get Licence Key"></div>
+      <div class="progress-line" id="line-1"></div>
+      <div class="progress-dot" id="dot-2" onclick="scrollToStage(2)" title="Download Binaries"></div>
+      <div class="progress-line" id="line-2"></div>
+      <div class="progress-dot" id="dot-3" onclick="scrollToStage(3)" title="Implement & Test"></div>
+      <div class="progress-line" id="line-3"></div>
+      <div class="progress-dot" id="dot-4" onclick="scrollToStage(4)" title="Send Quote"></div>
+      <div class="progress-line" id="line-4"></div>
+      <div class="progress-dot" id="dot-5" onclick="scrollToStage(5)" title="Invoice & Repeat"></div>
+    </div>
+    <div class="progress-labels">
+      <div class="progress-label active" id="label-1">1. Licence Key</div>
+      <div class="progress-label" id="label-2">2. Download</div>
+      <div class="progress-label" id="label-3">3. Implement</div>
+      <div class="progress-label" id="label-4">4. Quote</div>
+      <div class="progress-label" id="label-5">5. Invoice</div>
+    </div>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">01 — Partner Economics</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- Partner Economics -->
+    <h2 class="sub-heading">Revenue Model</h2>
+    <p class="body-text">
+      Partners retain <strong>100%</strong> of implementation, migration, training, and custom agent development fees. Verity receives the platform licence fee, annual assurance, and a mandatory Professional Services fee per engagement.
+    </p>
+
+    <div style="overflow-x: auto; border: 1px solid var(--border); background: var(--vault); margin-top: 2rem;">
+      <table>
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Verity Licence Fee</th>
+            <th>Partner Implementation<br>(Typical Range)</th>
+            <th>Partner Annual Support<br>(Typical Range)</th>
+            <th>Total First-Year<br>Customer Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--text-primary);">Institutional</td>
+            <td>$600K</td>
+            <td>$300K–$600K</td>
+            <td>$120K/yr</td>
+            <td style="color:var(--gold);">$1.02M–$1.32M</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary);">Professional</td>
+            <td>$1.4M</td>
+            <td>$500K–$1.0M</td>
+            <td>$280K/yr</td>
+            <td style="color:var(--gold);">$2.18M–$2.68M</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary);">Sovereign</td>
+            <td>$2.8M</td>
+            <td>$1.0M–$2.0M</td>
+            <td>$560K/yr</td>
+            <td style="color:var(--gold);">$4.36M–$5.36M</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="body-text" style="margin-top: 1rem; font-size: 0.55rem; color: var(--text-dim);">
+      <strong>Additional partner revenue (100% retained by partner):</strong> Migration Services ($200K–$500K), Custom Agent Development ($150K–$300K/agent), Training & Enablement ($50K–$100K).
+    </p>
+    <p class="body-text" style="font-size: 0.55rem; color: var(--text-dim);">
+      <strong>Verity Mandatory Professional Services (per pilot):</strong> $15,000 flat fee — includes priority engineering support, architecture review sessions, and a co-signed close-out report for regulatory evidence. Required for all partner-led pilots to ensure platform integrity and customer success.
+    </p>
+        <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-label">02 — The Pipeline</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- ============ STAGE 1: GET LICENCE KEY ============ -->
+    <div class="stage-card" id="stage-1">
+      <div class="stage-number">01</div>
+      <div class="stage-title">Get Your Licence Key &amp; Binaries</div>
+      <p class="body-text">
+        Contact Verity to receive your free partner licence key. You will receive a <code>VERITY-...</code> key and a link to the secure download portal.
+      </p>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;">
+        <div class="contact-card" id="email-card">
+          <div class="contact-icon">✉</div>
+          <div>
+            <div class="contact-label">Email</div>
+            <div class="contact-info">peterdramsajan@gmail.com</div>
+          </div>
+          <button class="btn btn-small" onclick="copyToClipboard('peterdramsajan@gmail.com', this)" style="margin-left: auto;">Copy</button>
+        </div>
+
+        <div class="contact-card" id="whatsapp-card">
+          <div class="contact-icon">💬</div>
+          <div>
+            <div class="contact-label">WhatsApp</div>
+            <div class="contact-info">+1 (868) 719-5236</div>
+          </div>
+          <a href="https://wa.me/18687195236" class="btn btn-small" target="_blank" style="margin-left: auto; text-decoration: none;">Open Chat</a>
+        </div>
+      </div>
+
+      <p class="body-text" style="font-size: 0.55rem; color: var(--text-dim);">
+        Use subject line: <code>Partner Licence Request — [Your Company Name]</code>
+      </p>
+    </div>
+
+    <!-- ============ STAGE 2: DOWNLOAD BINARIES ============ -->
+    <div class="stage-card" id="stage-2">
+      <div class="stage-number">02</div>
+      <div class="stage-title">Download Your Binaries</div>
+      <p class="body-text">
+        Use your licence key on the secure download portal to get both statically-linked binaries. Each download is verified against a SHA-256 checksum displayed on the page.
+      </p>
+      <ol>
+        <li>Navigate to the <a href="download.html" style="color:var(--gold);">Verity Download Portal ↗</a>.</li>
+        <li>Enter your <code>VERITY-...</code> licence key.</li>
+        <li>Select and download <code>verity</code> (Core Banking Engine).</li>
+        <li>Select and download <code>verity-gateway</code> (API Gateway).</li>
+        <li>Verify the SHA-256 checksums displayed on the page match your downloaded files.</li>
+      </ol>
+      <a href="download.html" class="btn" style="margin-top: 1rem;">
+        <span class="btn-icon">↓</span>
+        Go to Download Portal
+      </a>
+      <p class="body-text" style="font-size: 0.5rem; color: var(--text-dim); margin-top: 1rem;">
+        Need deployment specs? See the <a href="docs/install.html" style="color:var(--gold-dim);">Implementation Manual ↗</a> for hardware requirements.
+      </p>
+    </div>
+
+    <!-- ============ STAGE 3: IMPLEMENT & TEST ============ -->
+    <div class="stage-card" id="stage-3">
+      <div class="stage-number">03</div>
+      <div class="stage-title">Implement &amp; Test</div>
+      <p class="body-text">
+        Follow the Implementation Manual to install Verity on your bare-metal server and run the full smoke-test suite.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0;">
+        <div style="background: var(--plate); border: 1px solid var(--border); padding: 1rem;">
+          <div style="font-size: 0.48rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.5rem;">Production</div>
+          <div style="font-size: 0.55rem; color: var(--text-secondary); line-height: 1.6;">
+            Linux 5.15+ · 16 Cores · 64GB ECC RAM<br>
+            1TB NVMe SSD · Intel TDX or AMD SEV-SNP
+          </div>
+        </div>
+        <div style="background: var(--plate); border: 1px solid var(--border); padding: 1rem;">
+          <div style="font-size: 0.48rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.5rem;">Evaluation / Pilot</div>
+          <div style="font-size: 0.55rem; color: var(--text-secondary); line-height: 1.6;">
+            Linux 5.15+ · 8 Cores · 32GB RAM<br>
+            512GB SSD · TEE optional (simulation mode)
+          </div>
+        </div>
+      </div>
+
+      <p class="body-text" style="font-size: 0.55rem; color: var(--text-dim);">
+        The smoke-test suite verifies: TEE attestation, Merkle ledger integrity, conservation invariant (Σ=0), API health, agent lifecycle, and gateway-core connectivity.
+      </p>
+      <a href="docs/install.html" class="btn">
+        <span class="btn-icon">⊞</span>
+        Read the Implementation Manual
+      </a>
+    </div>
+
+    <!-- ============ STAGE 4: SEND PILOT QUOTE ============ -->
+    <div class="stage-card" id="stage-4">
+      <div class="stage-number">04</div>
+      <div class="stage-title">Send a Quote to Your Customer</div>
+      <p class="body-text">
+        Use the calculator below to generate a professional pilot proposal for your banking client. The pilot licence is <strong>free</strong>. Mandatory Verity Professional Services ensure deployment success and provide regulatory evidence.
+      </p>
+
+      <div class="calculator-grid">
+        <div class="calc-input-group">
+          <label for="tier-select">Licence Tier</label>
+          <select id="tier-select" onchange="updateCalculator()">
+            <option value="institutional">Institutional</option>
+            <option value="professional" selected>Professional</option>
+            <option value="sovereign">Sovereign</option>
+          </select>
+        </div>
+        <div class="calc-input-group">
+          <label for="partner-rate">Partner Hourly Rate ($)</label>
+          <input type="number" id="partner-rate" value="250" min="100" max="750" step="25" onchange="updateCalculator()" />
+        </div>
+        <div class="calc-input-group">
+          <label for="impl-hours">Implementation Hours</label>
+          <input type="number" id="impl-hours" value="40" min="20" max="200" step="10" onchange="updateCalculator()" />
+        </div>
+        <div class="calc-input-group">
+          <label for="success-weeks">Customer Success (Weeks)</label>
+          <input type="number" id="success-weeks" value="4" min="1" max="12" step="1" onchange="updateCalculator()" />
+        </div>
+        <div class="calc-input-group">
+          <label for="training-days">Training Days</label>
+          <input type="number" id="training-days" value="5" min="1" max="10" step="1" onchange="updateCalculator()" />
+        </div>
+        <div class="calc-input-group">
+          <label for="training-rate">Training Daily Rate ($)</label>
+          <input type="number" id="training-rate" value="2000" min="1000" max="5000" step="250" onchange="updateCalculator()" />
+        </div>
+      </div>
+
+      <div class="calc-result" id="calc-result">
+        <div class="calc-result-row"><span>Implementation Services</span><span id="result-impl">$10,000</span></div>
+        <div class="calc-result-row"><span>Customer Success Management</span><span id="result-success">$4,000</span></div>
+        <div class="calc-result-row"><span>Staff Training Delivery</span><span id="result-training">$10,000</span></div>
+        <div class="calc-result-row"><span>Verity Professional Services — Pilot Deployment (Required)</span><span>$15,000</span></div>
+        <div class="calc-result-row"><span>Verity Professional Services — Training Certification (Required)</span><span>$7,500</span></div>
+        <div class="calc-result-row total"><span>Pilot Grand Total</span><span id="result-total">$46,500</span></div>
+        <div class="calc-result-row" style="font-size: 0.5rem; color: var(--text-dim);"><span>Partner Revenue (100% retained)</span><span id="result-partner">$24,000</span></div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.5rem;">
+        <button class="btn" onclick="downloadQuote()">
+          <span class="btn-icon">↓</span>
+          Download Quote Template (.md)
+        </button>
+        <button class="btn btn-secondary" onclick="copyQuoteToClipboard()">
+          <span class="btn-icon">📋</span>
+          Copy Quote to Clipboard
+        </button>
+        <a href="pricing.html" class="btn btn-secondary">
+          <span class="btn-icon">◇</span>
+          View Full Pricing Page
+        </a>
+      </div>
+      <p class="body-text" style="font-size: 0.45rem; color: var(--text-dim); margin-top: 0.8rem;">
+        Quote template includes all mandatory line items. Verity Professional Services fees are <strong>required</strong> for all partner-led pilots per industry best practice (SWIFT CSCF v2026 §4.2, ISO 27001 §A.15.1, DORA Art. 25).
+      </p>
+    </div>
+
+    <!-- ============ STAGE 5: TRAIN CUSTOMER TEAM ============ -->
+    <div class="stage-card" id="stage-5">
+      <div class="stage-number">05</div>
+      <div class="stage-title">Train Your Customer's Team</div>
+      <p class="body-text">
+        Deliver Verity user training using our provided materials. Training is a billable partner service. A mandatory Verity remote certification session ensures regulatory compliance.
+      </p>
+
+      <div style="overflow-x: auto; border: 1px solid var(--border); background: var(--vault); margin: 1rem 0;">
+        <table>
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Duration</th>
+              <th>Content</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--text-primary);">Core Banking Operations</td>
+              <td>2 days</td>
+              <td>Account management, transaction processing, Merkle ledger verification, dashboard navigation</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-primary);">Compliance &amp; Audit</td>
+              <td>1 day</td>
+              <td>Regulatory reporting, TLA+ proof interpretation, DORA evidence package generation</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-primary);">Agent Management</td>
+              <td>1 day</td>
+              <td>Agent deployment, capability token assignment, drift monitoring, kill switch protocols</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-primary);">System Administration</td>
+              <td>1 day</td>
+              <td>Backup/recovery, licence management, performance monitoring, TEE attestation verification</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="body-text" style="font-size: 0.55rem; color: var(--text-dim);">
+        <strong>Training materials provided by Verity (PDF/PPT):</strong>
+        <code>Verity_Core_Operations.pdf</code> ·
+        <code>Verity_Compliance_Audit.pptx</code> ·
+        <code>Verity_Agent_Management.pdf</code> ·
+        <code>Verity_System_Admin.pdf</code>
+        <br>
+        <!-- NOTE FOR ARC42 ADDENDUM: Add training materials file paths and hosting location -->
+        <em>Files available upon partner licence activation. Download links provided with your licence key.</em>
+      </p>
+      <p class="body-text" style="font-size: 0.55rem; color: var(--text-dim);">
+        <strong>Mandatory:</strong> Verity Remote Professional Services — Training Certification ($7,500). Covers one remote certification session with Verity engineering, co-signed training completion certificates for customer staff, and regulatory evidence of formal platform training.
+      </p>
+      <a href="docs/user.html" class="btn">
+        <span class="btn-icon">◈</span>
+        Verity User Manual
+      </a>
+    </div>
+
+    <!-- ============ STAGE 6: INVOICE & MOVE TO PRODUCTION ============ -->
+    <div class="stage-card" id="stage-6">
+      <div class="stage-number">06</div>
+      <div class="stage-title">Invoice Your Customer &amp; Move to Production</div>
+      <p class="body-text">
+        Once the pilot begins, use the invoice template to bill your client. After the pilot, repeat the process to move them to production with the full platform licence.
+      </p>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 0.8rem; margin: 1rem 0;">
+        <button class="btn" onclick="downloadInvoice()">
+          <span class="btn-icon">↓</span>
+          Download Invoice Template (.md)
+        </button>
+        <button class="btn btn-secondary" onclick="copyInvoiceToClipboard()">
+          <span class="btn-icon">📋</span>
+          Copy Invoice to Clipboard
+        </button>
+      </div>
+
+      <div class="divider" style="margin: 2rem 0 1.5rem;">
+        <div class="divider-line"></div>
+        <div class="divider-label">Production Migration</div>
+        <div class="divider-line"></div>
+      </div>
+
+      <p class="body-text">
+        After a successful pilot, repeat stages 1–6 with a production licence. The process is identical — the only differences are the licence fee and the optional add-on modules available at production tier.
+      </p>
+      <ol>
+        <li>Request a production licence key from Verity.</li>
+        <li>Download the production binaries from the <a href="download.html" style="color:var(--gold);">Download Portal ↗</a>.</li>
+        <li>Follow the <a href="docs/install.html" style="color:var(--gold);">Implementation Manual ↗</a> for production deployment (TEE required, PostgreSQL recommended).</li>
+        <li>Generate a production quote using the <a href="pricing.html" style="color:var(--gold);">Pricing Page ↗</a> for tier and add-on pricing.</li>
+        <li>Deliver production training with Verity certification.</li>
+        <li>Invoice the customer and deploy.</li>
+      </ol>
+
+      <p class="body-text" style="font-size: 0.55rem; color: var(--text-dim);">
+        <strong>Production add-on modules available for upselling:</strong>
+        Agent Banking Suite ($120K/yr) · Advanced AI/ML ($150K/yr) · ATM Modernisation ($100K/yr) · Cross-Border Settlement ($80K/yr) · PQC Migration ($200K one-time + $40K/yr) · Quantum Optimiser ($300K/yr) · Regulatory Axiom Refresh ($100K/yr) · Federated Learning Node ($150K/yr).
+      </p>
+      <p class="body-text" style="font-size: 0.55rem; color: var(--text-dim);">
+        Partners retain 100% of implementation, migration, training, and custom agent development fees at every stage — pilot and production.
+      </p>
+    </div>
+
+  </div> <!-- /content-wrapper -->
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">
+      <div class="footer-brand">VERITY<span>.</span> Core Banking</div>
+      <div class="footer-tagline">Sovereign · Formally Verified · Agent-Native · Quantum-Ready</div>
+    </div>
+    <div class="footer-right">
+      ARC42 v15.0+ · BIAN v14.0 · ISO 20022 · DORA · BCBS 239<br />
+      NIST FIPS 203/204/205 · PCI DSS 4.0 · SWIFT CSCF v2026<br />
+      OWASP Agentic Top 10 · EU AI Act · ISO/IEC 25010
+    </div>
+  </footer>
+
+  <!-- ============ JAVASCRIPT ============ -->
+  <script>
+    // ── Smooth Scroll to Stage ──
+    function scrollToStage(num) {
+      const el = document.getElementById('stage-' + num);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // ── Progress Tracker Highlight on Scroll ──
+    const stageIds = ['stage-1', 'stage-2', 'stage-3', 'stage-4', 'stage-5', 'stage-6'];
+    const dots = stageIds.map((_, i) => document.getElementById('dot-' + (i + 1)));
+    const lines = stageIds.map((_, i) => i < 5 ? document.getElementById('line-' + (i + 1)) : null);
+    const labels = stageIds.map((_, i) => document.getElementById('label-' + (i + 1)));
+
+    function updateTracker() {
+      let currentStage = 0;
+      const scrollPos = window.scrollY + window.innerHeight / 3;
+
+      stageIds.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= scrollPos) {
+          currentStage = i;
+        }
+      });
+
+      dots.forEach((dot, i) => {
+        dot.classList.remove('active', 'completed');
+        if (i < currentStage) dot.classList.add('completed');
+        if (i === currentStage) dot.classList.add('active');
+      });
+
+      lines.forEach((line, i) => {
+        if (line) {
+          line.classList.toggle('completed', i < currentStage);
+        }
+      });
+
+      labels.forEach((label, i) => {
+        label.classList.remove('active', 'completed');
+        if (i < currentStage) label.classList.add('completed');
+        if (i === currentStage) label.classList.add('active');
+      });
+    }
+
+    window.addEventListener('scroll', updateTracker);
+    window.addEventListener('load', updateTracker);
+
+    // ── Quote Calculator ──
+    function updateCalculator() {
+      const partnerRate = parseInt(document.getElementById('partner-rate').value) || 250;
+      const implHours = parseInt(document.getElementById('impl-hours').value) || 40;
+      const successWeeks = parseInt(document.getElementById('success-weeks').value) || 4;
+      const trainingDays = parseInt(document.getElementById('training-days').value) || 5;
+      const trainingRate = parseInt(document.getElementById('training-rate').value) || 2000;
+
+      const implTotal = partnerRate * implHours;
+      const successTotal = partnerRate * 10 * successWeeks; // 10 hours/week assumed
+      const trainingTotal = trainingRate * trainingDays;
+      const verityDeployment = 15000;
+      const verityTrainingCert = 7500;
+      const grandTotal = implTotal + successTotal + trainingTotal + verityDeployment + verityTrainingCert;
+      const partnerRevenue = implTotal + successTotal + trainingTotal;
+
+      document.getElementById('result-impl').textContent = '$' + implTotal.toLocaleString();
+      document.getElementById('result-success').textContent = '$' + successTotal.toLocaleString();
+      document.getElementById('result-training').textContent = '$' + trainingTotal.toLocaleString();
+      document.getElementById('result-total').textContent = '$' + grandTotal.toLocaleString();
+      document.getElementById('result-partner').textContent = '$' + partnerRevenue.toLocaleString();
+    }
+
+    // Initial calculation
+    updateCalculator();
+
+    // ── Copy to Clipboard ──
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '✓ Copied';
+        btn.style.color = 'var(--gold)';
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.style.color = '';
+        }, 2000);
+      });
+    }
+
+    // ── Generate Quote Template ──
+    function generateQuoteMarkdown() {
+      const tier = document.getElementById('tier-select').value;
+      const tierName = tier.charAt(0).toUpperCase() + tier.slice(1);
+      const partnerRate = parseInt(document.getElementById('partner-rate').value) || 250;
+      const implHours = parseInt(document.getElementById('impl-hours').value) || 40;
+      const successWeeks = parseInt(document.getElementById('success-weeks').value) || 4;
+      const trainingDays = parseInt(document.getElementById('training-days').value) || 5;
+      const trainingRate = parseInt(document.getElementById('training-rate').value) || 2000;
+      const implTotal = partnerRate * implHours;
+      const successTotal = partnerRate * 10 * successWeeks;
+      const trainingTotal = trainingRate * trainingDays;
+      const grandTotal = implTotal + successTotal + trainingTotal + 15000 + 7500;
+
+      const today = new Date().toISOString().split('T')[0];
+
+      return `# PROJECT QUOTE: Verity Core Banking Platform Pilot
+
+**Prepared For:** [Customer Bank Name]
+**Prepared By:** [Your Company Name]
+**Date:** ${today}
+**Quote ID:** [Unique ID]
+**Tier:** ${tierName}
+
+---
+
+## 1. Executive Summary
+
+This quote outlines the professional services and licensing required to execute a pilot deployment of the Verity Core Banking Platform (VCBP) at [Customer Bank Name], including mandatory Verity Professional Services for deployment assurance and training certification.
+
+---
+
+## 2. Pilot Scope
+
+- Deployment of Verity Core Engine and API Gateway on bank-provided infrastructure
+- Integration with one external rail (e.g., FedNow Sandbox, SWIFT Testnet)
+- Execution of formal smoke-test suite to verify TEE attestation and Merkle ledger integrity
+- Configuration of up to 3 sample banking products using the ASL Product Definition Engine
+- Staff training: Core Banking Operations, Compliance & Audit, Agent Management, System Administration
+- Duration: 4 Weeks
+
+---
+
+## 3. Pricing Summary
+
+| # | Description | Qty | Unit Price | Total (USD) |
+|---|---|---|---|---|
+| 1 | Verity Core Banking Platform Licence (Pilot) | 1 | $0.00 | **$0.00** |
+| 2 | Pilot Implementation & Integration Services | ${implHours} hrs | $${partnerRate}/hr | **$${implTotal.toLocaleString()}** |
+| 3 | Customer Success & Technical Account Management | ${successWeeks} wks | $${(partnerRate * 10).toLocaleString()}/wk | **$${successTotal.toLocaleString()}** |
+| 4 | **Verity Remote Professional Services — Pilot Deployment** (Required) | 1 | $15,000.00 | **$15,000.00** |
+| 5 | Staff Training Delivery (${trainingDays} days) | ${trainingDays} days | $${trainingRate.toLocaleString()}/day | **$${trainingTotal.toLocaleString()}** |
+| 6 | **Verity Remote Professional Services — Training Certification** (Required) | 1 | $7,500.00 | **$7,500.00** |
+
+| | |
+|---|---|
+| **Pilot Grand Total** | **$${grandTotal.toLocaleString()}** |
+
+---
+
+## 4. Verity Professional Services (Line Items 4 & 6)
+
+These mandatory services provide your team with direct, dedicated support from the Verity core engineering team for the duration of the pilot. Includes:
+
+**Pilot Deployment ($15,000):**
+- Priority Slack/WhatsApp channel for debugging and architectural guidance
+- Two scheduled video sessions for design review and performance tuning
+- Direct escalation path to resolve installation or integration blockers
+- Co-signed pilot close-out report for regulatory evidence
+
+**Training Certification ($7,500):**
+- Remote certification session with Verity engineering
+- Co-signed training completion certificates for customer staff
+- Regulatory evidence of formal platform training (DORA Art. 25, SWIFT CSCF v2026 §4.2)
+
+---
+
+## 5. Terms & Conditions
+
+- **Payment Terms:** 50% upfront upon quote acceptance, 50% upon pilot completion and delivery of the close-out report.
+- **Validity:** This quote is valid for 30 days from the date of issue.
+- **Pilot Licence:** The $0.00 pilot licence fee is extended exclusively to [Your Company Name] as an authorized Verity partner.
+`;
+    }
+
+    function downloadQuote() {
+      const md = generateQuoteMarkdown();
+      const blob = new Blob([md], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Verity_Pilot_Quote.md';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function copyQuoteToClipboard() {
+      const md = generateQuoteMarkdown();
+      navigator.clipboard.writeText(md).then(() => {
+        alert('Quote template copied to clipboard. Paste into your CRM or email.');
+      });
+    }
+
+    // ── Generate Invoice Template ──
+    function generateInvoiceMarkdown() {
+      const partnerRate = parseInt(document.getElementById('partner-rate').value) || 250;
+      const implHours = parseInt(document.getElementById('impl-hours').value) || 40;
+      const successWeeks = parseInt(document.getElementById('success-weeks').value) || 4;
+      const trainingDays = parseInt(document.getElementById('training-days').value) || 5;
+      const trainingRate = parseInt(document.getElementById('training-rate').value) || 2000;
+      const implTotal = partnerRate * implHours;
+      const successTotal = partnerRate * 10 * successWeeks;
+      const trainingTotal = trainingRate * trainingDays;
+      const subtotal = implTotal + successTotal + trainingTotal + 15000 + 7500;
+      const tax = Math.round(subtotal * 0.0); // tax rate adjustable
+      const total = subtotal + tax;
+
+      const today = new Date().toISOString().split('T')[0];
+      const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const invNum = 'INV-' + Date.now().toString(36).toUpperCase();
+
+      return `# INVOICE
+
+**Invoice Number:** ${invNum}
+**Date:** ${today}
+**Due Date:** ${dueDate}
+
+**From:**
+[Your Company Name]
+[Your Address]
+[Your Tax ID (if applicable)]
+
+**To:**
+[Customer Bank Name]
+[Customer Address]
+[Customer Contact Email]
+
+---
+
+| # | Description | Qty | Unit Price | Line Total (USD) |
+|---|---|---|---|---|
+| 1 | Verity Core Banking Platform Pilot Licence | 1 | $0.00 | **$0.00** |
+| 2 | Pilot Implementation Services (${implHours} hrs @ $${partnerRate}/hr) | ${implHours} | $${partnerRate} | **$${implTotal.toLocaleString()}** |
+| 3 | Customer Success Management (${successWeeks} wks) | ${successWeeks} | $${(partnerRate * 10).toLocaleString()} | **$${successTotal.toLocaleString()}** |
+| 4 | Verity Remote Professional Services — Pilot Deployment (Required) | 1 | $15,000.00 | **$15,000.00** |
+| 5 | Staff Training Delivery (${trainingDays} days) | ${trainingDays} | $${trainingRate.toLocaleString()} | **$${trainingTotal.toLocaleString()}** |
+| 6 | Verity Remote Professional Services — Training Certification (Required) | 1 | $7,500.00 | **$7,500.00** |
+
+| | |
+|---|---|
+| **Subtotal** | $${subtotal.toLocaleString()} |
+| **Tax** | $${tax.toLocaleString()} |
+| **TOTAL DUE** | **$${total.toLocaleString()}** |
+
+---
+
+**Payment Instructions:**
+- **Bank Name:** [Your Bank Name]
+- **Account Name:** [Your Company Account Name]
+- **Account Number:** [Your Account Number]
+- **Routing Number:** [Your Routing Number]
+- **Reference:** Please include Invoice Number ${invNum} in the payment reference field.
+
+**Thank you for your business.** Upon payment, we will commence the pilot according to the agreed-upon timeline. For any questions, please contact [Your Email].
+`;
+    }
+
+    function downloadInvoice() {
+      const md = generateInvoiceMarkdown();
+      const blob = new Blob([md], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Verity_Invoice.md';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function copyInvoiceToClipboard() {
+      const md = generateInvoiceMarkdown();
+      navigator.clipboard.writeText(md).then(() => {
+        alert('Invoice template copied to clipboard. Paste into your CRM or accounting system.');
+      });
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verity Core Banking — International Business Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&family=Barlow+Condensed:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --obsidian:    #08090b;
+      --vault:       #0d0f12;
+      --plate:       #111318;
+      --border:      #1e2128;
+      --border-hi:   #2e3240;
+      --gold:        #c9a84c;
+      --gold-bright: #e8c96a;
+      --gold-dim:    #7a6330;
+      --gold-glow:   rgba(201,168,76,0.12);
+      --amber:       #d4853a;
+      --emerald:     #2d6a4f;
+      --emerald-glow: rgba(45,106,79,0.4);
+      --rose:        #c94c4c;
+      --text-primary: #e8e4da;
+      --text-secondary: #8a8680;
+      --text-dim:    #4a4845;
+      --mono: 'JetBrains Mono', monospace;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --cond: 'Barlow Condensed', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--obsidian);
+      color: var(--text-primary);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.6;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+      pointer-events: none;
+      z-index: 998;
+    }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 36px;
+      background: rgba(8,9,11,0.92); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px);
+    }
+    .status-left { display: flex; align-items: center; gap: 1.5rem; }
+    .status-indicator { display: flex; align-items: center; gap: 0.4rem; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); }
+    .status-indicator .dot { width: 5px; height: 5px; border-radius: 50%; background: #2d6a2d; box-shadow: 0 0 6px #2d6a2d; animation: pulse-green 2.4s ease-in-out infinite; }
+    @keyframes pulse-green { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .status-right { font-size: 0.58rem; letter-spacing: 0.12em; color: var(--text-dim); font-family: var(--mono); }
+    .status-divider { width: 1px; height: 14px; background: var(--border); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 36px; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem; height: 64px;
+      background: rgba(8,9,11,0.88); border-bottom: 1px solid var(--border); backdrop-filter: blur(16px);
+    }
+    .nav-logo { display: flex; flex-direction: column; gap: 1px; text-decoration: none; }
+    .nav-logo-mark { font-family: var(--serif); font-size: 1.3rem; font-weight: 300; letter-spacing: 0.25em; color: var(--text-primary); line-height: 1; }
+    .nav-logo-mark span { color: var(--gold); }
+    .nav-logo-sub { font-size: 0.5rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-dim); font-family: var(--mono); }
+    .nav-links { display: flex; align-items: center; gap: 0; list-style: none; }
+    .nav-links a {
+      display: flex; align-items: center; gap: 0.5rem; padding: 0 1.4rem; height: 64px;
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--text-secondary); text-decoration: none; border-left: 1px solid var(--border);
+      transition: color 0.2s, background 0.2s; font-family: var(--mono); position: relative;
+    }
+    .nav-links a:last-child { border-right: 1px solid var(--border); }
+    .nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease; }
+    .nav-links a:hover { color: var(--gold); background: var(--gold-glow); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+    .nav-links .nav-icon { font-size: 0.7rem; opacity: 0.6; }
+    .nav-links a.primary-link { color: var(--gold); border-color: var(--gold-dim); background: rgba(201,168,76,0.06); }
+    .nav-links a.primary-link:hover { background: rgba(201,168,76,0.14); }
+
+    /* ── HERO ── */
+    .hero { min-height: 60vh; display: flex; align-items: center; justify-content: center; padding: 140px 3rem 4rem; position: relative; overflow: hidden; }
+    .hero-glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%); width: 700px; height: 700px; background: radial-gradient(ellipse at center, rgba(201,168,76,0.07) 0%, rgba(201,168,76,0.02) 40%, transparent 70%); pointer-events: none; }
+    .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 60px 60px; opacity: 0.35; pointer-events: none; mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 10%, transparent 75%); }
+    .corner { position: absolute; width: 40px; height: 40px; pointer-events: none; }
+    .corner.tl { top: 120px; left: 2rem; border-top: 1px solid var(--gold-dim); border-left: 1px solid var(--gold-dim); }
+    .corner.tr { top: 120px; right: 2rem; border-top: 1px solid var(--gold-dim); border-right: 1px solid var(--gold-dim); }
+    .corner.bl { bottom: 2rem; left: 2rem; border-bottom: 1px solid var(--gold-dim); border-left: 1px solid var(--gold-dim); }
+    .corner.br { bottom: 2rem; right: 2rem; border-bottom: 1px solid var(--gold-dim); border-right: 1px solid var(--gold-dim); }
+    .hero-inner { position: relative; max-width: 900px; text-align: center; z-index: 2; }
+    .hero-classification { display: inline-flex; align-items: center; gap: 0.75rem; padding: 0.35rem 1rem; border: 1px solid var(--border-hi); background: var(--plate); font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 2rem; }
+    .hero-classification .bracket { color: var(--gold-dim); }
+    .hero-eyebrow { font-size: 0.62rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.2rem; font-family: var(--mono); }
+    .hero-title { font-family: var(--serif); font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 300; line-height: 1.0; letter-spacing: 0.04em; color: var(--text-primary); margin-bottom: 0.3rem; }
+    .hero-title em { font-style: italic; color: var(--gold); }
+    .hero-title-sub { font-family: var(--serif); font-size: clamp(1rem, 2vw, 1.5rem); font-weight: 300; font-style: italic; color: var(--text-secondary); letter-spacing: 0.06em; margin-bottom: 2rem; }
+    .hero-rule { display: flex; align-items: center; gap: 1rem; margin: 0 auto 2rem; max-width: 500px; }
+    .hero-rule::before, .hero-rule::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dim)); }
+    .hero-rule::after { background: linear-gradient(90deg, var(--gold-dim), transparent); }
+    .hero-rule-icon { color: var(--gold); font-size: 0.6rem; }
+    .hero-desc { font-family: var(--serif); font-size: 1.05rem; font-weight: 300; line-height: 1.85; color: var(--text-secondary); max-width: 640px; margin: 0 auto 2.5rem; }
+
+    /* ── SECTIONS ── */
+    .section-pad { padding: 5rem 3rem; }
+    .section-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 3rem; }
+    .section-number { font-size: 0.5rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.5rem; }
+    .section-title { font-family: var(--serif); font-size: 2.2rem; font-weight: 300; letter-spacing: 0.05em; color: var(--text-primary); }
+    .section-title em { color: var(--gold); font-style: italic; }
+    .section-meta { font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); text-align: right; }
+    .section-desc { font-family: var(--mono); font-size: 0.65rem; max-width: 780px; margin-top: 1rem; color: var(--text-secondary); line-height: 1.8; }
+
+    /* ── CARDS & GRIDS ── */
+    .card-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .card-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .card-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .card-grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .bp-card { background: var(--vault); padding: 2rem 1.8rem; position: relative; transition: background 0.25s; overflow: hidden; }
+    .bp-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease; }
+    .bp-card:hover { background: var(--plate); }
+    .bp-card:hover::before { transform: scaleX(1); }
+    .bp-card-label { font-size: 0.48rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1rem; }
+    .bp-card-title { font-family: var(--cond); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 0.6rem; }
+    .bp-card-desc { font-size: 0.62rem; line-height: 1.75; color: var(--text-secondary); }
+    .bp-card-tag { margin-top: 1rem; font-size: 0.48rem; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; }
+
+    /* ── METRICS ── */
+    .metric-card-bp { background: var(--vault); padding: 2rem 1.5rem; position: relative; overflow: hidden; text-align: center; }
+    .metric-card-bp::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, var(--gold-dim), transparent); }
+    .metric-val { font-family: var(--serif); font-size: 2.5rem; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 0.3rem; }
+    .metric-val-sm { font-family: var(--serif); font-size: 1.5rem; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 0.3rem; }
+    .metric-unit { font-family: var(--mono); font-size: 0.7rem; color: var(--gold-dim); }
+    .metric-desc-bp { font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-secondary); line-height: 1.6; }
+    .metric-src { font-size: 0.45rem; letter-spacing: 0.1em; color: var(--text-dim); margin-top: 0.5rem; }
+
+    /* ── TABLE ── */
+    .bp-table-wrap { overflow-x: auto; border: 1px solid var(--border); background: var(--border); }
+    .bp-table { width: 100%; border-collapse: collapse; font-size: 0.55rem; }
+    .bp-table th { background: var(--plate); color: var(--gold); font-family: var(--cond); font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    .bp-table td { background: var(--vault); padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+    .bp-table tr:hover td { background: var(--plate); }
+    .bp-table .check { color: var(--emerald); }
+    .bp-table .cross { color: var(--rose); }
+    .bp-table .partial { color: var(--amber); }
+    .bp-table .highlight-cell { color: var(--gold); font-weight: 500; }
+
+    /* ── CHART CONTAINERS ── */
+    .chart-box { background: var(--vault); border: 1px solid var(--border); padding: 2rem; position: relative; }
+    .chart-box canvas { max-height: 400px; }
+    .chart-label { font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1rem; }
+
+    /* ── THEOREM STRIP ── */
+    .theorem-strip { padding: 0 3rem; margin: 2rem 0; }
+    .theorem-inner { border: 1px solid var(--border); background: var(--vault); padding: 2rem 2.5rem; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2rem; }
+    .theorem-label { font-size: 0.5rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.8rem; }
+    .theorem-text { font-family: var(--serif); font-size: 1.2rem; font-weight: 300; font-style: italic; color: var(--text-primary); line-height: 1.6; }
+    .theorem-proof { display: flex; flex-direction: column; gap: 0.5rem; text-align: right; }
+    .proof-tag { display: inline-flex; align-items: center; justify-content: flex-end; gap: 0.4rem; font-size: 0.48rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); }
+    .proof-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold-dim); }
+
+    /* ── TICKER ── */
+    .ticker-section { padding: 1.5rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; position: relative; }
+    .ticker-track { display: flex; gap: 0; animation: ticker 30s linear infinite; width: max-content; }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .ticker-item { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0 2.5rem; font-size: 0.52rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); white-space: nowrap; border-right: 1px solid var(--border); }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.9rem 2rem; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; text-decoration: none; position: relative; transition: all 0.2s ease; cursor: pointer; }
+    .btn-primary { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+    .btn-primary::before { content: ''; position: absolute; inset: 0; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease; z-index: -1; }
+    .btn-primary:hover { color: var(--obsidian); }
+    .btn-primary:hover::before { transform: scaleX(1); }
+    .btn-secondary { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-hi); }
+    .btn-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255,255,255,0.03); }
+    .btn-ghost { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--border-hi); color: var(--text-secondary); }
+
+    /* ── FOOTER ── */
+    footer { padding: 2rem 3rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .footer-brand { font-family: var(--serif); font-size: 0.9rem; font-weight: 300; letter-spacing: 0.2em; color: var(--text-secondary); }
+    .footer-brand span { color: var(--gold); }
+    .footer-tagline { font-size: 0.48rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); }
+    .footer-right { font-size: 0.5rem; letter-spacing: 0.15em; color: var(--text-dim); text-align: right; line-height: 1.8; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 1.5rem; }
+      .hero, .section-pad { padding: 120px 1.5rem 3rem; }
+      .card-grid-2, .card-grid-3, .card-grid-5 { grid-template-columns: 1fr 1fr; }
+      .card-grid-4 { grid-template-columns: 1fr 1fr; }
+      .section-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .theorem-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+      .theorem-proof { text-align: left; }
+      .proof-tag { justify-content: flex-start; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .footer-right { text-align: center; }
+    }
+    @media (max-width: 600px) {
+      .card-grid-2, .card-grid-3, .card-grid-4, .card-grid-5 { grid-template-columns: 1fr; }
+      .status-bar { display: none; }
+      nav { top: 0; }
+      .hero { padding-top: 80px; }
+      .corner.tl, .corner.tr { top: 60px; }
+    }
+    .gold { color: var(--gold); }
+    .dim  { color: var(--text-dim); }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ STATUS BAR ═══════════ -->
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="status-indicator"><span class="dot"></span><span>All systems nominal</span></div>
+      <div class="status-divider"></div>
+      <div class="status-indicator"><span>TEE Attestation Active</span></div>
+      <div class="status-divider"></div>
+      <div class="status-indicator"><span>Business Plan · Investor-Ready</span></div>
+    </div>
+    <div class="status-right">ARC42 v15.0+ · BIAN v14.0 · DORA · ISO 20022</div>
+  </div>
+
+  <!-- ═══════════ NAV ═══════════ -->
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-mark">VERITY<span>.</span></div>
+      <div class="nav-logo-sub">Core Banking Platform</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html"><span class="nav-icon">◆</span> Home</a></li>
+      <li><a href="download.html" class="primary-link"><span class="nav-icon">↓</span> Download</a></li>
+      <li><a href="pricing.html"><span class="nav-icon">◇</span> Pricing</a></li>
+      <li><a href="business_plan.html"><span class="nav-icon">▣</span> Business Plan</a></li>
+    </ul>
+  </nav>
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-grid"></div>
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+    <div class="hero-inner">
+      <div class="hero-classification">
+        <span class="bracket">[</span> DOCUMENT: International Business Plan · INVESTOR-READY <span class="bracket">]</span>
+      </div>
+      <div class="hero-eyebrow">Series A · $15M Raise · $368M ARR Target</div>
+      <h1 class="hero-title"><em>Verity</em><br />Business Plan</h1>
+      <div class="hero-title-sub">The Definitive Banking Operating System for the Agentic, Quantum, and Sovereignty Era</div>
+      <div class="hero-rule"><span class="hero-rule-icon">◆</span></div>
+      <p class="hero-desc">
+        Verity is the world's first mathematically verified, agent-native, and quantum-ready core banking operating system. Delivered as a single sovereign binary deployable on any infrastructure — including fully air-gapped environments — Verity is engineered for the convergence of three generational shifts: the agentic AI economy, the post-quantum cryptography migration, and the regulatory demand for digital operational sovereignty.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════ EXECUTIVE SUMMARY ═══════════ -->
+  <section class="section-pad" style="padding-top: 0;">
+    <div class="section-header">
+      <div>
+        <div class="section-number">01 · Executive Summary</div>
+        <div class="section-title">A <em>Generational</em> Infrastructure Company</div>
+      </div>
+      <div class="section-meta">$15M Series A · Pre-Money $18-22M</div>
+    </div>
+    <p class="section-desc">
+      The core banking software market reached $32.4 billion in 2025 and is projected to grow to approximately $50 billion by 2030. Verity targets the most demanding tier: regulated financial institutions requiring sovereign deployment, formal verification, and native support for AI agents as first-class banking customers. Verity has a production-ready platform (VCBP v15.0+), a tiered pricing model ($600K–$2.8M perpetual license plus 20% annual continuous assurance), and a roadmap of five modular extensions that collectively unlock a $368M ARR opportunity by Year 3. <strong>Ask: $15M Series A</strong> to fund regulatory certification, the build-out of five expansion modules, and initial go-to-market execution over 24 months.
+    </p>
+  </section>
+
+  <!-- ═══════════ METRICS STRIP ═══════════ -->
+  <div class="card-grid-4" style="margin: 0 3rem;">
+    <div class="metric-card-bp"><div class="metric-val">$32.4B</div><div class="metric-desc-bp">Core Banking Market 2025</div><div class="metric-src">→ $50B by 2030</div></div>
+    <div class="metric-card-bp"><div class="metric-val">$368M</div><div class="metric-desc-bp">Year 3 ARR Target</div><div class="metric-src">5-module expansion stack</div></div>
+    <div class="metric-card-bp"><div class="metric-val">$15M</div><div class="metric-desc-bp">Series A Raise</div><div class="metric-src">24-month runway</div></div>
+    <div class="metric-card-bp"><div class="metric-val">10⁻¹⁸</div><div class="metric-desc-bp">Attack Probability</div><div class="metric-src">Mathematically bounded</div></div>
+  </div>
+
+  <!-- ═══════════ SECTION 1: PRODUCT OVERVIEW ═══════════ -->
+  <section class="section-pad">
+    <div class="section-header">
+      <div>
+        <div class="section-number">02 · The Product</div>
+        <div class="section-title">What Verity <em>Is</em> Today</div>
+      </div>
+    </div>
+
+    <div class="card-grid-3" style="margin-bottom: 2rem;">
+      <div class="bp-card">
+        <div class="bp-card-label">Architecture</div>
+        <div class="bp-card-title">ARC42 v15.0+ Microkernel</div>
+        <div class="bp-card-desc">Capability-based security model. Zero ambient authority. Every operation requires an unforgeable PASETO v4 token. 328 BIAN v14.0 service domains. ISO 20022 CBPR+ native messaging.</div>
+        <div class="bp-card-tag">KERNEL-ENFORCED</div>
+      </div>
+      <div class="bp-card">
+        <div class="bp-card-label">Verification</div>
+        <div class="bp-card-title">TLA+ / Lean 4 Formally Verified</div>
+        <div class="bp-card-desc">Merkle-proofed, append-only double-entry ledger with runtime model checking. Compile-time regulatory enforcement via ASL — products that violate regulations cannot compile. Continuous theorem validation pipeline (VTVP).</div>
+        <div class="bp-card-tag">MATHEMATICALLY PROVEN</div>
+      </div>
+      <div class="bp-card">
+        <div class="bp-card-label">Security & Deployment</div>
+        <div class="bp-card-title">Sovereign Single Binary</div>
+        <div class="bp-card-desc">Single Rust binary. Air-gap capable. Bare-metal or Kubernetes. Concurrent multi-TEE (Intel TDX + AMD SEV-SNP) with automated CVE failover. NIST FIPS 203/204/205 post-quantum cryptography. Zero cloud dependency.</div>
+        <div class="bp-card-tag">10⁻¹⁸ ATTACK PROBABILITY</div>
+      </div>
+    </div>
+
+    <!-- Pricing Table -->
+    <div class="chart-label" style="margin-top: 3rem;">Current Pricing Model (Public)</div>
+    <div class="bp-table-wrap">
+      <table class="bp-table">
+        <thead>
+          <tr><th>Tier</th><th>License (Perpetual)</th><th>Continuous Assurance (Annual)</th><th>Target Segment</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="highlight-cell">Institutional</td><td>$600,000</td><td>$120,000/yr</td><td>Community banks, credit unions, small regionals</td></tr>
+          <tr><td class="highlight-cell">Professional</td><td>$1,400,000</td><td>$280,000/yr</td><td>Mid-tier regionals, large credit unions, challenger banks</td></tr>
+          <tr><td class="highlight-cell">Sovereign</td><td>$2,800,000</td><td>$560,000/yr</td><td>Central banks, G-SIBs, sovereign wealth funds, defence</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════ THEOREM STRIP ═══════════ -->
+  <div class="theorem-strip">
+    <div class="theorem-inner">
+      <div>
+        <div class="theorem-label">Platform Invariant · TLA+ Verified at Compile Time</div>
+        <div class="theorem-text">"The Conservation of Value invariant — Σ entries = 0 — is verified at compile time and continuously validated at runtime. No path exists by which funds can be created, destroyed, or double-spent. Fifteen independently verifiable architectural world firsts in a single platform."</div>
+      </div>
+      <div class="theorem-proof">
+        <div class="proof-tag"><span class="proof-dot"></span> TLA+ Verified</div>
+        <div class="proof-tag"><span class="proof-dot"></span> Lean 4 Type-Checked</div>
+        <div class="proof-tag"><span class="proof-dot"></span> Runtime Model Checker Active</div>
+        <div class="proof-tag"><span class="proof-dot"></span> Merkle Proof Per Transaction</div>
+        <div class="proof-tag"><span class="proof-dot"></span> NIST FIPS 203/204/205</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 2: MARKET ANALYSIS ═══════════ -->
+  <section class="section-pad">
+    <div class="section-header">
+      <div>
+        <div class="section-number">03 · Literature Review &amp; Market Analysis</div>
+        <div class="section-title">Converging <em>Market Tailwinds</em></div>
+      </div>
+    </div>
+
+    <!-- Market metrics -->
+    <div class="card-grid-5" style="margin-bottom: 2rem;">
+      <div class="metric-card-bp"><div class="metric-val-sm">$44.5B</div><div class="metric-desc-bp">Agentic AI Market 2030</div><div class="metric-src">44% CAGR</div></div>
+      <div class="metric-card-bp"><div class="metric-val-sm">$33T</div><div class="metric-desc-bp">Stablecoin TX Volume 2025</div><div class="metric-src">B2B +733% YoY</div></div>
+      <div class="metric-card-bp"><div class="metric-val-sm">$51.6B</div><div class="metric-desc-bp">RegTech Market 2030</div><div class="metric-src">17.3% CAGR</div></div>
+      <div class="metric-card-bp"><div class="metric-val-sm">$1.3T</div><div class="metric-desc-bp">Embedded Finance 2030</div><div class="metric-src">33.1% CAGR</div></div>
+      <div class="metric-card-bp"><div class="metric-val-sm">$320.7B</div><div class="metric-desc-bp">Cross-Border Payments 2030</div><div class="metric-src">7.1% CAGR</div></div>
+    </div>
+
+    <!-- Chart: Market Growth Rates -->
+    <div class="card-grid-2" style="margin-bottom: 2rem;">
+      <div class="chart-box">
+        <div class="chart-label">Revenue Projection (5-Year)</div>
+        <canvas id="chartRevenue"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-label">Market Growth Rates by Segment (CAGR %)</div>
+        <canvas id="chartMarkets"></canvas>
+      </div>
+    </div>
+
+    <p class="section-desc" style="max-width: 100%;">
+      <strong>Agentic AI in Banking:</strong> $490.2M (2024) → $4.49B by 2030 (45.4% CAGR). Fiserv launched agentOS in May 2026; Anchorage Digital launched "Agentic Banking" same month. The 1A1A paradigm is now being articulated independently by multiple players, validating Verity's architectural head start. <strong>Stablecoins:</strong> $33T on-chain volume in 2025, surpassing Visa + Mastercard combined. B2B stablecoin payments surged 730%. Citi projects $1.9T market cap by 2030. <strong>PQC Migration:</strong> Regulatory signals from USA, UK, EU, Canada, and Australia converge: migrate now. Verity is the only core banking platform with NIST FIPS 203/204/205 integrated at the ledger level. <strong>RegTech:</strong> $19.8B → $51.6B by 2030. Verity's compile-time regulatory enforcement (ASL) transforms compliance from a post-hoc audit cost into a structural property of the software.
+    </p>
+
+    <!-- Chart: TAM/SAM/SOM + Revenue Mix -->
+    <div class="card-grid-2" style="margin-top: 2rem;">
+      <div class="chart-box">
+        <div class="chart-label">TAM / SAM / SOM ($Billions)</div>
+        <canvas id="chartTAM"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-label">Year 3 Revenue Mix by Module</div>
+        <canvas id="chartMix"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SECTION 3: COMPETITIVE ANALYSIS ═══════════ -->
+  <section class="section-pad" style="padding-top: 0;">
+    <div class="section-header">
+      <div>
+        <div class="section-number">04 · Competitive Analysis</div>
+        <div class="section-title">Verity's <em>Defensible Moat</em></div>
+      </div>
+    </div>
+
+    <!-- Competitor Cards -->
+    <div class="card-grid-2" style="margin-bottom: 2rem;">
+      <div class="bp-card"><div class="bp-card-label">Fiserv agentOS</div><div class="bp-card-desc">AI-enhanced legacy platform. AWS Bedrock AgentCore integration. Launched May 2026, full availability August 2026. Focus: internal bank workflow automation. No formal verification, no sovereign single-binary deployment, no capability-based microkernel. <strong>Verity advantage:</strong> agentOS is an AI orchestration layer on legacy infrastructure; Verity's 1A1A framework is built into the kernel.</div></div>
+      <div class="bp-card"><div class="bp-card-label">Thought Machine Vault Core</div><div class="bp-card-desc">Smart-contract banking core. Strong composability. Trusted by Tier 1 banks including JPMorgan and Lloyds. No TLA+ verification, no agent-native identity, no concurrent multi-TEE trust layer. SaaS subscription pricing. <strong>Verity advantage:</strong> Formal verification, air-gap deployment, agent-native architecture.</div></div>
+      <div class="bp-card"><div class="bp-card-label">Mambu</div><div class="bp-card-desc">Cloud-based SaaS core banking for fintechs and banks. Claims 35–50% cost reduction vs. legacy. Freemium entry point. No formal verification, no agent-native features, no air-gap support. <strong>Verity advantage:</strong> Mambu targets the low-to-mid market; Verity targets the high-assurance sovereign tier.</div></div>
+      <div class="bp-card"><div class="bp-card-label">Temenos</div><div class="bp-card-desc">Average annual contract ~$518K. Mid-market implementations: $8–15M initial licensing + $2–4M annual maintenance. Implementation: 18–36 months. <strong>Verity advantage:</strong> Verity's perpetual license at $600K–$2.8M delivers significantly lower TCO.</div></div>
+      <div class="bp-card"><div class="bp-card-label">Anchorage Digital</div><div class="bp-card-desc">Federally chartered crypto bank. Launched "Agentic Banking" May 2026 with Google Cloud. 20 financial institutions queued for stablecoin issuance. Crypto-first. <strong>Verity advantage:</strong> Anchorage is crypto-first; Verity is banking-first with optional tokenized deposit capabilities. Anchorage requires Google Cloud; Verity deploys anywhere.</div></div>
+      <div class="bp-card"><div class="bp-card-label">10x Banking</div><div class="bp-card-desc">Cloud-native "meta core" platform. Volume-based SaaS pricing. No formal verification, no agent-native features. <strong>Verity advantage:</strong> Formal verification, sovereign deployment, broader service domain coverage (328 BIAN domains).</div></div>
+    </div>
+
+    <!-- Competitive Matrix Table -->
+    <div class="chart-label">Competitive Positioning Matrix</div>
+    <div class="bp-table-wrap">
+      <table class="bp-table">
+        <thead>
+          <tr><th>Capability</th><th>Verity</th><th>Fiserv agentOS</th><th>Thought Machine</th><th>Mambu</th><th>Temenos</th><th>Anchorage</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Formal Verification (TLA+/Lean 4)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+          <tr><td>Capability-Based Microkernel</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+          <tr><td>Agent-Native (1A1A)</td><td class="check">✓ Native</td><td class="partial">◐ Orchestration</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓ Agentic Banking</td></tr>
+          <tr><td>Post-Quantum Cryptography</td><td class="check">✓ NIST FIPS</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+          <tr><td>Concurrent Multi-TEE</td><td class="check">✓ TDX + SEV-SNP</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+          <tr><td>Air-Gap Sovereign Deployment</td><td class="check">✓ Single binary</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="partial">◐ Limited</td><td class="cross">✗</td></tr>
+          <tr><td>BIAN v14.0 (328 Domains)</td><td class="check">✓ Full</td><td class="partial">◐ Partial</td><td class="partial">◐ Partial</td><td class="partial">◐ Partial</td><td class="partial">◐ Partial</td><td class="cross">✗</td></tr>
+          <tr><td>Compile-Time Reg Enforcement</td><td class="check">✓ ASL</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+          <tr><td>Pricing Transparency</td><td class="check">✓ Public page</td><td class="cross">✗</td><td class="cross">✗</td><td class="partial">◐ Partial</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Chart: Competitor Radar -->
+    <div class="chart-box" style="margin-top: 2rem;">
+      <div class="chart-label">Competitive Capability Radar</div>
+      <canvas id="chartRadar" style="max-height: 450px;"></canvas>
+    </div>
+
+    <!-- Moat Summary -->
+    <div class="card-grid-5" style="margin-top: 2rem;">
+      <div class="bp-card"><div class="bp-card-title">5-10 Year Moat</div><div class="bp-card-desc">Formal verification cannot be retrofitted into existing codebases. TLA+ model checking and Lean 4 theorem proving represent a multi-year engineering investment no competitor has undertaken.</div></div>
+      <div class="bp-card"><div class="bp-card-title">Kernel-Level Security</div><div class="bp-card-desc">Zero ambient authority is a kernel property. No monolithic or microservices architecture can add this post-hoc without a complete rewrite.</div></div>
+      <div class="bp-card"><div class="bp-card-title">Compile-Time Compliance</div><div class="bp-card-desc">ASL makes regulatory compliance a compilation target. No other platform offers this. It transforms compliance from procedural to structural.</div></div>
+      <div class="bp-card"><div class="bp-card-title">Multi-TEE Trust</div><div class="bp-card-desc">Concurrent Intel TDX + AMD SEV-SNP with automated CVE failover. No single-vendor TEE lock-in. No competitor offers this.</div></div>
+      <div class="bp-card"><div class="bp-card-title">Sovereign by Default</div><div class="bp-card-desc">Single binary, zero cloud dependency. DORA and eIDAS 2.0 are making this a regulatory requirement that competitors must scramble to meet.</div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ TICKER ═══════════ -->
+  <div class="ticker-section">
+    <div class="ticker-track">
+      <span class="ticker-item">DORA Art. 5–14<span class="tick-sep">·</span></span>
+      <span class="ticker-item">ISO 20022 CBPR+<span class="tick-sep">·</span></span>
+      <span class="ticker-item">NIST FIPS 203/204/205<span class="tick-sep">·</span></span>
+      <span class="ticker-item">PCI DSS 4.0<span class="tick-sep">·</span></span>
+      <span class="ticker-item">BCBS 239<span class="tick-sep">·</span></span>
+      <span class="ticker-item">OWASP Agentic Top 10<span class="tick-sep">·</span></span>
+      <span class="ticker-item">EU AI Act Art. 9–11<span class="tick-sep">·</span></span>
+      <span class="ticker-item">eIDAS 2.0<span class="tick-sep">·</span></span>
+      <span class="ticker-item">SWIFT CSCF v2026<span class="tick-sep">·</span></span>
+      <span class="ticker-item">DORA Art. 5–14<span class="tick-sep">·</span></span>
+      <span class="ticker-item">ISO 20022 CBPR+<span class="tick-sep">·</span></span>
+      <span class="ticker-item">NIST FIPS 203/204/205<span class="tick-sep">·</span></span>
+      <span class="ticker-item">PCI DSS 4.0<span class="tick-sep">·</span></span>
+      <span class="ticker-item">BCBS 239<span class="tick-sep">·</span></span>
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 4: EXPANSION ROADMAP ═══════════ -->
+  <section class="section-pad">
+    <div class="section-header">
+      <div>
+        <div class="section-number">05 · Product Architecture &amp; Expansion Roadmap</div>
+        <div class="section-title">Five Modules, <em>$368M ARR</em> Potential</div>
+      </div>
+    </div>
+    <p class="section-desc">Each module follows the same architecture pattern as VCBP: a Rust service with capability-based security, gRPC interfaces, TEE attestation, and Merkle-proofed audit. They're not separate products — they're capability modules that plug into the microkernel. Transaction-based modules scale quadratically with network effects.</p>
+
+    <!-- Module Cards -->
+    <div class="card-grid-5" style="margin-top: 2rem; margin-bottom: 2rem;">
+      <div class="bp-card"><div class="bp-card-label">Module 1 · Build Order #1</div><div class="bp-card-title">verity-agentd</div><div class="bp-card-desc">Agent Banking Gateway. SDKs (Rust, Python, TypeScript). Agent registry (DID + capability map). Policy engine. REST/gRPC gateway. Taps $44.5B agentic AI market at 44% CAGR.</div><div class="bp-card-tag">Year 3: $93M ARR</div></div>
+      <div class="bp-card"><div class="bp-card-label">Module 2 · Build Order #2</div><div class="bp-card-title">verity-proved</div><div class="bp-card-desc">Regulatory Proof Engine. Cryptographically signed .proof packages. Merkle proofs + TLA+ invariants + Lean 4 certificates. Taps $51.6B RegTech market.</div><div class="bp-card-tag">Year 3: $21M ARR</div></div>
+      <div class="bp-card"><div class="bp-card-label">Module 3 · Build Order #3</div><div class="bp-card-title">VSM</div><div class="bp-card-desc">Verity Stablecoin Module. Tokenized deposit issuance. TEE-attested, Merkle-proofed, PQC-signed. Taps $33T stablecoin volume.</div><div class="bp-card-tag">Year 3: $67.5M ARR</div></div>
+      <div class="bp-card"><div class="bp-card-label">Module 4 · Build Order #4</div><div class="bp-card-title">verity-gatewayd</div><div class="bp-card-desc">Embedded Finance API Gateway. Developer portal, sandbox, usage metering. Taps $1.3T embedded finance market.</div><div class="bp-card-tag">Year 3: $11.9M ARR</div></div>
+      <div class="bp-card"><div class="bp-card-label">Module 5 · Build Order #5</div><div class="bp-card-title">verity-settled</div><div class="bp-card-desc">Cross-Border Settlement Rail. PQC-native, instant settlement. Undercuts SWIFT by 90%. Taps $320.7B cross-border market.</div><div class="bp-card-tag">Year 3: $125M ARR</div></div>
+    </div>
+
+    <!-- Chart: Module Revenue Stack -->
+    <div class="card-grid-2" style="margin-top: 2rem;">
+      <div class="chart-box">
+        <div class="chart-label">Module Revenue Stack — Year 3 ARR ($M)</div>
+        <canvas id="chartModuleRevenue"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-label">Revenue vs. Gross Profit (5-Year)</div>
+        <canvas id="chartRevProfit"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SECTION 5: GTM STRATEGY ═══════════ -->
+  <section class="section-pad" style="padding-top: 0;">
+    <div class="section-header">
+      <div>
+        <div class="section-number">06 · Go-to-Market Strategy</div>
+        <div class="section-title">Phased <em>Market Entry</em></div>
+      </div>
+    </div>
+
+    <div class="card-grid-3" style="margin-bottom: 2rem;">
+      <div class="bp-card"><div class="bp-card-label">Phase 1 · Months 1–12</div><div class="bp-card-title">Early Adopters</div><div class="bp-card-desc">Community banks and credit unions facing core vendor concentration risk. Fintech infrastructure companies needing sovereign, agent-native backends. Regulatory sandboxes (OCC, ECB, MAS, FCA). Target: 3–5 design partners at discounted Professional tier.</div></div>
+      <div class="bp-card"><div class="bp-card-label">Phase 2 · Months 12–24</div><div class="bp-card-title">Market Validation</div><div class="bp-card-desc">Mid-tier regional banks in EU (DORA-driven), Switzerland, Singapore. Central bank digital currency (CBDC) pilot programs. Government financial institutions requiring air-gapped deployment. Target: 10–15 customers across Professional and Sovereign tiers.</div></div>
+      <div class="bp-card"><div class="bp-card-label">Phase 3 · Months 24–36</div><div class="bp-card-title">Scale</div><div class="bp-card-desc">G-SIBs seeking quantum-safe migration paths. Sovereign wealth funds. Defence financial infrastructure. Target: 25–30 enterprise customers.</div></div>
+    </div>
+
+    <!-- Certification Roadmap -->
+    <div class="chart-label">Certification Roadmap</div>
+    <div class="bp-table-wrap">
+      <table class="bp-table">
+        <thead><tr><th>Certification</th><th>Timeline</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="highlight-cell">SOC 2 Type II</td><td>Months 3–6</td><td>Table stakes for any bank procurement</td></tr>
+          <tr><td class="highlight-cell">PCI DSS 4.0</td><td>Months 4–8</td><td>Required for any payment processing</td></tr>
+          <tr><td class="highlight-cell">ISO 27001:2022</td><td>Months 6–10</td><td>International information security standard</td></tr>
+          <tr><td class="highlight-cell">FAPI 2.0 Conformance</td><td>Months 8–12</td><td>Required for open banking compliance</td></tr>
+          <tr><td class="highlight-cell">eIDAS 2.0 Qualified Trust Service</td><td>Months 12–18</td><td>EU regulatory recognition</td></tr>
+          <tr><td class="highlight-cell">Common Criteria EAL4+</td><td>Months 18–24</td><td>Government/defence procurement</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════ SECTION 6: FINANCIAL PROJECTIONS ═══════════ -->
+  <section class="section-pad" style="padding-top: 0;">
+    <div class="section-header">
+      <div>
+        <div class="section-number">07 · Financial Projections</div>
+        <div class="section-title">Path to <em>$393M Revenue</em></div>
+      </div>
+    </div>
+
+    <!-- 5-Year Revenue Table -->
+    <div class="bp-table-wrap" style="margin-bottom: 2rem;">
+      <table class="bp-table">
+        <thead><tr><th>Metric</th><th>Year 1</th><th>Year 2</th><th>Year 3</th><th>Year 4</th><th>Year 5</th></tr></thead>
+        <tbody>
+          <tr><td class="highlight-cell">Core license customers</td><td>5</td><td>15</td><td>30</td><td>55</td><td>85</td></tr>
+          <tr><td>Avg. license fee (blended)</td><td>$750K</td><td>$900K</td><td>$1.1M</td><td>$1.3M</td><td>$1.5M</td></tr>
+          <tr><td>License revenue</td><td>$3.75M</td><td>$13.5M</td><td>$33.0M</td><td>$71.5M</td><td>$127.5M</td></tr>
+          <tr><td>Continuous assurance</td><td>$0.75M</td><td>$2.7M</td><td>$6.6M</td><td>$14.3M</td><td>$25.5M</td></tr>
+          <tr><td>Module revenue (annual)</td><td>$0.3M</td><td>$4.2M</td><td>$18.5M</td><td>$52.0M</td><td>$105.0M</td></tr>
+          <tr><td>Transaction revenue</td><td>$0.0M</td><td>$1.5M</td><td>$12.0M</td><td>$45.0M</td><td>$120.0M</td></tr>
+          <tr><td>Professional services</td><td>$1.0M</td><td>$3.0M</td><td>$6.0M</td><td>$10.0M</td><td>$15.0M</td></tr>
+          <tr style="border-top: 1px solid var(--gold-dim);"><td class="highlight-cell">Total Revenue</td><td class="highlight-cell">$5.8M</td><td class="highlight-cell">$24.9M</td><td class="highlight-cell">$76.1M</td><td class="highlight-cell">$192.8M</td><td class="highlight-cell">$393.0M</td></tr>
+          <tr><td>Gross Margin</td><td>75%</td><td>78%</td><td>82%</td><td>84%</td><td>86%</td></tr>
+          <tr><td>Gross Profit</td><td>$4.35M</td><td>$19.4M</td><td>$62.4M</td><td>$162.0M</td><td>$338.0M</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Funding Requirements -->
+    <div class="chart-label">Series A Use of Funds ($15M)</div>
+    <div class="bp-table-wrap" style="margin-bottom: 2rem;">
+      <table class="bp-table">
+        <thead><tr><th>Use of Funds</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td>Engineering (5 module build-out, 10 FTE × 24 months)</td><td>$4,800,000</td></tr>
+          <tr><td>Certifications (SOC 2, PCI DSS, ISO 27001, FAPI 2.0, eIDAS)</td><td>$1,500,000</td></tr>
+          <tr><td>Regulatory sandbox participation (4 jurisdictions)</td><td>$1,200,000</td></tr>
+          <tr><td>Go-to-market (sales, marketing, partnerships)</td><td>$3,500,000</td></tr>
+          <tr><td>Operations &amp; infrastructure</td><td>$1,500,000</td></tr>
+          <tr><td>Contingency (20%)</td><td>$2,500,000</td></tr>
+          <tr style="border-top: 1px solid var(--gold-dim);"><td class="highlight-cell">Total Series A Raise</td><td class="highlight-cell">$15,000,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════ SECTION 7: RISK ANALYSIS ═══════════ -->
+  <section class="section-pad" style="padding-top: 0;">
+    <div class="section-header">
+      <div>
+        <div class="section-number">08 · Risk Analysis &amp; Mitigation</div>
+        <div class="section-title">Anticipated <em>Risks,</em> Structured Mitigations</div>
+      </div>
+    </div>
+
+    <div class="card-grid-2" style="margin-bottom: 2rem;">
+      <div class="chart-box">
+        <div class="chart-label">Risk Probability vs. Impact Matrix</div>
+        <canvas id="chartRisk"></canvas>
+      </div>
+      <div class="bp-table-wrap">
+        <table class="bp-table">
+          <thead><tr><th>Risk</th><th>Probability</th><th>Impact</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight-cell">Agentic banking adoption slower than projected</td><td>Medium</td><td>High</td><td>Core platform revenue independent of agent adoption</td></tr>
+            <tr><td class="highlight-cell">Fiserv/Oracle/Temenos add formal verification</td><td>Low</td><td>Medium</td><td>5-10 year engineering investment; Verity has first-mover advantage</td></tr>
+            <tr><td class="highlight-cell">PQC standards change</td><td>Medium</td><td>Medium</td><td>Dual-signature transition architecture supports algorithm agility</td></tr>
+            <tr><td class="highlight-cell">TEE vulnerabilities discovered</td><td>Low</td><td>High</td><td>Concurrent multi-TEE with automated CVE failover</td></tr>
+            <tr><td class="highlight-cell">Sales cycle longer than projected</td><td>High</td><td>High</td><td>Design partner program, sandbox participation, regulatory relationships</td></tr>
+            <tr><td class="highlight-cell">Difficulty hiring formal methods engineers</td><td>Medium</td><td>Medium</td><td>Open-source ASL/seedvm builds community pipeline; academic partnerships</td></tr>
+            <tr><td class="highlight-cell">Export controls on PQC/confidential computing</td><td>Low</td><td>Medium</td><td>Open-source components provide transparency; sovereign deployment reduces jurisdictional risk</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SECTION 8: APPENDICES ═══════════ -->
+  <section class="section-pad" style="padding-top: 0;">
+    <div class="section-header">
+      <div>
+        <div class="section-number">09 · Appendices</div>
+        <div class="section-title">Standards, Components &amp; <em>Timelines</em></div>
+      </div>
+    </div>
+
+    <div class="card-grid-3" style="margin-bottom: 2rem;">
+      <div class="bp-card">
+        <div class="bp-card-title">Standards Conformance</div>
+        <div class="bp-card-desc">ARC42 v15.0+, BIAN v14.0 (328 domains), ISO 20022 CBPR+, DORA Art. 5–14, PCI DSS 4.0 / PCI PTS 6, BCBS 239, SWIFT CSCF v2026, NIST FIPS 203/204/205, OWASP Agentic Top 10 (ASI01–ASI10), EU AI Act Art. 9–11, 50, FDX API v6.5 / CFPB §1033, eIDAS 2.0 / FAPI 2.0, SOX ITGC / PCAOB AS5, XFS4IoT / CEN CWA 17852, ISO/IEC 25010.</div>
+      </div>
+      <div class="bp-card">
+        <div class="bp-card-title">Open-Source Components</div>
+        <div class="bp-card-desc"><strong>ASL/seedvm</strong> (Apache 2.0) — Account Specification Language compiler; ecosystem seeding. <strong>VeriChain</strong> (Apache 2.0) — Merkle-proofed audit chain; independent verification. These serve as both ecosystem builders and independent verification tools. Regulators and auditors can inspect the verification logic without accessing proprietary code.</div>
+      </div>
+      <div class="bp-card">
+        <div class="bp-card-title">Key Regulatory Timelines</div>
+        <div class="bp-card-desc"><strong>Jan 17, 2025:</strong> DORA enters into force (EU). <strong>Mar 31, 2025:</strong> PCI DSS 4.0 mandatory. <strong>Nov 22, 2025:</strong> ISO 20022 CBPR+ end of MT/ISO coexistence. <strong>2026:</strong> EU AI Act high-risk system obligations. <strong>2027:</strong> eIDAS 2.0 qualified trust services mandatory. <strong>2028–2030:</strong> Europol quantum threat warning window. <strong>2030–2035:</strong> Projected cryptographically relevant quantum computers.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ CLOSING THEOREM ═══════════ -->
+  <div class="theorem-strip">
+    <div class="theorem-inner">
+      <div>
+        <div class="theorem-label">Investment Thesis</div>
+        <div class="theorem-text">"Verity is not a core banking product. It is the first mathematically verified banking operating system purpose-built for the agentic, quantum, and sovereignty era. The architecture is proven. The market tailwinds are converging. The expansion modules are clearly defined. The path to $368M ARR is mapped. With $15M in Series A funding, Verity can execute on this plan and establish itself as the definitive banking operating system for the next thirty years."</div>
+      </div>
+      <div class="theorem-proof">
+        <div class="proof-tag"><span class="proof-dot"></span> $32.4B TAM → $50B by 2030</div>
+        <div class="proof-tag"><span class="proof-dot"></span> 15 Verified World Firsts</div>
+        <div class="proof-tag"><span class="proof-dot"></span> $368M Year 3 ARR Target</div>
+        <div class="proof-tag"><span class="proof-dot"></span> 10⁻¹⁸ Attack Probability</div>
+        <div class="proof-tag"><span class="proof-dot"></span> 99.999% Availability SLA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ FINAL CTA ═══════════ -->
+  <section class="final-cta" style="padding: 4rem 3rem 6rem; text-align: center;">
+    <div class="final-cta-glow" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(ellipse at 50% 100%, rgba(201,168,76,0.08) 0%, transparent 70%); pointer-events: none;"></div>
+    <div class="final-pre" style="font-size: 0.55rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1.5rem;">Ready to Deploy Sovereign Infrastructure</div>
+    <div class="final-title" style="font-family: var(--serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; color: var(--text-primary); margin-bottom: 1rem; line-height: 1.1;">The Next Era of Financial Infrastructure <em>Starts Here</em></div>
+    <div class="final-sub" style="font-family: var(--serif); font-style: italic; font-size: 1rem; color: var(--text-secondary); margin-bottom: 3rem;">Banking systems were designed for humans using software. Verity is designed for intelligent systems running economies.</div>
+    <div class="final-buttons" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+      <a href="download.html" class="btn btn-primary"><span>↓</span> Download Verity</a>
+      <a href="pricing.html" class="btn btn-secondary"><span>◇</span> View Pricing</a>
+      <a href="mailto:support@verity.io" class="btn btn-ghost"><span>→</span> Contact Sales</a>
+    </div>
+  </section>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer>
+    <div>
+      <div class="footer-brand">VERITY<span>.</span></div>
+      <div class="footer-tagline">Core Banking Platform · Business Plan v1.0</div>
+    </div>
+    <div class="footer-right">
+      ARC42 v15.0+ · BIAN v14.0 · DORA · ISO 20022<br />
+      © 2026 Verity Core Banking. All rights reserved.<br />
+      Confidential — For Qualified Investors Only
+    </div>
+  </footer>
+
+  <!-- ═══════════ CHART.JS INIT ═══════════ -->
+  <script>
+    Chart.defaults.color = '#8a8680';
+    Chart.defaults.borderColor = '#1e2128';
+    Chart.defaults.font.family = "'JetBrains Mono', monospace";
+    Chart.defaults.font.size = 10;
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(13,15,18,0.95)';
+    Chart.defaults.plugins.tooltip.borderColor = '#c9a84c';
+    Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.plugins.tooltip.titleFont = { family: "'Barlow Condensed', sans-serif", size: 11 };
+    Chart.defaults.plugins.tooltip.bodyFont = { family: "'JetBrains Mono', monospace", size: 9 };
+
+    // ── 1. Revenue Projection ──
+    new Chart(document.getElementById('chartRevenue'), {
+      type: 'bar',
+      data: {
+        labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+        datasets: [
+          { label: 'License Revenue', data: [3.75, 13.5, 33.0, 71.5, 127.5], backgroundColor: 'rgba(201,168,76,0.6)', borderColor: '#c9a84c', borderWidth: 1 },
+          { label: 'Module Revenue', data: [0.3, 4.2, 18.5, 52.0, 105.0], backgroundColor: 'rgba(212,133,58,0.6)', borderColor: '#d4853a', borderWidth: 1 },
+          { label: 'Transaction Revenue', data: [0, 1.5, 12.0, 45.0, 120.0], backgroundColor: 'rgba(45,106,79,0.6)', borderColor: '#2d6a4f', borderWidth: 1 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { labels: { color: '#8a8680', usePointStyle: true, pointStyleWidth: 8 } } },
+        scales: {
+          x: { grid: { color: 'rgba(30,33,40,0.3)' }, ticks: { color: '#4a4845' } },
+          y: { grid: { color: 'rgba(30,33,40,0.3)' }, ticks: { color: '#4a4845', callback: v => '$' + v + 'M' }, title: { display: true, text: 'Revenue ($M)', color: '#7a6330' } }
+        }
+      }
+    });
+
+    // ── 2. Market Growth Rates ──
+    new Chart(document.getElementById('chartMarkets'), {
+      type: 'bar',
+      data: {
+        labels: ['Agentic AI\nBanking', 'Stablecoin\nInfra', 'Embedded\nFinance', 'Composable\nBanking', 'RegTech', 'Cross-Border\nPayments'],
+        datasets: [
+          { label: 'CAGR %', data: [44, 42, 33.1, 22.3, 17.3, 7.1], backgroundColor: ['rgba(201,168,76,0.7)', 'rgba(201,168,76,0.6)', 'rgba(212,133,58,0.6)', 'rgba(45,106,79,0.6)', 'rgba(122,99,48,0.5)', 'rgba(74,72,69,0.5)'], borderColor: '#c9a84c', borderWidth: 1 }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(30,33,40,0.3)' }, ticks: { color: '#4a4845', callback: v => v + '%' } },
+          y: { grid: { display: false }, ticks: { color: '#8a8680', font: { size: 8 } } }
+        }
+      }
+    });
+
+    // ── 3. TAM/SAM/SOM ──
+    new Chart(document.getElementById('chartTAM'), {
+      type: 'bar',
+      data: {
+        labels: ['TAM\nCore Banking\n$32.4B', 'SAM\nSovereign/\nAgentic Tier\n$4.8B', 'SOM\nYear 3\n$76.1M'],
+        datasets: [
+          { label: 'Market Size ($B)', data: [32.4, 4.8, 0.076], backgroundColor: ['rgba(201,168,76,0.3)', 'rgba(201,168,76,0.5)', 'rgba(201,168,76,0.9)'], borderColor: '#c9a84c', borderWidth: 1 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#8a8680', font: { size: 8 } } },
+          y: { grid: { color: 'rgba(30,33,40,0.3)' }, ticks: { color: '#4a4845', callback: v => '$' + v + 'B' }, type: 'logarithmic' }
+        }
+      }
+    });
+
+    // ── 4. Revenue Mix Donut ──
+    new Chart(document.getElementById('chartMix'), {
+      type: 'doughnut',
+      data: {
+        labels: ['verity-agentd', 'verity-settled', 'VSM', 'Core VCBP', 'verity-proved', 'verity-gatewayd'],
+        datasets: [{
+          data: [93, 125, 67.5, 50, 21, 11.9],
+          backgroundColor: ['rgba(201,168,76,0.8)', 'rgba(212,133,58,0.7)', 'rgba(45,106,79,0.7)', 'rgba(122,99,48,0.6)', 'rgba(232,201,106,0.5)', 'rgba(74,72,69,0.5)'],
+          borderColor: '#0d0f12',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { position: 'bottom', labels: { color: '#8a8680', padding: 12, usePointStyle: true, pointStyleWidth: 8, font: { size: 8 } } } }
+      }
+    });
+
+    // ── 5. Competitor Radar ──
+    new Chart(document.getElementById('chartRadar'), {
+      type: 'radar',
+      data: {
+        labels: ['Formal\nVerification', 'Capability\nMicrokernel', 'Agent-\nNative', 'Post-Quantum\nCrypto', 'Multi-TEE', 'Air-Gap\nSovereign', 'Compile-Time\nCompliance', 'Pricing\nTransparency'],
+        datasets: [
+          { label: 'Verity', data: [100, 100, 100, 100, 100, 100, 100, 100], borderColor: '#c9a84c', backgroundColor: 'rgba(201,168,76,0.15)', borderWidth: 2, pointBackgroundColor: '#c9a84c' },
+          { label: 'Fiserv agentOS', data: [10, 10, 60, 5, 5, 5, 5, 5], borderColor: '#8a8680', backgroundColor: 'rgba(138,134,128,0.05)', borderWidth: 1, borderDash: [4, 4] },
+          { label: 'Thought Machine', data: [15, 10, 10, 5, 5, 10, 5, 15], borderColor: '#4a4845', backgroundColor: 'rgba(74,72,69,0.05)', borderWidth: 1, borderDash: [4, 4] },
+          { label: 'Anchorage', data: [5, 5, 80, 5, 10, 5, 5, 10], borderColor: '#d4853a', backgroundColor: 'rgba(212,133,58,0.05)', borderWidth: 1, borderDash: [4, 4] }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { position: 'bottom', labels: { color: '#8a8680', usePointStyle: true, font: { size: 8 } } } },
+        scales: { r: { angleLines: { color: 'rgba(30,33,40,0.5)' }, grid: { color: 'rgba(30,33,40,0.5)' }, pointLabels: { color: '#8a8680', font: { size: 7 } }, ticks: { display: false, stepSize: 20 } } }
+      }
+    });
+
+    // ── 6. Module Revenue Stack ──
+    new Chart(document.getElementById('chartModuleRevenue'), {
+      type: 'bar',
+      data: {
+        labels: ['verity-\nsettled', 'verity-\nagentd', 'VSM', 'Core\nVCBP', 'verity-\nproved', 'verity-\ngatewayd'],
+        datasets: [
+          { label: 'Year 3 ARR ($M)', data: [125, 93, 67.5, 50, 21, 11.9], backgroundColor: ['rgba(212,133,58,0.7)', 'rgba(201,168,76,0.7)', 'rgba(45,106,79,0.7)', 'rgba(122,99,48,0.6)', 'rgba(232,201,106,0.5)', 'rgba(74,72,69,0.5)'], borderColor: '#c9a84c', borderWidth: 1 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#8a8680', font: { size: 7 } } },
+          y: { grid: { color: 'rgba(30,33,40,0.3)' }, ticks: { color: '#4a4845', callback: v => '$' + v + 'M' } }
+        }
+      }
+    });
+
+    // ── 7. Revenue vs. Gross Profit ──
+    new Chart(document.getElementById('chartRevProfit'), {
+      type: 'line',
+      data: {
+        labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+        datasets: [
+          { label: 'Total Revenue', data: [5.8, 24.9, 76.1, 192.8, 393.0], borderColor: '#c9a84c', backgroundColor: 'rgba(201,168,76,0.1)', borderWidth: 2, tension: 0.3, fill: true, pointBackgroundColor: '#c9a84c' },
+          { label: 'Gross Profit', data: [4.35, 19.4, 62.4, 162.0, 338.0], borderColor: '#2d6a4f', backgroundColor: 'rgba(45,106,79,0.1)', borderWidth: 2, tension: 0.3, fill: true, pointBackgroundColor: '#2d6a4f' }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { labels: { color: '#8a8680', usePointStyle: true } } },
+        scales: {
+          x: { grid: { color: 'rgba(30,33,40,0.3)' }, ticks: { color: '#4a4845' } },
+          y: { grid: { color: 'rgba(30,33,40,0.3)' }, ticks: { color: '#4a4845', callback: v => '$' + v + 'M' } }
+        }
+      }
+    });
+
+    // ── 8. Risk Matrix (Bubble) ──
+    new Chart(document.getElementById('chartRisk'), {
+      type: 'bubble',
+      data: {
+        datasets: [
+          { label: 'Agentic adoption', data: [{ x: 3, y: 4, r: 15 }], backgroundColor: 'rgba(212,133,58,0.6)', borderColor: '#d4853a' },
+          { label: 'Competitor response', data: [{ x: 1, y: 3, r: 10 }], backgroundColor: 'rgba(74,72,69,0.6)', borderColor: '#4a4845' },
+          { label: 'PQC standards', data: [{ x: 3, y: 3, r: 12 }], backgroundColor: 'rgba(201,168,76,0.5)', borderColor: '#c9a84c' },
+          { label: 'TEE vulnerability', data: [{ x: 1, y: 5, r: 14 }], backgroundColor: 'rgba(201,76,76,0.6)', borderColor: '#c94c4c' },
+          { label: 'Sales cycle', data: [{ x: 5, y: 5, r: 18 }], backgroundColor: 'rgba(201,76,76,0.5)', borderColor: '#c94c4c' },
+          { label: 'Talent', data: [{ x: 3, y: 2, r: 11 }], backgroundColor: 'rgba(201,168,76,0.4)', borderColor: '#c9a84c' },
+          { label: 'Export controls', data: [{ x: 2, y: 3, r: 9 }], backgroundColor: 'rgba(74,72,69,0.5)', borderColor: '#4a4845' }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#8a8680', usePointStyle: true, font: { size: 7 } } },
+          tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': Prob ' + ctx.raw.x + '/5, Impact ' + ctx.raw.y + '/5' } }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Probability →', color: '#7a6330' }, min: 0, max: 6, grid: { color: 'rgba(30,33,40,0.3)' }, ticks: { color: '#4a4845', stepSize: 1 } },
+          y: { title: { display: true, text: 'Impact →', color: '#7a6330' }, min: 0, max: 6, grid: { color: 'rgba(30,33,40,0.3)' }, ticks: { color: '#4a4845', stepSize: 1 } }
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
